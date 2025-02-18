@@ -12,8 +12,27 @@ config_version=5
 
 config/name="Color The Picture"
 run/main_scene="uid://bnxj7rhwgcg67"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.3", "Forward Plus")
+run/max_fps=120
+run/low_processor_mode=true
+run/delta_smoothing=false
 config/icon="res://icon.svg"
+
+[autoload]
+
+SvgScaler="*res://svg_scaler.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+
+[display]
+
+window/stretch/mode="canvas_items"
+
+[gui]
+
+common/snap_controls_to_pixels=false
 
 [physics]
 
@@ -24,9 +43,8 @@ common/enable_object_picking=false
 
 [rendering]
 
-renderer/rendering_method="mobile"
+textures/canvas_textures/default_texture_filter=3
 textures/vram_compression/import_etc2_astc=true
 2d/shadow_atlas/size=128
 textures/default_filters/use_nearest_mipmap_filter=true
-limits/global_shader_variables/buffer_size=1024
 anti_aliasing/quality/msaa_2d=2
