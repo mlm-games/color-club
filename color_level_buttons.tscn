@@ -4,7 +4,9 @@
 [ext_resource type="Script" uid="uid://nrwj0bdmixfh" path="res://color_level_buttons.gd" id="2_4saup"]
 
 [node name="TextureButton" type="TextureButton"]
-offset_right = 674.0
-offset_bottom = 674.0
+offset_left = 644.0
+offset_top = 71.0
+offset_right = 1318.0
+offset_bottom = 745.0
 texture_normal = ExtResource("1_pkfa7")
 script = ExtResource("2_4saup")

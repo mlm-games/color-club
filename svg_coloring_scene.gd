@@ -24,8 +24,8 @@ func setup_coloring_areas() -> void:
 		interactive_areas[area_id] = coloring_area
 		add_child(coloring_area)
 
-func create_coloring_area(area_data: Area2D) -> ColoringArea:
+func create_coloring_area(area_data: SVGColorExtractor.ColorArea) -> ColoringArea:
 	var area = ColoringArea.new()
 	area.initialize(area_data)
-	area.area_clicked.connect(_on_area_clicked)
+	#area.area_clicked.connect(_on_area_clicked)
 	return area

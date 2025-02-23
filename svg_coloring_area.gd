@@ -19,15 +19,15 @@ func initialize(data: SVGColorExtractor.ColorArea) -> void:
 
 func create_collision_shape() -> void:
 	var collision = CollisionPolygon2D.new()
-	collision.polygon = SVGPathParser.path_to_points(area_data.path_data)
+	#collision.polygon = SVGParser.path_to_points(area_data.path_data)
 	add_child(collision)
 
-func create_fill_mesh() -> void:
-	mesh_instance = MeshInstance2D.new()
-	mesh_instance.mesh = create_polygon_mesh(
-		SVGPathParser.path_to_points(area_data.path_data)
-	)
-	add_child(mesh_instance)
+#func create_fill_mesh() -> void:
+	#mesh_instance = MeshInstance2D.new()
+	#mesh_instance.mesh = create_polygon_mesh(
+		#SVGParser.path_to_points(area_data.path_data)
+	#)
+	#add_child(mesh_instance)
 
 func set_color(color: Color) -> void:
 	current_color = color

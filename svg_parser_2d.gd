@@ -17,7 +17,7 @@ func _run() -> void:
 		print("Error opening file: ", file_path)
 		return
 	root_node = self.get_scene()
-	current_node.owner = root_node
+	current_node = root_node
 	
 	#clear tree
 	for c in root_node.get_children():
@@ -30,6 +30,7 @@ Loop through all nodes and create the respective element.
 """
 func parse() -> void:
 	print("start parsing ...")
+	
 	while xml_data.read() == OK:
 		if not xml_data.get_node_type() in [XMLParser.NODE_ELEMENT, XMLParser.NODE_ELEMENT_END]:
 			continue
@@ -45,6 +46,7 @@ func parse() -> void:
 		elif xml_data.get_node_name() == "path":
 			process_svg_path(xml_data)
 	print("... end parsing")
+
 
 
 
@@ -114,101 +116,111 @@ func process_svg_polygon(element:XMLParser) -> void:
 
 
 func process_svg_path(element:XMLParser) -> void:
-	#prepare element string
+	print("Processing path with d=", element.get_named_attribute_value("d"))
+	
 	var element_string = element.get_named_attribute_value("d")
 	for symbol in ["m", "M", "v", "V", "h", "H", "l", "L", "c", "C", "s", "S", "z", "Z"]:
 		element_string = element_string.replacen(symbol, " " + symbol + " ")
 	element_string = element_string.replacen(",", " ")
 	
+	print("Processed element string:", element_string)
+	
 	#split element string into multiple arrays
 	var element_string_array = element_string.split(" ", false)
 	var string_arrays = []
 	var string_array : PackedStringArray
+	
 	for a in element_string_array:
-		if a == "m" or a == "M":
+		if a in ["m", "M"]:
 			if string_array.size() > 0:
 				string_arrays.append(string_array)
-				string_array.resize(0)
+			string_array = PackedStringArray()
 		string_array.append(a)
-	string_arrays.append(string_array)
+	
+	if string_array.size() > 0:
+		string_arrays.append(string_array)
+		
+	print("Number of path segments:", string_arrays.size())
+	for arr in string_arrays:
+		print("Path segment:", arr)
 	
 	#convert into Line2Ds
 	var string_array_count = -1
-	for string_array_temp in string_arrays:
+	for current_array in string_arrays:
 		var cursor = Vector2.ZERO
 		var points : PackedVector2Array
 		var curve = Curve2D.new()
 		string_array_count += 1
 		
-		for i in string_array.size()-1:
-			match string_array[i]:
+		for i in current_array.size()-1:
+			match current_array[i]:
 				"m":
-					while string_array.size() > i + 2 and string_array[i+1].is_valid_float():
-						cursor += Vector2(float(string_array[i+1]), float(string_array[i+2]))
+					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
+						cursor += Vector2(float(current_array[i+1]), float(current_array[i+2]))
 						points.append(cursor)
 						i += 2
 				"M":
-					while string_array.size() > i + 2 and string_array[i+1].is_valid_float():
-						cursor = Vector2(float(string_array[i+1]), float(string_array[i+2]))
+					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
+						cursor = Vector2(float(current_array[i+1]), float(current_array[i+2]))
 						points.append(cursor)
 						
-						curve.add_point(Vector2(float(string_array[i+1]), float(string_array[i+2])))
+						curve.add_point(Vector2(float(current_array[i+1]), float(current_array[i+2])))
 						
 						i += 2
 				"v":
-					while string_array[i+1].is_valid_float():
-						cursor.y += float(string_array[i+1])
+					while current_array[i+1].is_valid_float():
+						cursor.y += float(current_array[i+1])
 						points.append(cursor)
 						i += 1
 				"V":
-					while string_array[i+1].is_valid_float():
-						cursor.y = float(string_array[i+1])
+					while current_array[i+1].is_valid_float():
+						cursor.y = float(current_array[i+1])
 						points.append(cursor)
 						i += 1
 				"h":
-					while string_array[i+1].is_valid_float():
-						cursor.x += float(string_array[i+1])
+					while current_array[i+1].is_valid_float():
+						cursor.x += float(current_array[i+1])
 						points.append(cursor)
 						i += 1
 				"H":
-					while string_array[i+1].is_valid_float():
-						cursor.x = float(string_array[i+1])
+					while current_array[i+1].is_valid_float():
+						cursor.x = float(current_array[i+1])
 						points.append(cursor)
 						i += 1
 				"l":
-					while string_array.size() > i + 2 and string_array[i+1].is_valid_float():
-						cursor += Vector2(float(string_array[i+1]), float(string_array[i+2]))
+					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
+						cursor += Vector2(float(current_array[i+1]), float(current_array[i+2]))
 						points.append(cursor)
 						i += 2
 				"L":
-					while string_array.size() > i + 2 and string_array[i+1].is_valid_float():
-						cursor = Vector2(float(string_array[i+1]), float(string_array[i+2]))
+					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
+						cursor = Vector2(float(current_array[i+1]), float(current_array[i+2]))
 						points.append(cursor)
 						i += 2
 				#simpify Bezier curves with straight line
 				"c": 
-					while string_array.size() > i + 6 and string_array[i+1].is_valid_float():
-						cursor += Vector2(float(string_array[i+5]), float(string_array[i+6]))
+					while current_array.size() > i + 6 and current_array[i+1].is_valid_float():
+						cursor += Vector2(float(current_array[i+5]), float(current_array[i+6]))
 						points.append(cursor)
 						i += 6
 				"C":
-					while string_array.size() > i + 6 and string_array[i+1].is_valid_float():
-						var controll_point_in = Vector2(float(string_array[i+5]), float(string_array[i+6])) - cursor
-						cursor = Vector2(float(string_array[i+5]), float(string_array[i+6]))
+					while current_array.size() > i + 6 and current_array[i+1].is_valid_float():
+						var controll_point_in = Vector2(float(current_array[i+5]), float(current_array[i+6])) - cursor
+						cursor = Vector2(float(current_array[i+5]), float(current_array[i+6]))
 						points.append(cursor)
 						curve.add_point(	cursor,
-											-cursor + Vector2(float(string_array[i+3]), float(string_array[i+4])),
-											cursor - Vector2(float(string_array[i+3]), float(string_array[i+4]))
+											-cursor + Vector2(float(current_array[i+3]), float(current_array[i+4])),
+											cursor - Vector2(float(current_array[i+3]), float(current_array[i+4]))
 										)
 						i += 6
 				"s":
-					while string_array.size() > i + 4 and string_array[i+1].is_valid_float():
-						cursor += Vector2(float(string_array[i+3]), float(string_array[i+4]))
+					while current_array.size() > i + 4 and current_array[i+1].is_valid_float():
+						cursor += Vector2(float(current_array[i+3]), float(current_array[i+4]))
 						points.append(cursor)
 						i += 4
 				"S":
-					while string_array.size() > i + 4 and string_array[i+1].is_valid_float():
-						cursor = Vector2(float(string_array[i+3]), float(string_array[i+4]))
+					while current_array.size() > i + 4 and current_array[i+1].is_valid_float():
+						cursor = Vector2(float(current_array[i+3]), float(current_array[i+4]))
 						points.append(cursor)
 						i += 4
 		
@@ -268,7 +280,16 @@ func create_line2d(	name:String,
 	if style.has("stroke"):
 		new_line.default_color = Color(style["stroke"])
 	if style.has("stroke-width"):
+		#var line = Line2D.new() 
 		new_line.width = float(style["stroke-width"])
+		#new_path.add_child(line)
+		#
+		## Sample points along curve
+		#var curve_points = []
+		#var step = 0.1
+		#for i in range(0, 1.0, step):
+			#points.append(curve.interpolate(i))
+		#line.points = points
 
 
 func create_polygon2d(	name:String, 
@@ -325,6 +346,15 @@ static func get_svg_transform(element:XMLParser) -> Transform2D:
 
 static func get_svg_style(element:XMLParser) -> Dictionary:
 	var style = {}
+	
+	# Check direct attributes first
+	if element.has_attribute("fill"):
+		style["fill"] = element.get_named_attribute_value("fill")
+	if element.has_attribute("stroke"):
+		style["stroke"] = element.get_named_attribute_value("stroke") 
+	if element.has_attribute("stroke-width"):
+		style["stroke-width"] = element.get_named_attribute_value("stroke-width")
+		
 	if element.has_attribute("style"):
 		var svg_style = element.get_named_attribute_value("style")
 		svg_style = svg_style.replacen(":", "\":\"")

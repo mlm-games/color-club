@@ -20,7 +20,7 @@ config/icon="res://assets/art/icon.svg"
 
 [autoload]
 
-SvgScaler="*res://svg_renderer.gd"
+SvgScaler="res://svg_renderer.gd"
 
 [debug]
 
