@@ -1,6 +1,6 @@
-extends Sprite2D
+extends TextureButton
 
-var SourcePath: String = texture.resource_path # Store the path of the SVG this sprite is using.
+var SourcePath: String = texture_normal.resource_path # Store the path of the SVG this sprite is using.
 @onready var SVGScaleMaster: Node2D = SvgScaler  # $".."  # A reference to the node containing the SVG Scaling script, in this case it is the root node
 
 func _ready() -> void:
@@ -10,7 +10,7 @@ func _ready() -> void:
 
 func _on_rescale(SVG:String,TEX:ImageTexture,AR:Vector2,LS:Vector2) -> void:
 	if SourcePath == SVG: # If the modified SVG is the same as the one this sprite is using
-		texture = TEX # Update the displayed texture with the re-scaled one
+		texture_normal = TEX # Update the displayed texture_normal with the re-scaled one
 		#position.y = position.y/ LS.y * AR.y / get_window().content_scale_size.y # Keep relative sprite positioning on Y axis only
 		position = position / LS * AR / Vector2(get_window().content_scale_size) # Keep relative sprite positioning (works best if aspect ratio is locked)
 

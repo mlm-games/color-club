@@ -12,15 +12,15 @@ config_version=5
 
 config/name="Color The Picture"
 run/main_scene="uid://bnxj7rhwgcg67"
-config/features=PackedStringArray("4.3", "Forward Plus")
+config/features=PackedStringArray("4.4", "Forward Plus")
 run/max_fps=120
 run/low_processor_mode=true
 run/delta_smoothing=false
-config/icon="res://icon.svg"
+config/icon="res://assets/art/icon.svg"
 
 [autoload]
 
-SvgScaler="*res://svg_scaler.gd"
+SvgScaler="*res://svg_renderer.gd"
 
 [debug]
 
