@@ -8,6 +8,29 @@ class_name ArcTest extends Node2D
 
 var _point2 : Vector2
 
+func _ready() -> void:
+	# Creating a circle programmatically
+	var circle = SVGCircle.new()
+	circle.radius = 50
+	circle.fill_color = Color.BLUE
+	circle.stroke_color = Color.WHITE
+	circle.stroke_width = 2
+	circle.position = Vector2(100, 100)
+	add_child(circle)
+
+	# Or using the helper method
+	var attributes = {
+		"cx": "100",
+		"cy": "100",
+		"r": "50",
+		"fill": "#0000FF",
+		"stroke": "#FFFFFF",
+		"stroke-width": "2",
+		"opacity": "1",
+		"id": "my_circle"
+	}
+	circle.set_circle_properties(attributes)
+
 func _draw() -> void:
 	# Calculate the arc parameters.
 	var center : Vector2 = Vector2((_point2.x - point1.x) / 2,

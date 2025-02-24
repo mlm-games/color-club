@@ -22,35 +22,75 @@ func _run() -> void:
 			match node_name:
 				"rect":
 					print("The ", node_name, " element has the following attributes: ", attributes_dict)
-					#create_rect_shape(attributes_dict)
-					print(create_rect_shape(attributes_dict).global_position)
-				
+					var shape = create_rect_shape(attributes_dict)
+					#print(create_rect_shape(attributes_dict).global_position)
+					self.get_scene().add_child(shape)
+					shape.owner = self.get_scene()
+				"circle":
+					#print(create_circle_shape(attributes_dict).global_position)
+					#self.get_scene().add_child(create_circle_shape(attributes_dict))
+					var shape = create_circle_shape(attributes_dict)
+					self.get_scene().add_child(shape)
+					shape.owner = self.get_scene()
+				"path":
+					var shape = create_path_shape(attributes_dict)
+					#self.get_scene().add_child(shape)
+					#shape.owner = self.get_scene()
 
-func create_rect_shape(attributes_dict: Dictionary) -> ColorRect:
-	var rect: ColorRect = ColorRect.new() 
+
+func create_rect_shape(attributes_dict: Dictionary) -> Panel:
+	var panel := Panel.new()
+	var style_box := StyleBoxFlat.new()
+	panel.add_theme_stylebox_override("panel", style_box)
+	
 	for attribute in attributes_dict:
 		match attribute:
-			"id": 
-				rect.name = attributes_dict[attribute]
+			"id":
+				panel.name = attributes_dict[attribute]
 			"x":
-				rect.position.x = float(attributes_dict[attribute])
+				panel.position.x = float(attributes_dict[attribute])
 			"y":
-				rect.position.y = float(attributes_dict[attribute])
+				panel.position.y = float(attributes_dict[attribute])
 			"width":
-				rect.size.x = float(attributes_dict[attribute])
+				panel.custom_minimum_size.x = float(attributes_dict[attribute])
 			"height":
-				rect.size.y = float(attributes_dict[attribute])
+				panel.custom_minimum_size.y = float(attributes_dict[attribute])
 			"opacity":
-				rect.modulate.a = float(attributes_dict[attribute])
+				panel.modulate.a = float(attributes_dict[attribute])
 			"rx":
-				# Handle rounded corners later... (ColorRect does not support this directly)
-				pass
+				style_box.corner_radius_top_left = float(attributes_dict[attribute])
+				style_box.corner_radius_top_right = float(attributes_dict[attribute])
+				style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
+				style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
 			"ry":
-				# Handle rounded corners later... (ColorRect does not support this directly)
+				# Can be used in combination with rx for different horizontal/vertical rounding
 				pass
 			"fill":
-				#TODO: Add smooth anim to coloring
-				
-				rect.color = Color(attributes_dict[attribute])
+				style_box.bg_color = Color(attributes_dict[attribute])
+			
+	return panel
 
-	return rect
+func create_circle_shape(attributes_dict: Dictionary) -> SVGCircle:
+	var circle := SVGCircle.new()
+	circle.set_circle_properties(attributes_dict)
+	return circle
+
+func create_path_shape(attributes_dict: Dictionary) -> SVGPath:
+	var path := SVGPath.new()
+	
+	for attribute in attributes_dict:
+		match attribute:
+			"id":
+				path.name = attributes_dict[attribute]
+			"d":
+				path.set_path_data(attributes_dict[attribute])
+			"stroke":
+				path.stroke_color = Color(attributes_dict[attribute])
+			"stroke-width":
+				path.stroke_width = float(attributes_dict[attribute])
+			"fill":
+				path.fill_color = Color(attributes_dict[attribute])
+			"opacity":
+				path.modulate.a = float(attributes_dict[attribute])
+	
+	return path
