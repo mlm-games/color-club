@@ -4,7 +4,7 @@
 
 class_name SVGParser extends EditorScript
 
-var file_path = "res://icon_outline.svg"
+var file_path = "res://icon.svg"
 var use_path2d = false #true to deploy Path2D for vector paths
 
 var xml_data = XMLParser.new()
@@ -345,17 +345,23 @@ static func get_svg_transform(element:XMLParser) -> Transform2D:
 
 
 static func get_svg_style(element:XMLParser) -> Dictionary:
-	var style = {}
-	
+	var style : Dictionary = {}
+	var style_flags : Array[StringName] = ["fill", "stroke", "stroke-width", "stop-color", "fill-opacity", "stroke-opacity", "stop-opacity", "stroke-miterlimit", "stroke-linejoin", "stroke-linecap"]
 	# Check direct attributes first
-	if element.has_attribute("fill"):
-		style["fill"] = element.get_named_attribute_value("fill")
-	if element.has_attribute("stroke"):
-		style["stroke"] = element.get_named_attribute_value("stroke") 
-	if element.has_attribute("stroke-width"):
-		style["stroke-width"] = element.get_named_attribute_value("stroke-width")
+	for attribute in style_flags:
+		if element.has_attribute(attribute):
+			style[attribute] = element.get_named_attribute_value_safe(attribute)
 		
 	if element.has_attribute("style"):
+		pairs = style_str.split(';')
+		for pair in pairs:
+			pair = pair.strip()
+			if ':' in pair:
+				key, value = pair.split(':', 1)
+				key = key.strip().lower()
+				value = value.strip()
+				# Handle possible units or special values
+				style[key] = value
 		var svg_style = element.get_named_attribute_value("style")
 		svg_style = svg_style.replacen(":", "\":\"")
 		svg_style = svg_style.replacen(";", "\",\"")
