@@ -14,6 +14,7 @@ func on_play_clickd() -> void:
 	tween.tween_property(%PlayButton, "modulate", Color.TRANSPARENT, 0.2)
 	%PlayButton.hide()
 	populate_pics()
+	#add_child(SVGPath.new(SVGPath.Type.CURVE_TO, 0, 0 ,20 ,20 ,30, 40))
 
 func populate_pics() -> void:
 	add_child(ColorPicScene.instantiate())

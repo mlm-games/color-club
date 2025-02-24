@@ -2,20 +2,24 @@
 
 ## Used from https://github.com/pixelriot/SVG2Godot/blob/c70cfee4a2a396a795326b567d01f977c81c42c7/SVGParser.gd
 
-class_name SVGParser extends Node
+class_name SVGParser extends Node2D
 
-var file_path = "res://assets/art/test1.svg"
-var use_path2d = false #true to deploy Path2D for vector paths
+var file_path = "res://map01.svg" #"res://assets/art/test1.svg"
+@export var use_path2d = false #true to deploy Path2D for vector paths
+
+var current_node : Node
 
 var xml_data = XMLParser.new()
-var root_node : Node
-var current_node : Node
 const MAX_WIDTH = 7.0
 
 @export var run: bool = false:
 	set(val):
 		run = val
-		run_call.emit()
+		if val == true: 
+			run_call.emit()
+		else: 
+			for i in get_children():
+				i.queue_free()
 signal run_call
 
 func _ready() -> void:
@@ -26,11 +30,10 @@ func _run() -> void:
 	if xml_data.open(file_path) != OK:
 		print("Error opening file: ", file_path)
 		return
-	root_node = self
-	current_node = root_node
+	current_node = self
 	
 	#clear tree
-	for c in root_node.get_children():
+	for c in get_children():
 		c.queue_free()
 	
 	parse()
@@ -49,8 +52,8 @@ func parse() -> void:
 				process_group(xml_data)
 			elif xml_data.get_node_type() == XMLParser.NODE_ELEMENT_END:
 				current_node = current_node.get_parent()
-		elif xml_data.get_node_name() == "rect":
-			process_svg_rectangle(xml_data)
+		#elif xml_data.get_node_name() == "rect":
+			#process_svg_rectangle(xml_data)
 		elif xml_data.get_node_name() == "polygon":
 			process_svg_polygon(xml_data)
 		elif xml_data.get_node_name() == "path":
@@ -65,46 +68,44 @@ func process_group(element:XMLParser) -> void:
 	new_group.name = element.get_named_attribute_value("id")
 	new_group.transform = get_svg_transform(element)
 	current_node.add_child(new_group)
-	new_group.owner = root_node
 	new_group.set_meta("_edit_group_", true)
 	current_node = new_group
 	print("group " + new_group.name + " created")
 
 
-func process_svg_rectangle(element:XMLParser) -> void:
-	var new_rect = ColorRect.new()
-	new_rect.name = element.get_named_attribute_value("id")
-	current_node.add_child(new_rect)
-	new_rect.owner = root_node
-	
-	#transform
-	var x = float(element.get_named_attribute_value("x"))
-	var y = float(element.get_named_attribute_value("y"))
-	var width = float(element.get_named_attribute_value("width"))
-	var height = float(element.get_named_attribute_value("height"))
-	var transform = get_svg_transform(element)
-	new_rect.position = Vector2((x), (y))
-	new_rect.size = Vector2(width, height)
-	new_rect.position = transform * new_rect.position
-	new_rect.size.x *= transform[0][0] 
-	new_rect.size.y *= transform[1][1]
-	
-	#style
-	var style = get_svg_style(element)
-	if style.has("fill"):
-		new_rect.color = Color(style["fill"])
-	if style.has("fill-opacity"):
-		new_rect.color.a = float(style["fill-opacity"])
-		
-	print("-rect ", new_rect.name, " created")
+#func process_svg_rectangle(element:XMLParser) -> void:
+	#var new_rect = ColorRect.new()
+	#new_rect.name = element.get_named_attribute_value("id")
+	#current_node.add_child(new_rect)
+	#
+	##transform
+	#var x = float(element.get_named_attribute_value("x"))
+	#var y = float(element.get_named_attribute_value("y"))
+	#var width = float(element.get_named_attribute_value("width"))
+	#var height = float(element.get_named_attribute_value("height"))
+	#var transform = get_svg_transform(element)
+	#new_rect.position = Vector2((x), (y))
+	#new_rect.size = Vector2(width, height)
+	#new_rect.position = transform * new_rect.position
+	#new_rect.size.x *= transform[0][0] 
+	#new_rect.size.y *= transform[1][1]
+	##style
+	#var style = get_svg_style(element)
+	#if style.has("fill"):
+		#new_rect.color = Color(style["fill"])
+	#if style.has("fill-opacity"):
+		#new_rect.color.a = float(style["fill-opacity"])
+		#
+	#print("-rect ", new_rect.name, " created")
 
 
 func process_svg_polygon(element:XMLParser) -> void:
 	var points : PackedVector2Array
-	var points_split = element.get_named_attribute_value("points").split(" ", false)
+	var points_split = element.get_named_attribute_value("d").split(" ", false)
 	for i in points_split:
 		var values = i.split_floats(",", false)
 		points.append(Vector2(values[0], values[1]))
+		await get_tree().create_timer(0.5).timeout
 	points.append(points[0])
 
 	#create closed line
@@ -112,8 +113,8 @@ func process_svg_polygon(element:XMLParser) -> void:
 	new_line.name = element.get_named_attribute_value("id")
 	new_line.transform = get_svg_transform(element)
 	current_node.add_child(new_line)
-	new_line.owner = root_node
 	new_line.points = points
+	
 	
 	#style
 	var style = get_svg_style(element)
@@ -264,7 +265,6 @@ func create_path2d(	name:String,
 	new_path.name = name
 	new_path.transform = transform
 	parent.add_child(new_path)
-	new_path.owner = root_node
 	new_path.curve = curve
 	
 	#style
@@ -283,8 +283,8 @@ func create_line2d(	name:String,
 	new_line.name = name
 	new_line.transform = transform
 	parent.add_child(new_line)
-	new_line.owner = root_node
 	new_line.points = points
+	await get_tree().create_timer(0.5).timeout
 	
 	#style
 	if style.has("stroke"):
@@ -314,7 +314,7 @@ func create_polygon2d(	name:String,
 		new_poly = Polygon2D.new()
 		new_poly.name = name
 		parent.add_child(new_poly)
-		new_poly.owner = root_node
+
 		new_poly.transform = transform
 		new_poly.polygon = points
 		new_poly.color = Color(style["fill"])
@@ -328,7 +328,7 @@ func create_polygon2d(	name:String,
 		else:
 			parent.add_child(new_outline)
 			new_outline.transform = transform
-		new_outline.owner = root_node
+
 		points.append(points[0])
 		new_outline.points = points
 		

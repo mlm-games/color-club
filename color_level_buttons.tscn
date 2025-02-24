@@ -1,9 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://cptdr4cx7eus7"]
+[gd_scene load_steps=5 format=3 uid="uid://cptdr4cx7eus7"]
 
 [ext_resource type="Texture2D" uid="uid://dojnp54fgwmag" path="res://icon.svg" id="1_pkfa7"]
 [ext_resource type="Script" uid="uid://nrwj0bdmixfh" path="res://color_level_buttons.gd" id="2_4saup"]
+[ext_resource type="Script" uid="uid://5kay7sc2jioj" path="res://svg_parser_2d.gd" id="3_d8ioo"]
+[ext_resource type="Script" uid="uid://cssf3c3hw8scc" path="res://arc_test.gd" id="4_5you3"]
 
 [node name="TextureButton" type="TextureButton"]
+self_modulate = Color(1, 1, 1, 0.2)
 offset_left = 644.0
 offset_top = 71.0
 offset_right = 1318.0
@@ -11,53 +14,13 @@ offset_bottom = 745.0
 texture_normal = ExtResource("1_pkfa7")
 script = ExtResource("2_4saup")
 
-[node name="rect1" type="ColorRect" parent="."]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 126.0
-offset_bottom = 126.0
-color = Color(0.701961, 0.701961, 0.701961, 1)
+[node name="SVGParser" type="Node2D" parent="."]
+script = ExtResource("3_d8ioo")
+run = true
+metadata/_custom_type_script = "uid://5kay7sc2jioj"
 
-[node name="g4" type="Node2D" parent="."]
-position = Vector2(-210, -165)
-metadata/_edit_group_ = true
-
-[node name="path1_0" type="Polygon2D" parent="g4"]
-color = Color(0.627451, 0.352941, 0.172549, 1)
-polygon = PackedVector2Array(105, 673, 105, -33)
-
-[node name="path1_0_stroke" type="Line2D" parent="g4/path1_0"]
-points = PackedVector2Array(105, 673, 105, -33, 105, 673)
-width = 9.90099
-default_color = Color(0, 0, 0, 1)
-
-[node name="path2_0" type="Polygon2D" parent="g4"]
-color = Color(0.627451, 0.352941, 0.172549, 1)
-polygon = PackedVector2Array(105, 673, 152, 14, 1, 15, 14, 0, 4, 67, 132, 10, 4, 67, 132, 10, 8, 61)
-
-[node name="path2_0_stroke" type="Line2D" parent="g4/path2_0"]
-points = PackedVector2Array(105, 673, 152, 14, 1, 15, 14, 0, 4, 67, 132, 10, 4, 67, 132, 10, 8, 61, 105, 673)
-width = 9.90099
-default_color = Color(0, 0, 0, 1)
-
-[node name="path2_1" type="Polygon2D" parent="g4"]
-color = Color(0.627451, 0.352941, 0.172549, 1)
-polygon = PackedVector2Array(0, 33, 0, 39, 814, 0, 814, -39, -134, 12, -162, 11, 446, 11, -10, 65)
-
-[node name="path2_1_stroke" type="Line2D" parent="g4/path2_1"]
-points = PackedVector2Array(0, 33, 0, 39, 814, 0, 814, -39, -134, 12, -162, 11, 446, 11, -10, 65, 0, 33)
-width = 9.90099
-default_color = Color(0, 0, 0, 1)
-
-[node name="path3_0" type="Polygon2D" parent="g4"]
-color = Color(0.627451, 0.352941, 0.172549, 1)
-polygon = PackedVector2Array(483, 600, 58, 0, 58, -86)
-
-[node name="path3_0_stroke" type="Line2D" parent="g4/path3_0"]
-points = PackedVector2Array(483, 600, 58, 0, 58, -86, 483, 600)
-width = 9.90099
-default_color = Color(0, 0, 0, 1)
-
-[node name="g6" type="Node2D" parent="."]
-metadata/_edit_group_ = true
+[node name="ArcTest" type="Node2D" parent="."]
+position = Vector2(-83, 508)
+script = ExtResource("4_5you3")
+point1 = Vector2(0, 500)
+metadata/_custom_type_script = "uid://cssf3c3hw8scc"
