@@ -4,7 +4,7 @@
 
 class_name SVGParser extends EditorScript
 
-var file_path = "res://map01.svg"  #"res://assets/art/test1.svg"
+var file_path = "res://assets/art/test1.svg"
 var use_path2d = false #true to deploy Path2D for vector paths
 
 var xml_data = XMLParser.new()
@@ -118,65 +118,63 @@ func process_svg_path(element: XMLParser) -> void:
 	var path_data = element.get_named_attribute_value("d")
 	print("Processing path with d=", path_data)
 	
-	# Handle double periods in numbers (e.g., "0..5" -> "0.5")
-	var double_period_regex = RegEx.new()
-	double_period_regex.compile("\\.\\.")
-	var matches = double_period_regex.search_all(path_data)
-	for match in matches:
-		var fixed_number = match.get_string().replace("..", ".")
-		path_data = path_data.replace(match.get_string(), fixed_number)
-	
 	# Normalize path data
-	for symbol in ["m", "M", "v", "V", "h", "H", "l", "L", "c", "C", "s", "S", "q", "Q", "t", "T", "a", "A", "z", "Z"]:
+	for symbol in ["M", "L", "H", "V", "C", "S", "Q", "T", "A", "Z", 
+				  "m", "l", "h", "v", "c", "s", "q", "t", "a", "z"]:
 		path_data = path_data.replacen(symbol, " " + symbol + " ")
 	path_data = path_data.replacen(",", " ")
 	
-	print("Processed path data:", path_data)
+	# Split into commands
+	var commands = path_data.split(" ", false)
+	var points = PackedVector2Array()
+	var cursor = Vector2.ZERO
+	var start_pos = Vector2.ZERO
+	var is_closed = false
 	
-	# Split into command arrays
-	var path_commands = path_data.split(" ", false)
-	var command_groups = []
-	var current_group : PackedStringArray
+	var i = 0
+	while i < commands.size():
+		var cmd = commands[i]
+		match cmd:
+			"M", "m":
+				if commands.size() > i + 2 and commands[i+1].is_valid_float():
+					var point = Vector2(float(commands[i+1]), float(commands[i+2]))
+					if cmd == "m":
+						point += cursor
+					cursor = point
+					if points.is_empty():
+						start_pos = cursor
+						points.append(cursor)
+					else:
+						points.append(cursor)
+					i += 3
+				else:
+					i += 1
+			
+			"L", "l":
+				if commands.size() > i + 2 and commands[i+1].is_valid_float():
+					var point = Vector2(float(commands[i+1]), float(commands[i+2]))
+					if cmd == "l":
+						point += cursor
+					cursor = point
+					points.append(cursor)
+					i += 3
+				else:
+					i += 1
+			
+			"Z", "z":
+				is_closed = true
+				cursor = start_pos
+				if points.size() > 0 and points[0] != points[points.size() - 1]:
+					points.append(points[0])  # Close the path
+				i += 1
+			
+			_:
+				i += 1
 	
-	# Group commands by their starting move command
-	for cmd in path_commands:
-		if cmd in ["m", "M"]:
-			if current_group != null and current_group.size() > 0:
-				command_groups.append(current_group)
-			current_group = PackedStringArray()
-		if cmd != "":
-			current_group.append(cmd)
-	
-	if current_group != null and current_group.size() > 0:
-		command_groups.append(current_group)
-	
-	print("Number of path segments:", command_groups.size())
-	
-	# Process each command group
-	var group_index = -1
-	for command_group in command_groups:
-		var cursor = Vector2.ZERO
-		var start_pos = Vector2.ZERO
-		var points : PackedVector2Array
-		var curve = Curve2D.new()
-		var last_control = Vector2.ZERO
-		var last_cubic_control = Vector2.ZERO
-		group_index += 1
-		
-		process_command_group(command_group, cursor, start_pos, points, curve, last_control, last_cubic_control)
-		
-		# Create appropriate node based on path type
-		if use_path2d and curve.get_point_count() > 1:
-			create_path2d(
-				element.get_named_attribute_value("id") + "_" + str(group_index),
-				current_node,
-				curve,
-				get_svg_transform(element),
-				get_svg_style(element)
-			)
-		elif command_group[command_group.size()-1].to_upper() == "Z":
+	if points.size() >= 2:  # Only create if we have at least 2 points
+		if is_closed:
 			create_polygon2d(
-				element.get_named_attribute_value("id") + "_" + str(group_index),
+				element.get_named_attribute_value("id") + "_0",
 				current_node,
 				points,
 				get_svg_transform(element),
@@ -184,195 +182,39 @@ func process_svg_path(element: XMLParser) -> void:
 			)
 		else:
 			create_line2d(
-				element.get_named_attribute_value("id") + "_" + str(group_index),
+				element.get_named_attribute_value("id") + "_0",
 				current_node,
 				points,
 				get_svg_transform(element),
 				get_svg_style(element)
 			)
 
-func process_command_group(command_group: PackedStringArray, cursor: Vector2, start_pos: Vector2, 
-						 points: PackedVector2Array, curve: Curve2D, 
-						 last_control: Vector2, last_cubic_control: Vector2) -> void:
-	var i := 0
-	while i < command_group.size():
-		match command_group[i]:
-			"m", "M":
-				if command_group.size() > i + 2 and command_group[i+1].is_valid_float():
-					var point = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					if command_group[i] == "m":
-						point += cursor
-					cursor = point
-					if points.is_empty():
-						start_pos = cursor
-						points.append(cursor)
-						curve.add_point(cursor)
-					else:
-						points.append(cursor)
-						curve.add_point(cursor)
-					i += 3
-				else:
-					i += 1
-
-			"l", "L":
-				if command_group.size() > i + 2 and command_group[i+1].is_valid_float():
-					var point = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					if command_group[i] == "l":
-						point += cursor
-					cursor = point
-					points.append(cursor)
-					curve.add_point(cursor)
-					i += 3
-				else:
-					i += 1
-
-			"h", "H":
-				if command_group.size() > i + 1 and command_group[i+1].is_valid_float():
-					var x = float(command_group[i+1])
-					if command_group[i] == "h":
-						cursor.x += x
-					else:
-						cursor.x = x
-					points.append(cursor)
-					curve.add_point(cursor)
-					i += 2
-				else:
-					i += 1
-
-			"v", "V":
-				if command_group.size() > i + 1 and command_group[i+1].is_valid_float():
-					var y = float(command_group[i+1])
-					if command_group[i] == "v":
-						cursor.y += y
-					else:
-						cursor.y = y
-					points.append(cursor)
-					curve.add_point(cursor)
-					i += 2
-				else:
-					i += 1
-
-			"c", "C":
-				if command_group.size() > i + 6 and command_group[i+1].is_valid_float():
-					var control1 = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					var control2 = Vector2(float(command_group[i+3]), float(command_group[i+4]))
-					var end = Vector2(float(command_group[i+5]), float(command_group[i+6]))
-					
-					if command_group[i] == "c":
-						control1 += cursor
-						control2 += cursor
-						end += cursor
-					
-					curve.add_point(end, control1 - end, control2 - end)
-					points.append(end)
-					last_cubic_control = control2
-					cursor = end
-					i += 7
-				else:
-					i += 1
-
-			"s", "S":
-				if command_group.size() > i + 4 and command_group[i+1].is_valid_float():
-					var control2 = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					var end = Vector2(float(command_group[i+3]), float(command_group[i+4]))
-					var control1 = cursor + (cursor - last_cubic_control)
-					
-					if command_group[i] == "s":
-						control2 += cursor
-						end += cursor
-					
-					curve.add_point(end, control1 - end, control2 - end)
-					points.append(end)
-					last_cubic_control = control2
-					cursor = end
-					i += 5
-				else:
-					i += 1
-			
-			"q", "Q":
-				if command_group.size() > i + 4 and command_group[i+1].is_valid_float():
-					var control = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					var end = Vector2(float(command_group[i+3]), float(command_group[i+4]))
-					
-					if command_group[i] == "q":
-						control += cursor
-						end += cursor
-					
-					# Convert quadratic to cubic Bezier for Curve2D
-					var cubic_control1 = cursor + (control - cursor) * (2.0/3.0)
-					var cubic_control2 = end + (control - end) * (2.0/3.0)
-					
-					curve.add_point(end, cubic_control1 - end, cubic_control2 - end)
-					points.append(end)
-					last_control = control
-					cursor = end
-					i += 5
-				else:
-					i += 1
-
-			"t", "T":
-				if command_group.size() > i + 2 and command_group[i+1].is_valid_float():
-					var end = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					if command_group[i] == "t":
-						end += cursor
-					
-					# Reflect previous control point
-					var control = cursor + (cursor - last_control)
-					
-					# Convert quadratic to cubic Bezier
-					var cubic_control1 = cursor + (control - cursor) * (2.0/3.0)
-					var cubic_control2 = end + (control - end) * (2.0/3.0)
-					
-					curve.add_point(end, cubic_control1 - end, cubic_control2 - end)
-					points.append(end)
-					last_control = control
-					cursor = end
-					i += 3
-				else:
-					i += 1
-
-			"a", "A":
-				if command_group.size() > i + 7 and command_group[i+1].is_valid_float():
-					var radius = Vector2(float(command_group[i+1]), float(command_group[i+2]))
-					var angle = deg_to_rad(float(command_group[i+3]))
-					var large_arc = bool(int(command_group[i+4]))
-					var sweep = bool(int(command_group[i+5]))
-					var end = Vector2(float(command_group[i+6]), float(command_group[i+7]))
-					
-					if command_group[i] == "a":
-						end += cursor
-					
-					# Convert arc to cubic bezier approximation
-					var arc_points = approximate_arc_to_bezier(
-						cursor,
-						end,
-						radius,
-						angle,
-						large_arc,
-						sweep
-					)
-					
-					for p in arc_points:
-						points.append(p.point)
-						if p.has("control1") and p.has("control2"):
-							curve.add_point(p.point, p.control1, p.control2)
-						else:
-							curve.add_point(p.point)
-					
-					cursor = end
-					i += 8
-				else:
-					i += 1
-
-			"z", "Z":
-				if points.size() > 0:
-					points.append(start_pos)
-					curve.add_point(start_pos)
-				cursor = start_pos
-				i += 1
-			
-			_:
-				i += 1
+func create_polygon2d(name: String, parent: Node, points: PackedVector2Array, transform: Transform2D, style: Dictionary) -> void:
+	var new_poly = Polygon2D.new()
+	new_poly.name = name
+	new_poly.transform = transform
+	parent.add_child(new_poly)
+	new_poly.owner = root_node
+	new_poly.polygon = points
+	
+	if style.has("fill"):
+		new_poly.color = Color(style["fill"])
+	
+	if style.has("stroke") and style["stroke"] != "none":
+		var outline = Line2D.new()
+		outline.name = name + "_stroke"
+		new_poly.add_child(outline)
+		outline.owner = root_node
+		
+		# Make sure the outline follows the polygon shape
+		var outline_points = points.duplicate()
+		if outline_points.size() > 0 and outline_points[0] != outline_points[outline_points.size() - 1]:
+			outline_points.append(outline_points[0])
+		outline.points = outline_points
+		
+		outline.default_color = Color(style["stroke"])
+		if style.has("stroke-width"):
+			outline.width = float(style["stroke-width"])
 
 func approximate_arc_to_bezier(start: Vector2, end: Vector2, radius: Vector2, 
 							 angle: float, large_arc: bool, sweep: bool) -> Array:
@@ -449,23 +291,42 @@ func approximate_arc_to_bezier(start: Vector2, end: Vector2, radius: Vector2,
 	
 	return points
 
-func create_path2d(	name:String, 
-					parent:Node, 
-					curve:Curve2D, 
-					transform:Transform2D, 
-					style:Dictionary) -> void:
+func create_path2d(name: String, parent: Node, curve: Curve2D, transform: Transform2D, style: Dictionary) -> void:
 	var new_path = Path2D.new()
 	new_path.name = name
+	
+	# Apply transform correctly
 	new_path.transform = transform
+	
+	# Adjust curve points if needed
+	var adjusted_curve = Curve2D.new()
+	for i in curve.get_point_count():
+		var pos = curve.get_point_position(i)
+		var in_control = curve.get_point_in(i)
+		var out_control = curve.get_point_out(i)
+		adjusted_curve.add_point(pos, in_control, out_control)
+	
+	new_path.curve = adjusted_curve
 	parent.add_child(new_path)
 	new_path.owner = root_node
-	new_path.curve = curve
-	
-	#style
+
+	# Handle style properly
 	if style.has("stroke"):
 		new_path.modulate = Color(style["stroke"])
-#	if style.has("stroke-width"):
-#		new_path.width = float(style["stroke-width"])
+	if style.has("stroke-width"):
+		# Create a Line2D as child for stroke visualization
+		var line = Line2D.new()
+		line.width = float(style["stroke-width"])
+		line.default_color = Color.WHITE
+		new_path.add_child(line)
+		
+		# Sample points along curve
+		var points = PackedVector2Array()
+		var length = curve.get_baked_length()
+		var step = length / 100.0  # Adjust sampling density as needed
+		for i in range(101):
+			points.append(curve.sample_baked(i * step))
+		line.points = points
 
 
 func create_line2d(	name:String, 
@@ -495,40 +356,6 @@ func create_line2d(	name:String,
 			#points.append(curve.interpolate(i))
 		#line.points = points
 
-
-func create_polygon2d(	name:String, 
-						parent:Node, 
-						points:PackedVector2Array, 
-						transform:Transform2D, 
-						style:Dictionary) -> void:
-	var new_poly
-	#style
-	if style.has("fill") and style["fill"] != "none":
-		#create base
-		new_poly = Polygon2D.new()
-		new_poly.name = name
-		parent.add_child(new_poly)
-		new_poly.owner = root_node
-		new_poly.transform = transform
-		new_poly.polygon = points
-		new_poly.color = Color(style["fill"])
-	
-	if style.has("stroke") and style["stroke"] != "none":
-		#create outline
-		var new_outline = Line2D.new()
-		new_outline.name = name + "_stroke"
-		if new_poly:
-			new_poly.add_child(new_outline)
-		else:
-			parent.add_child(new_outline)
-			new_outline.transform = transform
-		new_outline.owner = root_node
-		points.append(points[0])
-		new_outline.points = points
-		
-		new_outline.default_color = Color(style["stroke"])
-		if style.has("stroke-width"):
-			new_outline.width = float(style["stroke-width"])
 
 
 static func get_svg_transform(element: XMLParser) -> Transform2D:

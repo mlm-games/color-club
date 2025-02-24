@@ -6,38 +6,12 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -55.0
+offset_right = -6.0
+offset_bottom = -55.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 1, 1, 0)
 script = ExtResource("1_ig7tw")
 metadata/_edit_use_anchors_ = true
-
-[node name="@Node2D@26804" type="Node2D" parent="."]
-metadata/_edit_group_ = true
-
-[node name="path1_0" type="Polygon2D" parent="@Node2D@26804"]
-color = Color(0.701961, 0.701961, 0.701961, 1)
-polygon = PackedVector2Array(93.9816, 70.7143, 93.9816, 70.7143)
-
-[node name="path1_0_stroke" type="Line2D" parent="@Node2D@26804/path1_0"]
-points = PackedVector2Array(93.9816, 70.7143, 93.9816, 70.7143, 93.9816, 70.7143)
-width = 0.264583
-default_color = Color(0, 0, 0, 1)
-
-[node name="path3_0" type="Polygon2D" parent="@Node2D@26804"]
-color = Color(0.701961, 0.701961, 0.701961, 1)
-polygon = PackedVector2Array(92.6129, 46.0783, 62.9585, 34.2166, 32.3917, -2.28111, 92.6129, 46.0783)
-
-[node name="path3_0_stroke" type="Line2D" parent="@Node2D@26804/path3_0"]
-points = PackedVector2Array(92.6129, 46.0783, 62.9585, 34.2166, 32.3917, -2.28111, 92.6129, 46.0783, 92.6129, 46.0783)
-width = 0.264583
-default_color = Color(0, 0, 0, 1)
-
-[node name="path4_0" type="Polygon2D" parent="@Node2D@26804"]
-color = Color(0.701961, 0.701961, 0.701961, 1)
-polygon = PackedVector2Array(142.341, 58.3963, 142.341, 58.3963)
-
-[node name="path4_0_stroke" type="Line2D" parent="@Node2D@26804/path4_0"]
-points = PackedVector2Array(142.341, 58.3963, 142.341, 58.3963, 142.341, 58.3963)
-width = 0.264583
-default_color = Color(0, 0, 0, 1)
