@@ -1,24 +1,36 @@
-[gd_scene load_steps=6 format=3 uid="uid://cptdr4cx7eus7"]
+[gd_scene load_steps=12 format=3 uid="uid://cptdr4cx7eus7"]
 
 [ext_resource type="Texture2D" uid="uid://dojnp54fgwmag" path="res://icon.svg" id="1_pkfa7"]
 [ext_resource type="Script" uid="uid://nrwj0bdmixfh" path="res://color_level_buttons.gd" id="2_4saup"]
-[ext_resource type="Script" uid="uid://5kay7sc2jioj" path="res://old/svg_parser_2d.gd" id="3_d8ioo"]
 [ext_resource type="Script" uid="uid://cssf3c3hw8scc" path="res://old/arc_test.gd" id="4_5you3"]
 [ext_resource type="Script" uid="uid://csfolt6462qio" path="res://scripts/path_node.gd" id="5_q1c04"]
+[ext_resource type="Script" uid="uid://bg2cmjjewx8vu" path="res://scripts/circle_node.gd" id="6_re3w7"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_re3w7"]
+bg_color = Color(0.87451, 0.933333, 0.0588235, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q1c04"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2g5d2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dkxyr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_htdab"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4d1yw"]
 
 [node name="TextureButton" type="TextureButton"]
 self_modulate = Color(1, 1, 1, 0.2)
-offset_left = 644.0
-offset_top = 71.0
-offset_right = 1318.0
-offset_bottom = 745.0
+offset_left = -7.0
+offset_top = 18.0
+offset_right = 667.0
+offset_bottom = 692.0
 texture_normal = ExtResource("1_pkfa7")
 script = ExtResource("2_4saup")
-
-[node name="SVGParser" type="Node2D" parent="."]
-script = ExtResource("3_d8ioo")
-run = true
-metadata/_custom_type_script = "uid://5kay7sc2jioj"
 
 [node name="ArcTest" type="Node2D" parent="."]
 position = Vector2(-83, 508)
@@ -27,6 +39,95 @@ point1 = Vector2(0, 500)
 metadata/_custom_type_script = "uid://cssf3c3hw8scc"
 
 [node name="SVGPath" type="Node2D" parent="."]
+position = Vector2(-331, 68)
 script = ExtResource("5_q1c04")
-run_test = null
+run_test = true
+stroke_color = Color(0.320177, 0.00129337, 0.628856, 1)
+stroke_width = 3.885
+fill_color = Color(1, 1, 1, 1)
 metadata/_custom_type_script = "uid://csfolt6462qio"
+
+[node name="path1" type="Node2D" parent="."]
+position = Vector2(-370, 110)
+script = ExtResource("5_q1c04")
+fill_color = Color(1, 1, 1, 0.854902)
+
+[node name="path5" type="Node2D" parent="."]
+position = Vector2(-306, 67)
+script = ExtResource("5_q1c04")
+fill_color = Color(1, 1, 1, 0.552941)
+
+[node name="rect5" type="Panel" parent="."]
+custom_minimum_size = Vector2(40.1475, 28.7419)
+layout_mode = 0
+offset_left = 59.765
+offset_top = 42.8848
+offset_right = 99.9124
+offset_bottom = 71.6267
+theme_override_styles/panel = SubResource("StyleBoxFlat_re3w7")
+
+[node name="path6" type="Node2D" parent="."]
+position = Vector2(126.601, 42.2005)
+script = ExtResource("6_re3w7")
+radius = 8.89631
+
+[node name="rect2824-7-9" type="Panel" parent="."]
+custom_minimum_size = Vector2(90.5709, 129.396)
+layout_mode = 0
+offset_left = 67.0
+offset_top = 36.0
+offset_right = 157.571
+offset_bottom = 165.396
+theme_override_styles/panel = SubResource("StyleBoxFlat_q1c04")
+
+[node name="rect2828-2-7" type="Panel" parent="."]
+custom_minimum_size = Vector2(8.99967, 10.7585)
+layout_mode = 0
+offset_left = 199.12
+offset_top = 24.3023
+offset_right = 208.12
+offset_bottom = 35.0608
+theme_override_styles/panel = SubResource("StyleBoxFlat_2g5d2")
+
+[node name="polygon4236-5" type="Node2D" parent="."]
+script = ExtResource("5_q1c04")
+
+[node name="rect6846-3" type="Panel" parent="."]
+custom_minimum_size = Vector2(8.05819, 9.63301)
+layout_mode = 0
+offset_left = 201.357
+offset_top = 8.43906
+offset_right = 201.357
+offset_bottom = 8.43906
+theme_override_styles/panel = SubResource("StyleBoxFlat_dkxyr")
+
+[node name="rect2700-5" type="Panel" parent="."]
+custom_minimum_size = Vector2(7.57217, 9.052)
+layout_mode = 0
+offset_left = 189.758
+offset_top = 18.4302
+offset_right = 189.758
+offset_bottom = 18.4302
+theme_override_styles/panel = SubResource("StyleBoxFlat_htdab")
+
+[node name="path4669" type="Node2D" parent="."]
+script = ExtResource("5_q1c04")
+
+[node name="path4671" type="Node2D" parent="."]
+script = ExtResource("5_q1c04")
+
+[node name="rect823" type="Panel" parent="."]
+custom_minimum_size = Vector2(47.7989, 42.7273)
+layout_mode = 0
+offset_left = 78.0
+offset_top = -1.0
+offset_right = 125.799
+offset_bottom = 41.7273
+theme_override_styles/panel = SubResource("StyleBoxFlat_4d1yw")
+
+[node name="path3009" type="Node2D" parent="."]
+script = ExtResource("5_q1c04")
+fill_color = Color(1, 0.72549, 1, 0.952941)
+
+[node name="path4553" type="Node2D" parent="."]
+script = ExtResource("5_q1c04")

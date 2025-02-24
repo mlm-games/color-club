@@ -5,7 +5,7 @@ extends Node2D
 @export var run_test: bool = false:
 	set(val):
 		run_test = val
-		if run_test == true: set_path_data("M 94.894007,95.350229 50.640551,145.99078 148.72811,142.34101 Z")
+		if run_test == true: set_path_data("m 0,0 -0.01,-0.047 c -0.11,-0.006 -0.221,-0.012 -0.333,-0.015 -0.045,-0.003 -0.09,-0.003 -0.138,-0.007 -0.09,-0.003 -0.18,-0.006 -0.27,-0.006 -0.372,-0.01 -0.761,-0.01 -1.159,-0.006 l -0.356,0.009 c -0.058,0 -0.112,0.003 -0.17,0.007 -0.344,0.009 -0.694,0.025 -1.05,0.048 -0.144,0.009 -0.289,0.019 -0.436,0.029 -0.293,0.022 -0.588,0.048 -0.89,0.077 0,0 0.388,-3.399 0.068,-5.733 -0.375,-2.728 -2.257,-5.62 -2.257,-5.62 1.621,-0.158 3.127,-0.209 4.456,-0.158 0,0 0.007,0.015 0.018,0.038 3.158,0.124 5.294,0.833 5.522,2.028 0.003,0.023 0.003,0.108 0.006,0.108 H 3.004 L 5.129,2 C 4.914,0.855 2.943,0.164 0,0")
 
 enum PathCommandType {
 	MOVE_TO,    # M, m
@@ -161,7 +161,7 @@ func _cubic_bezier(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2, t: float)
 	return p0 * mt3 + p1 * (3 * mt2 * t) + p2 * (3 * mt * t2) + p3 * t3
 
 func _tokenize_path_data(d: String) -> Array:
-	# Simplified tokenizer - you might want to make this more robust
+	# Simplified tokenizer, TODO: might want to make this more robust
 	var tokens := []
 	var current_token := ""
 	
@@ -169,7 +169,7 @@ func _tokenize_path_data(d: String) -> Array:
 		if c in [" ", ",", "\t", "\n"]:
 			if not current_token.is_empty():
 				tokens.append(current_token)
-				current_token = ""
+				current_token = "" #TODO: Currently nodes with Q or q crash...
 		elif c in ["M", "m", "L", "l", "H", "h", "V", "v", "C", "c", "S", "s", "Q", "q", "T", "t", "A", "a", "Z", "z"]:
 			if not current_token.is_empty():
 				tokens.append(current_token)

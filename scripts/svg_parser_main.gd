@@ -10,7 +10,7 @@ var original_color_dict : Dictionary[StringName, Color] = {}
 
 func _run() -> void:
 	var parser = XMLParser.new()
-	parser.open("res://icon.svg")
+	parser.open("res://assets/art/map01.svg")
 	while parser.read() != ERR_FILE_EOF:
 		if parser.get_node_type() == XMLParser.NODE_ELEMENT:
 			var node_name = parser.get_node_name()
@@ -34,8 +34,8 @@ func _run() -> void:
 					shape.owner = self.get_scene()
 				"path":
 					var shape = create_path_shape(attributes_dict)
-					#self.get_scene().add_child(shape)
-					#shape.owner = self.get_scene()
+					self.get_scene().add_child(shape)
+					shape.owner = self.get_scene()
 
 
 func create_rect_shape(attributes_dict: Dictionary) -> Panel:
@@ -63,8 +63,11 @@ func create_rect_shape(attributes_dict: Dictionary) -> Panel:
 				style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
 				style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
 			"ry":
-				# Can be used in combination with rx for different horizontal/vertical rounding
-				pass
+				#TODO: Can be used in combination with rx for different horizontal/vertical rounding
+				style_box.corner_radius_top_left = float(attributes_dict[attribute])
+				style_box.corner_radius_top_right = float(attributes_dict[attribute])
+				style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
+				style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
 			"fill":
 				style_box.bg_color = Color(attributes_dict[attribute])
 			

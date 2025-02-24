@@ -46,5 +46,26 @@
        style="fill:#b3b3b3;stroke:#000000;stroke-width:0.264583"
        d="m 145.99078,83.032255 8.66821,-10.49309 10.9493,10.49309 z"
        id="path5" />
+    <rect
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.264583"
+       id="rect5"
+       width="40.147465"
+       height="28.741938"
+       x="59.764977"
+       y="42.884792"
+       ry="1.2541889" />
+    <circle
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.264583"
+       id="path6"
+       cx="126.60138"
+       cy="42.200459"
+       r="8.8963137" />
+    <ellipse
+       style="fill:#b3b3b3;stroke:#000000;stroke-width:0.264583"
+       id="path7"
+       cx="127.0576"
+       cy="90.103691"
+       rx="4.3341012"
+       ry="15.28341" />
   </g>
 </svg>
