@@ -4,7 +4,7 @@
 
 class_name SVGParser extends EditorScript
 
-var file_path = "res://assets/art/test1.svg"
+var file_path = "res://map01.svg"  #"res://assets/art/test1.svg"
 var use_path2d = false #true to deploy Path2D for vector paths
 
 var xml_data = XMLParser.new()
@@ -114,136 +114,340 @@ func process_svg_polygon(element:XMLParser) -> void:
 
 	print("-line ", new_line.name, " created")
 
-
-func process_svg_path(element:XMLParser) -> void:
-	print("Processing path with d=", element.get_named_attribute_value("d"))
+func process_svg_path(element: XMLParser) -> void:
+	var path_data = element.get_named_attribute_value("d")
+	print("Processing path with d=", path_data)
 	
-	var element_string = element.get_named_attribute_value("d")
-	for symbol in ["m", "M", "v", "V", "h", "H", "l", "L", "c", "C", "s", "S", "z", "Z"]:
-		element_string = element_string.replacen(symbol, " " + symbol + " ")
-	element_string = element_string.replacen(",", " ")
+	# Handle double periods in numbers (e.g., "0..5" -> "0.5")
+	var double_period_regex = RegEx.new()
+	double_period_regex.compile("\\.\\.")
+	var matches = double_period_regex.search_all(path_data)
+	for match in matches:
+		var fixed_number = match.get_string().replace("..", ".")
+		path_data = path_data.replace(match.get_string(), fixed_number)
 	
-	print("Processed element string:", element_string)
+	# Normalize path data
+	for symbol in ["m", "M", "v", "V", "h", "H", "l", "L", "c", "C", "s", "S", "q", "Q", "t", "T", "a", "A", "z", "Z"]:
+		path_data = path_data.replacen(symbol, " " + symbol + " ")
+	path_data = path_data.replacen(",", " ")
 	
-	#split element string into multiple arrays
-	var element_string_array = element_string.split(" ", false)
-	var string_arrays = []
-	var string_array : PackedStringArray
+	print("Processed path data:", path_data)
 	
-	for a in element_string_array:
-		if a in ["m", "M"]:
-			if string_array.size() > 0:
-				string_arrays.append(string_array)
-			string_array = PackedStringArray()
-		string_array.append(a)
+	# Split into command arrays
+	var path_commands = path_data.split(" ", false)
+	var command_groups = []
+	var current_group : PackedStringArray
 	
-	if string_array.size() > 0:
-		string_arrays.append(string_array)
-		
-	print("Number of path segments:", string_arrays.size())
-	for arr in string_arrays:
-		print("Path segment:", arr)
+	# Group commands by their starting move command
+	for cmd in path_commands:
+		if cmd in ["m", "M"]:
+			if current_group != null and current_group.size() > 0:
+				command_groups.append(current_group)
+			current_group = PackedStringArray()
+		if cmd != "":
+			current_group.append(cmd)
 	
-	#convert into Line2Ds
-	var string_array_count = -1
-	for current_array in string_arrays:
+	if current_group != null and current_group.size() > 0:
+		command_groups.append(current_group)
+	
+	print("Number of path segments:", command_groups.size())
+	
+	# Process each command group
+	var group_index = -1
+	for command_group in command_groups:
 		var cursor = Vector2.ZERO
+		var start_pos = Vector2.ZERO
 		var points : PackedVector2Array
 		var curve = Curve2D.new()
-		string_array_count += 1
+		var last_control = Vector2.ZERO
+		var last_cubic_control = Vector2.ZERO
+		group_index += 1
 		
-		for i in current_array.size()-1:
-			match current_array[i]:
-				"m":
-					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
-						cursor += Vector2(float(current_array[i+1]), float(current_array[i+2]))
-						points.append(cursor)
-						i += 2
-				"M":
-					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
-						cursor = Vector2(float(current_array[i+1]), float(current_array[i+2]))
-						points.append(cursor)
-						
-						curve.add_point(Vector2(float(current_array[i+1]), float(current_array[i+2])))
-						
-						i += 2
-				"v":
-					while current_array[i+1].is_valid_float():
-						cursor.y += float(current_array[i+1])
-						points.append(cursor)
-						i += 1
-				"V":
-					while current_array[i+1].is_valid_float():
-						cursor.y = float(current_array[i+1])
-						points.append(cursor)
-						i += 1
-				"h":
-					while current_array[i+1].is_valid_float():
-						cursor.x += float(current_array[i+1])
-						points.append(cursor)
-						i += 1
-				"H":
-					while current_array[i+1].is_valid_float():
-						cursor.x = float(current_array[i+1])
-						points.append(cursor)
-						i += 1
-				"l":
-					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
-						cursor += Vector2(float(current_array[i+1]), float(current_array[i+2]))
-						points.append(cursor)
-						i += 2
-				"L":
-					while current_array.size() > i + 2 and current_array[i+1].is_valid_float():
-						cursor = Vector2(float(current_array[i+1]), float(current_array[i+2]))
-						points.append(cursor)
-						i += 2
-				#simpify Bezier curves with straight line
-				"c": 
-					while current_array.size() > i + 6 and current_array[i+1].is_valid_float():
-						cursor += Vector2(float(current_array[i+5]), float(current_array[i+6]))
-						points.append(cursor)
-						i += 6
-				"C":
-					while current_array.size() > i + 6 and current_array[i+1].is_valid_float():
-						var controll_point_in = Vector2(float(current_array[i+5]), float(current_array[i+6])) - cursor
-						cursor = Vector2(float(current_array[i+5]), float(current_array[i+6]))
-						points.append(cursor)
-						curve.add_point(	cursor,
-											-cursor + Vector2(float(current_array[i+3]), float(current_array[i+4])),
-											cursor - Vector2(float(current_array[i+3]), float(current_array[i+4]))
-										)
-						i += 6
-				"s":
-					while current_array.size() > i + 4 and current_array[i+1].is_valid_float():
-						cursor += Vector2(float(current_array[i+3]), float(current_array[i+4]))
-						points.append(cursor)
-						i += 4
-				"S":
-					while current_array.size() > i + 4 and current_array[i+1].is_valid_float():
-						cursor = Vector2(float(current_array[i+3]), float(current_array[i+4]))
-						points.append(cursor)
-						i += 4
+		process_command_group(command_group, cursor, start_pos, points, curve, last_control, last_cubic_control)
 		
+		# Create appropriate node based on path type
 		if use_path2d and curve.get_point_count() > 1:
-			create_path2d(	element.get_named_attribute_value("id") + "_" + str(string_array_count), 
-							current_node, 
-							curve, 
-							get_svg_transform(element), 
-							get_svg_style(element))
-		
-		elif string_array[string_array.size()-1].to_upper() == "Z": #closed polygon
-			create_polygon2d(	element.get_named_attribute_value("id") + "_" + str(string_array_count), 
-								current_node, 
-								points, 
-								get_svg_transform(element), 
-								get_svg_style(element))
+			create_path2d(
+				element.get_named_attribute_value("id") + "_" + str(group_index),
+				current_node,
+				curve,
+				get_svg_transform(element),
+				get_svg_style(element)
+			)
+		elif command_group[command_group.size()-1].to_upper() == "Z":
+			create_polygon2d(
+				element.get_named_attribute_value("id") + "_" + str(group_index),
+				current_node,
+				points,
+				get_svg_transform(element),
+				get_svg_style(element)
+			)
 		else:
-			create_line2d(	element.get_named_attribute_value("id") + "_" + str(string_array_count), 
-							current_node, 
-							points, 
-							get_svg_transform(element), 
-							get_svg_style(element))
+			create_line2d(
+				element.get_named_attribute_value("id") + "_" + str(group_index),
+				current_node,
+				points,
+				get_svg_transform(element),
+				get_svg_style(element)
+			)
 
+func process_command_group(command_group: PackedStringArray, cursor: Vector2, start_pos: Vector2, 
+						 points: PackedVector2Array, curve: Curve2D, 
+						 last_control: Vector2, last_cubic_control: Vector2) -> void:
+	var i := 0
+	while i < command_group.size():
+		match command_group[i]:
+			"m", "M":
+				if command_group.size() > i + 2 and command_group[i+1].is_valid_float():
+					var point = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					if command_group[i] == "m":
+						point += cursor
+					cursor = point
+					if points.is_empty():
+						start_pos = cursor
+						points.append(cursor)
+						curve.add_point(cursor)
+					else:
+						points.append(cursor)
+						curve.add_point(cursor)
+					i += 3
+				else:
+					i += 1
+
+			"l", "L":
+				if command_group.size() > i + 2 and command_group[i+1].is_valid_float():
+					var point = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					if command_group[i] == "l":
+						point += cursor
+					cursor = point
+					points.append(cursor)
+					curve.add_point(cursor)
+					i += 3
+				else:
+					i += 1
+
+			"h", "H":
+				if command_group.size() > i + 1 and command_group[i+1].is_valid_float():
+					var x = float(command_group[i+1])
+					if command_group[i] == "h":
+						cursor.x += x
+					else:
+						cursor.x = x
+					points.append(cursor)
+					curve.add_point(cursor)
+					i += 2
+				else:
+					i += 1
+
+			"v", "V":
+				if command_group.size() > i + 1 and command_group[i+1].is_valid_float():
+					var y = float(command_group[i+1])
+					if command_group[i] == "v":
+						cursor.y += y
+					else:
+						cursor.y = y
+					points.append(cursor)
+					curve.add_point(cursor)
+					i += 2
+				else:
+					i += 1
+
+			"c", "C":
+				if command_group.size() > i + 6 and command_group[i+1].is_valid_float():
+					var control1 = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					var control2 = Vector2(float(command_group[i+3]), float(command_group[i+4]))
+					var end = Vector2(float(command_group[i+5]), float(command_group[i+6]))
+					
+					if command_group[i] == "c":
+						control1 += cursor
+						control2 += cursor
+						end += cursor
+					
+					curve.add_point(end, control1 - end, control2 - end)
+					points.append(end)
+					last_cubic_control = control2
+					cursor = end
+					i += 7
+				else:
+					i += 1
+
+			"s", "S":
+				if command_group.size() > i + 4 and command_group[i+1].is_valid_float():
+					var control2 = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					var end = Vector2(float(command_group[i+3]), float(command_group[i+4]))
+					var control1 = cursor + (cursor - last_cubic_control)
+					
+					if command_group[i] == "s":
+						control2 += cursor
+						end += cursor
+					
+					curve.add_point(end, control1 - end, control2 - end)
+					points.append(end)
+					last_cubic_control = control2
+					cursor = end
+					i += 5
+				else:
+					i += 1
+			
+			"q", "Q":
+				if command_group.size() > i + 4 and command_group[i+1].is_valid_float():
+					var control = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					var end = Vector2(float(command_group[i+3]), float(command_group[i+4]))
+					
+					if command_group[i] == "q":
+						control += cursor
+						end += cursor
+					
+					# Convert quadratic to cubic Bezier for Curve2D
+					var cubic_control1 = cursor + (control - cursor) * (2.0/3.0)
+					var cubic_control2 = end + (control - end) * (2.0/3.0)
+					
+					curve.add_point(end, cubic_control1 - end, cubic_control2 - end)
+					points.append(end)
+					last_control = control
+					cursor = end
+					i += 5
+				else:
+					i += 1
+
+			"t", "T":
+				if command_group.size() > i + 2 and command_group[i+1].is_valid_float():
+					var end = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					if command_group[i] == "t":
+						end += cursor
+					
+					# Reflect previous control point
+					var control = cursor + (cursor - last_control)
+					
+					# Convert quadratic to cubic Bezier
+					var cubic_control1 = cursor + (control - cursor) * (2.0/3.0)
+					var cubic_control2 = end + (control - end) * (2.0/3.0)
+					
+					curve.add_point(end, cubic_control1 - end, cubic_control2 - end)
+					points.append(end)
+					last_control = control
+					cursor = end
+					i += 3
+				else:
+					i += 1
+
+			"a", "A":
+				if command_group.size() > i + 7 and command_group[i+1].is_valid_float():
+					var radius = Vector2(float(command_group[i+1]), float(command_group[i+2]))
+					var angle = deg_to_rad(float(command_group[i+3]))
+					var large_arc = bool(int(command_group[i+4]))
+					var sweep = bool(int(command_group[i+5]))
+					var end = Vector2(float(command_group[i+6]), float(command_group[i+7]))
+					
+					if command_group[i] == "a":
+						end += cursor
+					
+					# Convert arc to cubic bezier approximation
+					var arc_points = approximate_arc_to_bezier(
+						cursor,
+						end,
+						radius,
+						angle,
+						large_arc,
+						sweep
+					)
+					
+					for p in arc_points:
+						points.append(p.point)
+						if p.has("control1") and p.has("control2"):
+							curve.add_point(p.point, p.control1, p.control2)
+						else:
+							curve.add_point(p.point)
+					
+					cursor = end
+					i += 8
+				else:
+					i += 1
+
+			"z", "Z":
+				if points.size() > 0:
+					points.append(start_pos)
+					curve.add_point(start_pos)
+				cursor = start_pos
+				i += 1
+			
+			_:
+				i += 1
+
+func approximate_arc_to_bezier(start: Vector2, end: Vector2, radius: Vector2, 
+							 angle: float, large_arc: bool, sweep: bool) -> Array:
+	var points = []
+	
+	# Transform to unit circle coordinates
+	var cos_angle = cos(angle)
+	var sin_angle = sin(angle)
+	
+	# Transform start and end points
+	var transformed_start = Vector2(
+		(start.x * cos_angle + start.y * sin_angle) / radius.x,
+		(-start.x * sin_angle + start.y * cos_angle) / radius.y
+	)
+	var transformed_end = Vector2(
+		(end.x * cos_angle + end.y * sin_angle) / radius.x,
+		(-end.x * sin_angle + end.y * cos_angle) / radius.y
+	)
+	
+	# Calculate center and angles
+	var mid_point = (transformed_start - transformed_end) * 0.5
+	var center_factor = sqrt(
+		max(0, 1.0 / mid_point.length_squared() - 0.25)
+	)
+	if large_arc == sweep:
+		center_factor = -center_factor
+		
+	var center = Vector2(
+		mid_point.y * center_factor,
+		-mid_point.x * center_factor
+	) + (transformed_start + transformed_end) * 0.5
+	
+	var start_angle = atan2(
+		transformed_start.y - center.y,
+		transformed_start.x - center.x
+	)
+	var sweep_angle = atan2(
+		transformed_end.y - center.y,
+		transformed_end.x - center.x
+	) - start_angle
+	
+	if !sweep and sweep_angle > 0:
+		sweep_angle -= 2 * PI
+	elif sweep and sweep_angle < 0:
+		sweep_angle += 2 * PI
+	
+	# Convert back to original coordinate system and approximate with cubic beziers
+	var segments = int(ceil(abs(sweep_angle) / (PI * 0.5)))
+	var angle_step = sweep_angle / segments
+	
+	for i in range(segments):
+		var angle1 = start_angle + i * angle_step
+		var angle2 = start_angle + (i + 1) * angle_step
+		
+		var t = 4.0/3.0 * tan(angle_step * 0.25)
+		
+		var p0 = Vector2(cos(angle1), sin(angle1))
+		var p1 = Vector2(cos(angle1) - t * sin(angle1), sin(angle1) + t * cos(angle1))
+		var p2 = Vector2(cos(angle2) + t * sin(angle2), sin(angle2) - t * cos(angle2))
+		var p3 = Vector2(cos(angle2), sin(angle2))
+		
+		# Transform back
+		var transform = Transform2D(angle, radius)
+		p0 = transform.basis_xform(p0)
+		p1 = transform.basis_xform(p1)
+		p2 = transform.basis_xform(p2)
+		p3 = transform.basis_xform(p3)
+		
+		points.append({
+			"point": p3,
+			"control1": p1 - p3,
+			"control2": p2 - p3
+		})
+	
+	return points
 
 func create_path2d(	name:String, 
 					parent:Node, 

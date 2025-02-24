@@ -1,25 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://bnxj7rhwgcg67"]
+[gd_scene load_steps=2 format=3 uid="uid://bnxj7rhwgcg67"]
 
 [ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://main.gd" id="1_ig7tw"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0xm2m"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-bg_color = Color(0.101961, 0.101961, 0.101961, 0.458824)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-corner_detail = 5
-
-[sub_resource type="Theme" id="Theme_7dm0k"]
-MarginContainer/constants/margin_bottom = 20
-MarginContainer/constants/margin_left = 20
-MarginContainer/constants/margin_right = 20
-MarginContainer/constants/margin_top = 20
-PanelContainer/styles/panel = SubResource("StyleBoxFlat_0xm2m")
 
 [node name="Main" type="ColorRect"]
 anchors_preset = 15
@@ -27,71 +8,36 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.960784, 0.960784, 0.960784, 1)
+color = Color(1, 1, 1, 0)
 script = ExtResource("1_ig7tw")
 metadata/_edit_use_anchors_ = true
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = SubResource("Theme_7dm0k")
-metadata/_edit_use_anchors_ = true
+[node name="@Node2D@26804" type="Node2D" parent="."]
+metadata/_edit_group_ = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-layout_mode = 2
+[node name="path1_0" type="Polygon2D" parent="@Node2D@26804"]
+color = Color(0.701961, 0.701961, 0.701961, 1)
+polygon = PackedVector2Array(93.9816, 70.7143, 93.9816, 70.7143)
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
+[node name="path1_0_stroke" type="Line2D" parent="@Node2D@26804/path1_0"]
+points = PackedVector2Array(93.9816, 70.7143, 93.9816, 70.7143, 93.9816, 70.7143)
+width = 0.264583
+default_color = Color(0, 0, 0, 1)
 
-[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-bbcode_enabled = true
-text = "[b][i][font_size=64][color=#2c2c2c]Color Club: Coloring Game"
-fit_content = true
-horizontal_alignment = 1
+[node name="path3_0" type="Polygon2D" parent="@Node2D@26804"]
+color = Color(0.701961, 0.701961, 0.701961, 1)
+polygon = PackedVector2Array(92.6129, 46.0783, 62.9585, 34.2166, 32.3917, -2.28111, 92.6129, 46.0783)
 
-[node name="HBoxContainer2" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-alignment = 1
+[node name="path3_0_stroke" type="Line2D" parent="@Node2D@26804/path3_0"]
+points = PackedVector2Array(92.6129, 46.0783, 62.9585, 34.2166, 32.3917, -2.28111, 92.6129, 46.0783, 92.6129, 46.0783)
+width = 0.264583
+default_color = Color(0, 0, 0, 1)
 
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.8
+[node name="path4_0" type="Polygon2D" parent="@Node2D@26804"]
+color = Color(0.701961, 0.701961, 0.701961, 1)
+polygon = PackedVector2Array(142.341, 58.3963, 142.341, 58.3963)
 
-[node name="PlayButton" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
-unique_name_in_owner = true
-modulate = Color(0.180005, 0.180005, 0.180005, 1)
-layout_mode = 2
-text = "Play"
-flat = true
-
-[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/VBoxContainer/PanelContainer2"]
-layout_mode = 2
-
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/PanelContainer2/HBoxContainer4"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.8
-
-[node name="PicContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/PanelContainer2/HBoxContainer4"]
-unique_name_in_owner = true
-layout_mode = 2
-columns = 2
-
-[node name="Control2" type="Control" parent="MarginContainer/VBoxContainer/PanelContainer2/HBoxContainer4"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.8
-
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/PlayButton" to="." method="_on_button_pressed"]
+[node name="path4_0_stroke" type="Line2D" parent="@Node2D@26804/path4_0"]
+points = PackedVector2Array(142.341, 58.3963, 142.341, 58.3963, 142.341, 58.3963)
+width = 0.264583
+default_color = Color(0, 0, 0, 1)
