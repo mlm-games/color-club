@@ -23,7 +23,8 @@ var coloring_game: SVGColoringGame
 var color_palette: ColorPalette
 
 func _ready() -> void:
-	add_child(load_svg)
+	pass
+	#add_child(load_svg)
 	#coloring_game = SVGColoringGame.new()
 	#add_child(coloring_game)
 	#

@@ -4,7 +4,7 @@
 
 class_name SVGParser extends EditorScript
 
-var file_path = "res://icon.svg"
+var file_path = "res://assets/art/test1.svg"
 var use_path2d = false #true to deploy Path2D for vector paths
 
 var xml_data = XMLParser.new()
@@ -327,21 +327,58 @@ func create_polygon2d(	name:String,
 			new_outline.width = float(style["stroke-width"])
 
 
-static func get_svg_transform(element:XMLParser) -> Transform2D:
+static func get_svg_transform(element: XMLParser) -> Transform2D:
 	var transform = Transform2D.IDENTITY
-	if element.has_attribute("transform"):
-		var svg_transform = element.get_named_attribute_value("transform")
-		#check transform method
-		if svg_transform.begins_with("translate"):
-			svg_transform = svg_transform.replace("translate", "").replacen("(", "").replacen(")", "")
-			var transform_split = svg_transform.split_floats(",")
-			transform[2] = Vector2(transform_split[0], transform_split[1])
-		elif svg_transform.begins_with("matrix"):
-			svg_transform = svg_transform.replace("matrix", "").replacen("(", "").replacen(")", "")
-			var matrix = svg_transform.split_floats(",")
-			for i in 3:
-				transform[i] = Vector2(matrix[i*2], matrix[i*2+1])
+	
+	if !element.has_attribute("transform"):
+		return transform
+		
+	var svg_transform = element.get_named_attribute_value("transform")
+	
+	# Split multiple transformations if present
+	var transforms = svg_transform.split(")")
+	
+	for t in transforms:
+		t = t.strip_edges()
+		if t.is_empty():
+			continue
+			
+		if t.begins_with("translate"):
+			var values = _get_transform_values(t)
+			if values.size() == 1:
+				transform *= Transform2D.IDENTITY.translated(Vector2(values[0], 0))
+			elif values.size() == 2:
+				transform *= Transform2D.IDENTITY.translated(Vector2(values[0], values[1]))
+				
+		elif t.begins_with("scale"):
+			var values = _get_transform_values(t)
+			if values.size() == 1:
+				transform *= Transform2D.IDENTITY.scaled(Vector2(values[0], values[0]))
+			elif values.size() == 2:
+				transform *= Transform2D.IDENTITY.scaled(Vector2(values[0], values[1]))
+				
+		elif t.begins_with("rotate"):
+			var values = _get_transform_values(t)
+			if values.size() >= 1:
+				var angle = values[0] * (PI / 180.0)
+				if values.size() == 3:
+					var pivot = Vector2(values[1], values[2])
+					transform *= Transform2D().translated(-pivot).rotated(angle).translated(pivot)
+				else:
+					transform *= Transform2D().rotated(angle)
+					
+		elif t.begins_with("matrix"):
+			var values = _get_transform_values(t)
+			if values.size() == 6:
+				transform *= Transform2D(Vector2(values[0], values[1]),
+									  Vector2(values[2], values[3]),
+									  Vector2(values[4], values[5]))
+									  
 	return transform
+
+static func _get_transform_values(transform_str: String) -> Array:
+	var value_str = transform_str.split("(")[1].strip_edges()
+	return value_str.split(",", false)
 
 
 static func get_svg_style(element:XMLParser) -> Dictionary:
@@ -353,15 +390,6 @@ static func get_svg_style(element:XMLParser) -> Dictionary:
 			style[attribute] = element.get_named_attribute_value_safe(attribute)
 		
 	if element.has_attribute("style"):
-		pairs = style_str.split(';')
-		for pair in pairs:
-			pair = pair.strip()
-			if ':' in pair:
-				key, value = pair.split(':', 1)
-				key = key.strip().lower()
-				value = value.strip()
-				# Handle possible units or special values
-				style[key] = value
 		var svg_style = element.get_named_attribute_value("style")
 		svg_style = svg_style.replacen(":", "\":\"")
 		svg_style = svg_style.replacen(";", "\",\"")
