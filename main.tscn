@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://bnxj7rhwgcg67"]
 
 [ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://main.gd" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://dxitqiiwdqhvw" path="res://curve_path.gd" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://cssf3c3hw8scc" path="res://arc_test.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://dxitqiiwdqhvw" path="res://old/curve_path.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://cssf3c3hw8scc" path="res://old/arc_test.gd" id="3_h2yge"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0xm2m"]
 content_margin_left = 0.0

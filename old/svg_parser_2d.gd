@@ -236,11 +236,12 @@ func process_svg_path(element:XMLParser) -> void:
 						i += 4
 		
 		if use_path2d and curve.get_point_count() > 1:
-			create_path2d(	element.get_named_attribute_value("id") + "_" + str(string_array_count), 
-							current_node, 
-							curve, 
-							get_svg_transform(element), 
-							get_svg_style(element))
+			pass #FIXME
+			#create_path2d(	element.get_named_attribute_value("id") + "_" + str(string_array_count), 
+							#current_node, 
+							#curve, 
+							#get_svg_transform(element), 
+							#get_svg_style(element))
 		
 		elif string_array[string_array.size()-1].to_upper() == "Z": #closed polygon
 			create_polygon2d(	element.get_named_attribute_value("id") + "_" + str(string_array_count), 
@@ -256,20 +257,20 @@ func process_svg_path(element:XMLParser) -> void:
 							get_svg_style(element))
 
 
-func create_path2d(	name:String, 
-					parent:Node, 
-					curve:Curve2D, 
-					transform:Transform2D, 
-					style:Dictionary) -> void:
-	var new_path = Path2D.new()
-	new_path.name = name
-	new_path.transform = transform
-	parent.add_child(new_path)
-	new_path.curve = curve
+#func create_path2d(	name:String, 
+					#parent:Node, 
+					#curve:Curve2D, 
+					#transform:Transform2D, 
+					#style:Dictionary) -> void:
+	#var new_path = Path2D.new()
+	#new_path.name = name
+	#new_path.transform = transform
+	#parent.add_child(new_path)
+	#new_path.curve = curve
 	
 	#style
-	if style.has("stroke"):
-		new_path.modulate = Color(style["stroke"])
+	#if style.has("stroke"):
+		#new_path.modulate = Color(style["stroke"])
 #	if style.has("stroke-width"):
 #		new_path.width = float(style["stroke-width"])
 
@@ -287,13 +288,13 @@ func create_line2d(	name:String,
 	await get_tree().create_timer(0.5).timeout
 	
 	#style
-	if style.has("stroke"):
-		new_line.default_color = Color(style["stroke"])
-	if style.has("stroke-width"):
-		#var line = Line2D.new() 
-		new_line.width = float(style["stroke-width"])
-		#new_path.add_child(line)
-		#
+	#if style.has("stroke"):
+		#new_line.default_color = Color(style["stroke"])
+	#if style.has("stroke-width"):
+		##var line = Line2D.new() 
+		#new_line.width = float(style["stroke-width"])
+		##new_path.add_child(line)
+		##
 		## Sample points along curve
 		#var curve_points = []
 		#var step = 0.1
@@ -385,6 +386,8 @@ static func get_svg_transform(element: XMLParser) -> Transform2D:
 									  Vector2(values[4], values[5]))
 									  
 	return transform
+	print("Transform: ")
+	print(transform)
 
 static func _get_transform_values(transform_str: String) -> Array:
 	var value_str = transform_str.split("(")[1].strip_edges()
@@ -405,4 +408,5 @@ static func get_svg_style(element:XMLParser) -> Dictionary:
 		svg_style = svg_style.replacen(";", "\",\"")
 		svg_style = "{\"" + svg_style + "\"}"
 		style = JSON.parse_string(svg_style)
+	print(style)
 	return style
