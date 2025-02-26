@@ -37,9 +37,9 @@ func set_circle_properties(attributes: Dictionary) -> void:
 	if "r" in attributes:
 		radius = float(attributes["r"])
 	if "fill" in attributes:
-		fill_color = Color(attributes["fill"])
+		fill_color = Color.html(attributes["fill"])
 	if "stroke" in attributes:
-		stroke_color = Color(attributes["stroke"])
+		stroke_color = Color.html(attributes["stroke"])
 	if "stroke-width" in attributes:
 		stroke_width = float(attributes["stroke-width"])
 	if "opacity" in attributes:

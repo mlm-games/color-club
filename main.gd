@@ -20,7 +20,7 @@ func populate_pics() -> void:
 	add_child(ColorPicScene.instantiate())
 
 
-var coloring_game: SVGColoringGame
+#var coloring_game: SVGColoringGame
 var color_palette: ColorPalette
 
 func _ready() -> void:

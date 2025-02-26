@@ -14,9 +14,9 @@ enum PathCommandType {
 	VERT_TO,    # V, v
 	CURVE_TO,   # C, c
 	SMOOTH_CURVE_TO,  # S, s
-	QUAD_TO,    # Q, q
-	SMOOTH_QUAD_TO,   # T, t
-	ARC_TO,     # A, a
+	QUAD_TO,    # Q, q #TODO: Crashes
+	SMOOTH_QUAD_TO,   # T, t #TODO: CHeck once, if above crashes then this would to
+	ARC_TO,     # A, a #TODO: Simple fix, crashes
 	CLOSE_PATH  # Z, z
 }
 
@@ -25,7 +25,7 @@ class PathCommand:
 	var points: Array[Vector2]
 	var relative: bool
 	
-	func _init(cmd_type: PathCommandType, cmd_points: Array[Vector2], is_relative: bool = false):
+	func _init(cmd_type: PathCommandType, cmd_points: Array[Vector2], is_relative: bool = false) -> void:
 		type = cmd_type
 		points = cmd_points
 		relative = is_relative
@@ -60,7 +60,7 @@ func _parse_path_data(d: String) -> void:
 	var i := 0
 	
 	while i < tokens.size():
-		var token = tokens[i]
+		var token : String = tokens[i]
 		match token.to_upper():
 			"M":
 				i = _parse_move_to(tokens, i + 1, token == "m")
@@ -75,11 +75,13 @@ func _parse_path_data(d: String) -> void:
 			"S":
 				i = _parse_smooth_curve_to(tokens, i + 1, token == "s")
 			"Q":
-				i = _parse_quad_to(tokens, i + 1, token == "q")
+				i = _parse_smooth_curve_to(tokens, i + 1, token == "s")
+
+				#i = _parse_quad_to(tokens, i + 1, token == "q") #FIXME
 			"T":
-				i = _parse_smooth_quad_to(tokens, i + 1, token == "t")
-			"A":
-				i = _parse_arc_to(tokens, i + 1, token == "a")
+				i = _parse_smooth_quad_to(tokens, i + 1, token == "t") #FIXME
+			#"A":
+				#i = _parse_arc_to(tokens, i + 1, token == "a") #FIXME
 			"Z", "z":
 				_commands.append(PathCommand.new(PathCommandType.CLOSE_PATH, [], false))
 				i += 1
@@ -169,7 +171,7 @@ func _tokenize_path_data(d: String) -> Array:
 		if c in [" ", ",", "\t", "\n"]:
 			if not current_token.is_empty():
 				tokens.append(current_token)
-				current_token = "" #TODO: Currently nodes with Q or q crash...
+				current_token = "" #TODO: Currently nodes with Q or q or A or "a" crash...
 		elif c in ["M", "m", "L", "l", "H", "h", "V", "v", "C", "c", "S", "s", "Q", "q", "T", "t", "A", "a", "Z", "z"]:
 			if not current_token.is_empty():
 				tokens.append(current_token)
@@ -193,8 +195,8 @@ func _parse_move_to(tokens: Array, start_index: int, relative: bool) -> int:
 			break
 			
 		# Try to convert tokens to numbers
-		var x = float(tokens[i])
-		var y = float(tokens[i + 1])
+		var x :float = float(tokens[i])
+		var y : float = float(tokens[i + 1])
 		
 		var point := Vector2(x, y)
 		if relative:
@@ -206,7 +208,7 @@ func _parse_move_to(tokens: Array, start_index: int, relative: bool) -> int:
 		else:
 			# Subsequent coordinate pairs are treated as implicit line-to commands
 			_commands.append(PathCommand.new(PathCommandType.LINE_TO, [point], relative))
-			
+		print("Commands: "); print(_commands)
 		_current_pos = point
 		if first_point:
 			_path_start = _current_pos
@@ -226,8 +228,8 @@ func _parse_line_to(tokens: Array, start_index: int, relative: bool) -> int:
 		if i + 1 >= tokens.size():
 			break
 			
-		var x = float(tokens[i])
-		var y = float(tokens[i + 1])
+		var x : float = float(tokens[i])
+		var y : float = float(tokens[i + 1])
 		
 		var point := Vector2(x, y)
 		if relative:
@@ -250,7 +252,7 @@ func _parse_horizontal_to(tokens: Array, start_index: int, relative: bool) -> in
 		if i >= tokens.size():
 			break
 			
-		var x = float(tokens[i])
+		var x : float = float(tokens[i])
 		var point := Vector2.ZERO
 		
 		if relative:
@@ -275,7 +277,7 @@ func _parse_vertical_to(tokens: Array, start_index: int, relative: bool) -> int:
 		if i >= tokens.size():
 			break
 			
-		var y = float(tokens[i])
+		var y : float = float(tokens[i])
 		var point := Vector2.ZERO
 		
 		if relative:
@@ -487,10 +489,10 @@ func _arc_to_bezier(start: Vector2, end: Vector2, rx: float, ry: float,
 		ry_sq = ry * ry
 	
 	# Step 3: Compute center
-	var sign := -1.0 if large_arc == sweep else 1.0
-	var sq = max(0.0, (rx_sq * ry_sq - rx_sq * y1_prime_sq - ry_sq * x1_prime_sq) / 
+	var temp_sign := -1.0 if large_arc == sweep else 1.0
+	var sq := maxf(0.0, (rx_sq * ry_sq - rx_sq * y1_prime_sq - ry_sq * x1_prime_sq) / 
 					  (rx_sq * y1_prime_sq + ry_sq * x1_prime_sq))
-	var coef := sign * sqrt(sq)
+	var coef := temp_sign * sqrt(sq)
 	var cx_prime := coef * (rx * y1_prime / ry)
 	var cy_prime := coef * (-ry * x1_prime / rx)
 	

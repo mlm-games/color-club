@@ -18,10 +18,6 @@ run/low_processor_mode=true
 run/delta_smoothing=false
 config/icon="res://assets/art/icon.svg"
 
-[autoload]
-
-SvgScaler="res://old/svg_renderer.gd"
-
 [debug]
 
 gdscript/warnings/untyped_declaration=1

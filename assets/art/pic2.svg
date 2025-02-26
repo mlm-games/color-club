@@ -4,16 +4,14 @@
    height="128"
    version="1.1"
    id="svg6"
-   sodipodi:docname="icon.svg"
+   sodipodi:docname="pic2.svg"
    inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs6" />
   <sodipodi:namedview
-     id="namedview6"
+     id="namedview1"
      pagecolor="#ffffff"
      bordercolor="#000000"
      borderopacity="0.25"
@@ -21,15 +19,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="5.09"
-     inkscape:cx="64.047151"
-     inkscape:cy="63.948919"
+     inkscape:zoom="5.0859375"
+     inkscape:cx="64"
+     inkscape:cy="64"
      inkscape:window-width="1536"
      inkscape:window-height="902"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg6" />
+  <defs
+     id="defs6" />
   <rect
      width="124"
      height="124"
@@ -40,7 +40,7 @@
      stroke-width="4"
      rx="14"
      id="rect1"
-     style="stroke:#000000;fill:#ffffff;stroke-width:4.31098088;stroke-dasharray:none" />
+     style="stroke:#000000;fill:#ffccaa;stroke-width:4.31098088;stroke-dasharray:none" />
   <rect
      style="fill:#ff6600;stroke:#000000"
      id="rect2"
@@ -49,18 +49,6 @@
      x="27.231953"
      y="29.099846"
      ry="4.7402415" />
-  <path
-     id="path4"
-     style="fill:#e3dedb;stroke:#000000"
-     d="m 60.79704,52.41633 a 8.9226074,9.0565929 52.037026 0 1 1.445647,-0.753887 8.9226074,9.0565929 52.037026 0 1 10.389776,2.600318 8.9226074,9.0565929 52.037026 0 1 1.636945,3.23147 l 3.58723,-0.539622 a 12.387096,12.190476 52.037026 0 0 -7.684555,-9.601247 12.387096,12.190476 52.037026 0 0 -12.037496,1.650641 z"
-     inkscape:transform-center-x="-3.9956125"
-     inkscape:transform-center-y="-12.024446" />
-  <path
-     id="path5"
-     style="fill:#e3dedb;stroke:#000000"
-     d="m 67.20296,75.58367 a 8.9226074,9.0565929 52.037026 0 1 -1.445647,0.753887 8.9226074,9.0565929 52.037026 0 1 -10.389776,-2.600318 8.9226074,9.0565929 52.037026 0 1 -1.636945,-3.23147 l -3.58723,0.539622 a 12.387096,12.190476 52.037026 0 0 7.684555,9.601247 12.387096,12.190476 52.037026 0 0 12.037496,-1.650641 z"
-     inkscape:transform-center-x="3.9956125"
-     inkscape:transform-center-y="12.024446" />
   <rect
      style="fill:#afcdf9;stroke:#000000;fill-opacity:1"
      id="rect3"
