@@ -21,7 +21,7 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="5.0859375"
      inkscape:cx="64"
-     inkscape:cy="64"
+     inkscape:cy="58.887865"
      inkscape:window-width="1536"
      inkscape:window-height="902"
      inkscape:window-x="0"
@@ -50,14 +50,14 @@
      y="29.099846"
      ry="4.7402415" />
   <rect
-     style="fill:#afcdf9;stroke:#000000;fill-opacity:1"
+     style="fill:#afcdf9;fill-opacity:1;stroke:#000000"
      id="rect3"
      width="110.30415"
      height="24.970814"
-     x="27.727205"
-     y="23.888002"
+     x="8.8856277"
+     y="51.476871"
      ry="4.7402415"
-     transform="rotate(21.304667)" />
+     transform="rotate(0.03376484)" />
   <circle
      style="fill:#666666;stroke:#000000"
      id="path3"

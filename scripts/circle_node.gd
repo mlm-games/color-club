@@ -20,7 +20,8 @@ extends Node2D
 
 @export var stroke_width: float = 0.0:
 	set(value):
-		stroke_width = value
+		stroke_width = value/2
+		#TODO: fix to put value instead of value/2
 		queue_redraw()
 
 @export var opacity: float = 1.0:
@@ -46,6 +47,8 @@ func set_circle_properties(attributes: Dictionary) -> void:
 		opacity = float(attributes["opacity"])
 	if "id" in attributes:
 		name = attributes["id"]
+	if "style" in attributes:
+		SVGUtils.apply_css_styles_for_shape(SVGUtils.analyse_style(attributes["style"]), self)
 	
 	queue_redraw()
 

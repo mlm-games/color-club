@@ -8,53 +8,88 @@ extends EditorScript
 	#var id: String
 	#var 
 
-#TODO: add a main SVGNode class from which others inherit so all of them have similar names for properties?
-
 var original_color_dict : Dictionary[StringName, Color] = {}
+
+
+# Layer class to group SVG elements
+class SVGLayer extends Control:
+	var layer_name: String
+	
+	func _init(name: String = "SVGLayer") -> void:
+		self.name = name
+		layer_name = name
 
 func _run() -> void:
 	var parser := XMLParser.new()
 	parser.open("res://assets/art/pic2.svg")
+	
+	# Create root node for the SVG
+	var svg_root := Control.new()
+	svg_root.name = "SVGRoot"
+	self.get_scene().add_child(svg_root)
+	svg_root.owner = self.get_scene()
+	
+	# Current layer tracking
+	var current_layer := SVGLayer.new("DefaultLayer")
+	svg_root.add_child(current_layer)
+	current_layer.owner = self.get_scene()
+	
+	# Stack for handling nested groups
+	var layer_stack := [current_layer]
+	
 	while parser.read() != ERR_FILE_EOF:
 		if parser.get_node_type() == XMLParser.NODE_ELEMENT:
 			var node_name := parser.get_node_name()
 			var attributes_dict := {}
+			
 			for idx in range(parser.get_attribute_count()):
-				#TODO: if reduces code heavily, insert after typing values: if (parser.get_attribute_value(idx)).is_valid_float() : attributes_dict[parser.get_attribute_name(idx)] = float(parser.get_attribute_value(idx))
 				attributes_dict[parser.get_attribute_name(idx)] = parser.get_attribute_value(idx)
-			#print("The ", node_name, " element has the following attributes: ", attributes_dict)
+			
+			# Handle SVG structure elements
 			match node_name:
+				"svg":
+					#TODO: Update root node with SVG attributes if needed
+					pass
+				"g":
+					# Create a new layer/group
+					var new_layer := SVGLayer.new()
+					if attributes_dict.has("id"):
+						new_layer.name = attributes_dict["id"]
+						new_layer.layer_name = attributes_dict["id"]
+					else:
+						new_layer.name = "Layer_" + str(layer_stack.size())
+					
+					# Add to current layer
+					layer_stack.back().add_child(new_layer)
+					new_layer.owner = self.get_scene()
+					
+					# Push to stack
+					layer_stack.push_back(new_layer)
+					current_layer = new_layer
 				"rect":
-					print("The ", node_name, " element has the following attributes: ", attributes_dict)
 					var shape := create_rect_shape(attributes_dict)
-					#print(create_rect_shape(attributes_dict).global_position)
-					self.get_scene().add_child(shape)
+					current_layer.add_child(shape)
 					shape.owner = self.get_scene()
 				"circle":
-					#print(create_circle_shape(attributes_dict).global_position)
-					#self.get_scene().add_child(create_circle_shape(attributes_dict))
 					var shape := create_circle_shape(attributes_dict)
-					self.get_scene().add_child(shape)
+					current_layer.add_child(shape)
 					shape.owner = self.get_scene()
 				"path":
 					var shape := create_path_shape(attributes_dict)
-					
-					self.get_scene().add_child(shape)
+					current_layer.add_child(shape)
 					shape.owner = self.get_scene()
-				"line":
-					push_warning("Line hasnt been implemented yet, will be later coverted to path and drawn ig")
-				"ellipse":
-					push_warning("Will be implemented once draw_ellipse is merged into godot.")
-				"polyline":
-					push_warning("PathSVG already does this, need to convert...")
-				"polygon":
-					push_warning("PathSVG already does this, need to convert...")
-
+				"line", "ellipse", "polyline", "polygon":
+					push_warning(node_name + " hasn't been fully implemented yet")
+		
+		 #Handle closing tags for groups
+		elif parser.get_node_type() == XMLParser.NODE_ELEMENT_END:
+			if parser.get_node_name() == "g":
+				layer_stack.pop_back()
+				current_layer = layer_stack.back()
 
 static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
 	var panel := Panel.new()
 	var style_box := StyleBoxFlat.new()
-	panel.add_theme_stylebox_override("panel", style_box)
 	
 	for attribute:StringName in attributes_dict:
 		match attribute:
@@ -84,9 +119,16 @@ static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
 			"fill":
 				style_box.bg_color = Color.html(attributes_dict[attribute])
 				print("Color: "); print(Color.html(attributes_dict[attribute]))
+			"transform":
+				pass
+				#panel.pivot_offset = panel.size/2
+				#var self_transform := SVGUtils.parse_transform(attributes_dict[attribute], panel)
 			"style":
-				var styles := analyse_style(attributes_dict[attribute])
-				apply_styles_for_shape(styles, panel)
+				var styles := SVGUtils.analyse_style(attributes_dict[attribute])
+				apply_css_styles_for_rect(styles, style_box)
+			
+	style_box.anti_aliasing_size = 0.1
+	panel.add_theme_stylebox_override("panel", style_box)
 	return panel
 
 static func create_circle_shape(attributes_dict: Dictionary) -> SVGCircle:
@@ -114,56 +156,27 @@ static func create_path_shape(attributes_dict: Dictionary) -> SVGPath:
 				path.modulate.a = float(attributes_dict[attribute])
 	return path
 
-static func analyse_style(style_params: String) -> Dictionary:
-	var result := {}
-	for pair in style_params.split(";", false):
-		# Split by colon to separate key and value
-		var parts := pair.split(":", false)
-		if parts.size() == 2:
-			result[parts[0].strip_edges()] = parts[1].strip_edges()
-	
-	return result
 
 #TODO: Do it indivdually per object shape by passing the shape also as an parameter
 
 
-func analyse_transform(transform_values: String, shape: Node2D) -> Transform2D:
-	var transform := Transform2D.IDENTITY
-	match transform_values:
-		transform_values when transform_values.begins_with("transform"):
-			transform_values = transform_values.lstrip("transform(").rstrip(")")
-			var transform_split := transform_values.split_floats(",")
-			if !transform_split[1]: transform_split[1] = 0 #From the mdn docs,TODO: Add a proper documention for anyone else's viewing sake in the future
-			transform[2] = Vector2(transform_split[0], transform_split[1])
-			
-		transform_values when transform_values.begins_with("scale"):
-			transform_values = transform_values.lstrip("scale(").rstrip(")")
-			var scale_split := transform_values.split_floats(",")
-			if !scale_split[2]: scale_split[2] = scale_split[1]
-			
-		transform_values when transform_values.begins_with("skewX"):
-			transform_values = transform_values.lstrip("skewX(").rstrip(")")
-			push_warning("Transform not yet implemented")
-			
-		transform_values when transform_values.begins_with("skewY"):
-			transform_values = transform_values.lstrip("skewY(").rstrip(")")
-			push_warning("Transform not yet implemented")
-			
-		transform_values when transform_values.begins_with("matrix"):
-			transform_values = transform_values.lstrip("matrix(").rstrip(")")
-			transform_values = transform_values.replace("matrix", "").replacen("(", "").replacen(")", "")
-			var matrix := transform_values.split_floats(",")
-			for i in 3:
-				transform[i] = Vector2(matrix[i*2], matrix[i*2+1])
-				
-		transform_values when transform_values.begins_with("rotate"):
-			transform_values = transform_values.lstrip("rotate(").rstrip(")")
-			var float_values := transform_values.split_floats(",")
-			if float_values[1]: shape.pivot_offset.x = float_values[1]
-			if float_values[2]: shape.pivot_offset.y = float_values[2]
-			push_warning("Transform not yet implemented")
-	
-	return transform
 
-static func apply_styles_for_shape(styles: Dictionary, shape: CanvasItem):
-	push_warning("Not yet implemented, styles")
+static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox):
+	if styles.has("stroke"):
+		#print("adding default stroke")
+		styles.get_or_add("stroke-width", 1.0)
+	for attribute:StringName in styles:
+		match attribute:
+			"stroke":
+				print("Color: "); print(Color.html(styles[attribute]))
+				style_box.border_color = Color.html(styles[attribute])
+				
+			"stroke-width":
+				style_box.border_width_left = float(styles[attribute])
+				style_box.border_width_right = float(styles[attribute])
+				style_box.border_width_top = float(styles[attribute])
+				style_box.border_width_bottom = float(styles[attribute])
+			"fill":
+				style_box.bg_color = Color.html(styles[attribute])
+			var unimplemented_attribute:
+				push_warning("Not yet implemented, ", unimplemented_attribute)
