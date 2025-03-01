@@ -1,15 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://d23haj46gk4ea"]
+[gd_scene load_steps=4 format=3 uid="uid://d23haj46gk4ea"]
 
+[ext_resource type="Script" uid="uid://bd17dmveu6b48" path="res://hud.gd" id="1_786tl"]
 [ext_resource type="PackedScene" uid="uid://cptdr4cx7eus7" path="res://color_level_buttons.tscn" id="1_myryi"]
-[ext_resource type="Texture2D" uid="uid://dojnp54fgwmag" path="res://icon.svg" id="2_786tl"]
+[ext_resource type="PackedScene" uid="uid://dhpkpl2gdud8q" path="res://individual_color_button.tscn" id="3_2bj2v"]
 
-[node name="ColorPictureControl" type="Control"]
+[node name="ColorPictureControl" type="Control" groups=["HUD"]]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_786tl")
 metadata/_edit_use_anchors_ = true
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -51,9 +53,17 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="Control" type="Control" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+vertical_scroll_mode = 0
 metadata/_edit_use_anchors_ = true
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/ScrollContainer"]
@@ -61,9 +71,24 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/ScrollContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ColorContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer/PanelContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/separation = 20
+
+[node name="VSeparator" type="VSeparator" parent="VBoxContainer/ScrollContainer/PanelContainer/MarginContainer/ColorContainer"]
 layout_mode = 2
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="VSeparator2" type="VSeparator" parent="VBoxContainer/ScrollContainer/PanelContainer/MarginContainer/ColorContainer"]
 visible = false
-texture = ExtResource("2_786tl")
+layout_mode = 2
+
+[node name="Button" parent="VBoxContainer/ScrollContainer/PanelContainer/MarginContainer/ColorContainer" instance=ExtResource("3_2bj2v")]
+visible = false
+layout_mode = 2

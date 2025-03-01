@@ -1,5 +1,4 @@
-@tool
-class_name SVGImage extends ClickablePanel
+class_name SVGImage extends Panel
 
 #Huge thanks to https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial for most of the "understanding" part
 
@@ -8,7 +7,7 @@ class_name SVGImage extends ClickablePanel
 	#var id: String
 	#var 
 
-var colors_for_image : Dictionary[Color, Array] = {}
+
 
 
 # Layer class to group SVG elements
@@ -30,6 +29,24 @@ func _ready() -> void:
 	self.add_child(svg_root)
 	svg_root.owner = self
 	
+	# Set proper anchors and size flags to center the content
+	#self.anchor_right = 1.0
+	#self.anchor_bottom = 1.0
+	#self.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	#self.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	
+	
+	# Center the SVG root within the button
+	#svg_root.anchor_left = 0.5
+	#svg_root.anchor_top = 0.5
+	#svg_root.anchor_right = 0.5
+	#svg_root.anchor_bottom = 0.5
+	#svg_root.position = Vector2(-svg_root.custom_minimum_size.x/2, -svg_root.custom_minimum_size.y/2)
+	
+	# Make sure the scale is proportional
+	var scale_factor = min(self.size.x, self.size.y) / min(size.x/2, size.y/2)
+	svg_root.scale = Vector2(scale_factor, scale_factor)
+	
 	# Current layer tracking
 	var current_layer := SVGLayer.new("DefaultLayer")
 	svg_root.add_child(current_layer)
@@ -49,8 +66,9 @@ func _ready() -> void:
 			# Handle SVG structure elements
 			match node_name:
 				"svg":
-					#TODO: Update root node with SVG attributes if needed
 					pass
+					#TODO: Update root node with SVG attributes if needed
+					#svg_root.scale = Vector2(float(attributes_dict["height"].trim_suffix("mm")), float(attributes_dict["height"].trim_suffix("mm")))
 				"g":
 					# Create a new layer/group
 					var new_layer := SVGLayer.new()
@@ -89,10 +107,10 @@ func _ready() -> void:
 				current_layer = layer_stack.back()
 	
 	
-	colors_for_image = remove_fill_colors_and_add_to_dict(svg_root)
+	get_tree().get_first_node_in_group("HUD").colors_for_image = remove_fill_colors_and_add_to_dict(svg_root)
 
 static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
-	var panel := Panel.new()
+	var panel := ClickablePanel.new()
 	var style_box := StyleBoxFlat.new()
 	
 	for attribute:StringName in attributes_dict:
@@ -164,7 +182,7 @@ static func create_path_shape(attributes_dict: Dictionary) -> SVGPath:
 #TODO: Do it indivdually per object shape by passing the shape also as an parameter
 
 
-
+#TODO: add similar named svg variables to rect shape (from circle or path) and get styles for all using SVGUtils style function
 static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox) -> void:
 	if styles.has("stroke"):
 		#print("adding default stroke")
@@ -193,14 +211,7 @@ static  func remove_fill_colors_and_add_to_dict(root_node: Control) -> Dictionar
 	for child in root_node.get_children():
 		if child is SVGLayer:
 			for svg_layer_child in child.get_children():
-				if svg_layer_child is Panel:
-					var style_box: StyleBoxFlat = svg_layer_child.get("theme_override_styles/panel")
-					if colors_object_dict.has(style_box.bg_color):
-						colors_object_dict[style_box.bg_color].append(style_box)
-					else:
-						colors_object_dict.get_or_add(style_box.bg_color, [style_box,])
-					style_box.bg_color = Color.WHITE
-				elif svg_layer_child is Node2D:
+				if svg_layer_child is ClickablePanel or svg_layer_child is Node2D: #FIXME: Replace with base svg node?
 					if colors_object_dict.has(svg_layer_child.fill_color):
 						colors_object_dict[svg_layer_child.fill_color].append(svg_layer_child)
 					else:

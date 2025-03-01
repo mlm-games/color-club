@@ -45,10 +45,10 @@ anti_aliasing = false
 
 [node name="TextureButton" type="Panel"]
 self_modulate = Color(1, 1, 1, 0.2)
-offset_left = -25.0
-offset_top = 20.0
-offset_right = 649.0
-offset_bottom = 694.0
+offset_right = 1154.0
+offset_bottom = 651.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
 script = ExtResource("2_4saup")
 
 [node name="SVGPath" type="Node2D" parent="."]
