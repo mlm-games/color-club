@@ -1,4 +1,5 @@
-class_name SVGImmage extends ClickablePanel
+@tool
+class_name SVGImage extends ClickablePanel
 
 #Huge thanks to https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial for most of the "understanding" part
 
@@ -7,13 +8,14 @@ class_name SVGImmage extends ClickablePanel
 	#var id: String
 	#var 
 
-var original_color_dict : Dictionary[StringName, Color] = {}
+var colors_for_image : Dictionary[Color, Array] = {}
 
 
 # Layer class to group SVG elements
 class SVGLayer extends Control:
 	var layer_name: String
 	
+	@warning_ignore("shadowed_variable_base_class")
 	func _init(name: String = "SVGLayer") -> void:
 		self.name = name
 		layer_name = name
@@ -86,6 +88,8 @@ func _ready() -> void:
 				layer_stack.pop_back()
 				current_layer = layer_stack.back()
 	
+	
+	colors_for_image = remove_fill_colors_and_add_to_dict(svg_root)
 
 static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
 	var panel := Panel.new()
@@ -161,7 +165,7 @@ static func create_path_shape(attributes_dict: Dictionary) -> SVGPath:
 
 
 
-static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox):
+static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox) -> void:
 	if styles.has("stroke"):
 		#print("adding default stroke")
 		styles.get_or_add("stroke-width", 1.0)
@@ -182,9 +186,30 @@ static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox):
 				push_warning("Not yet implemented, ", unimplemented_attribute)
 
 
+#
+static  func remove_fill_colors_and_add_to_dict(root_node: Control) -> Dictionary[Color, Array]:
+	var colors_object_dict :Dictionary[Color, Array]  = {}
+	##Add fill color to the colors array
+	for child in root_node.get_children():
+		if child is SVGLayer:
+			for svg_layer_child in child.get_children():
+				if svg_layer_child is Panel:
+					var style_box: StyleBoxFlat = svg_layer_child.get("theme_override_styles/panel")
+					if colors_object_dict.has(style_box.bg_color):
+						colors_object_dict[style_box.bg_color].append(style_box)
+					else:
+						colors_object_dict.get_or_add(style_box.bg_color, [style_box,])
+					style_box.bg_color = Color.WHITE
+				elif svg_layer_child is Node2D:
+					if colors_object_dict.has(svg_layer_child.fill_color):
+						colors_object_dict[svg_layer_child.fill_color].append(svg_layer_child)
+					else:
+						colors_object_dict.get_or_add(svg_layer_child.fill_color, [svg_layer_child,])
+					svg_layer_child.fill_color = Color.WHITE
+	
+	return colors_object_dict
 
-
-
+#func add_color_and_object_to_dict(dict: Dictionary, color: Color, object: CanvasItem):
 
 
 

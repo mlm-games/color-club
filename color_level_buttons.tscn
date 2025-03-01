@@ -1,6 +1,5 @@
-[gd_scene load_steps=8 format=3 uid="uid://cptdr4cx7eus7"]
+[gd_scene load_steps=7 format=3 uid="uid://cptdr4cx7eus7"]
 
-[ext_resource type="Texture2D" uid="uid://dojnp54fgwmag" path="res://icon.svg" id="1_pkfa7"]
 [ext_resource type="Script" uid="uid://nrwj0bdmixfh" path="res://color_level_buttons.gd" id="2_4saup"]
 [ext_resource type="Script" uid="uid://bg2cmjjewx8vu" path="res://scripts/circle_node.gd" id="4_5you3"]
 [ext_resource type="Script" uid="uid://csfolt6462qio" path="res://scripts/path_node.gd" id="5_q1c04"]
@@ -44,13 +43,12 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 anti_aliasing = false
 
-[node name="TextureButton" type="TextureButton"]
+[node name="TextureButton" type="Panel"]
 self_modulate = Color(1, 1, 1, 0.2)
 offset_left = -25.0
 offset_top = 20.0
 offset_right = 649.0
 offset_bottom = 694.0
-texture_normal = ExtResource("1_pkfa7")
 script = ExtResource("2_4saup")
 
 [node name="SVGPath" type="Node2D" parent="."]
@@ -98,4 +96,4 @@ position = Vector2(62, 62)
 script = ExtResource("4_5you3")
 radius = 7.86482
 fill_color = Color(1, 0.384314, 0.65098, 1)
-stroke_width = 0.375
+stroke_width = 0.1875
