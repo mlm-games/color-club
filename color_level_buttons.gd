@@ -7,7 +7,7 @@ class_name SVGImage extends Panel
 	#var id: String
 	#var 
 
-
+const SVG_SIZE_XY = 400
 
 
 # Layer class to group SVG elements
@@ -29,23 +29,10 @@ func _ready() -> void:
 	self.add_child(svg_root)
 	svg_root.owner = self
 	
-	# Set proper anchors and size flags to center the content
-	#self.anchor_right = 1.0
-	#self.anchor_bottom = 1.0
-	#self.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	#self.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	
-	
-	# Center the SVG root within the button
-	#svg_root.anchor_left = 0.5
-	#svg_root.anchor_top = 0.5
-	#svg_root.anchor_right = 0.5
-	#svg_root.anchor_bottom = 0.5
-	#svg_root.position = Vector2(-svg_root.custom_minimum_size.x/2, -svg_root.custom_minimum_size.y/2)
-	
+
 	# Make sure the scale is proportional
-	var scale_factor = min(self.size.x, self.size.y) / min(size.x/2, size.y/2)
-	svg_root.scale = Vector2(scale_factor, scale_factor)
+	#var scale_factor = min(self.size.x, self.size.y) / min(size.x/2, size.y/2)
+	#svg_root.scale = Vector2(scale_factor, scale_factor)
 	
 	# Current layer tracking
 	var current_layer := SVGLayer.new("DefaultLayer")
@@ -66,9 +53,33 @@ func _ready() -> void:
 			# Handle SVG structure elements
 			match node_name:
 				"svg":
-					pass
-					#TODO: Update root node with SVG attributes if needed
-					#svg_root.scale = Vector2(float(attributes_dict["height"].trim_suffix("mm")), float(attributes_dict["height"].trim_suffix("mm")))
+					var width = 100  # Default fallback width
+					var height = 100  # Default fallback height
+					var viewBox = ""
+					
+					if attributes_dict.has("width"):
+						width = parse_dimension(attributes_dict["width"])
+					elif attributes_dict.has("height"):
+						height = parse_dimension(attributes_dict["height"])
+					elif attributes_dict.has("viewBox"):
+						viewBox = attributes_dict["viewBox"]
+						
+					# If no direct width/height but has viewBox, use that
+					if (width == 100 or height == 100) and viewBox != "":
+						var parts = viewBox.split(" ")
+						if parts.size() >= 4:
+							# viewBox format: min-x min-y width height
+							width = float(parts[2])
+							height = float(parts[3])
+						svg_root.scale = (Vector2.ONE * SVG_SIZE_XY) / Vector2(width, height) #(get_viewport_rect().size/16)
+					else:
+						# If we get here, we couldn't find dimensions
+						push_warning("Could not extract dimensions from SVG file")
+						svg_root.scale = (Vector2.ONE * SVG_SIZE_XY) / Vector2(100, 100) # Default fallback size
+					
+					#HACK: This centers the svg drawing somehow (for 1920, 1080; use SVG_XY = 700 with pivot offset 25,25)
+					svg_root.set_anchors_preset(Control.PRESET_CENTER)
+					svg_root.pivot_offset -= Vector2(105, 25)
 				"g":
 					# Create a new layer/group
 					var new_layer := SVGLayer.new()
@@ -204,14 +215,19 @@ static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox) -
 				push_warning("Not yet implemented, ", unimplemented_attribute)
 
 
+func parse_dimension(value: String) -> float:
+		# Remove units like px, mm, etc.
+		var numeric_part = value.replace("px", "").replace("mm", "").replace("cm", "").replace("pt", "")
+		return float(numeric_part)
+
 #
-static  func remove_fill_colors_and_add_to_dict(root_node: Control) -> Dictionary[Color, Array]:
+static func remove_fill_colors_and_add_to_dict(root_node: Control) -> Dictionary[Color, Array]:
 	var colors_object_dict :Dictionary[Color, Array]  = {}
 	##Add fill color to the colors array
 	for child in root_node.get_children():
 		if child is SVGLayer:
 			for svg_layer_child in child.get_children():
-				if svg_layer_child is ClickablePanel or svg_layer_child is Node2D: #FIXME: Replace with base svg node?
+				if svg_layer_child is Panel or svg_layer_child is Node2D: #FIXME: Replace with base svg node?
 					if colors_object_dict.has(svg_layer_child.fill_color):
 						colors_object_dict[svg_layer_child.fill_color].append(svg_layer_child)
 					else:

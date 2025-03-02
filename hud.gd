@@ -16,7 +16,7 @@ func add_colors_to_dict() -> void:
 	for color in colors_for_image:
 		var color_button := ColorButtonScene.instantiate()
 		%ColorContainer.add_child(color_button)
-		color_button.color = color
+		color_button.modulate = color
 
 func highlight_nodes_to_color():
 	for obj in colors_for_image[selected_color]:
