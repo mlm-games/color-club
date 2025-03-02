@@ -1,5 +1,8 @@
 shader_type canvas_item;
 
+// Checkerboard texture
+uniform sampler2D checkboard_texture : source_color;
+
 // Circle transition parameters
 uniform float progress : hint_range(0.0, 1.0) = 0.0;
 uniform bool circle_in = true; // true = circle in, false = circle out
@@ -11,8 +14,8 @@ uniform bool use_color_mode = false; // true = use color, false = use texture
 uniform vec4 selected_color : source_color = vec4(1.0, 0.0, 0.0, 1.0); // User selected color
 
 void fragment() {
-    // Original texture color
-    vec4 tex_color = texture(TEXTURE, UV);
+    // Get the checkerboard texture color
+    vec4 checker_color = texture(checkboard_texture, UV);
     
     // Distance from current pixel to circle center
     float dist = distance(UV, circle_center);
@@ -27,20 +30,20 @@ void fragment() {
     if (use_color_mode) {
         // In color mode
         if (circle_in) {
-            // Circle in: show color inside circle, texture outside
-            COLOR = inside_circle ? selected_color : tex_color;
+            // Circle in: show color inside circle, checker outside
+            COLOR = inside_circle ? selected_color : checker_color;
         } else {
-            // Circle out: show texture inside circle, color outside
-            COLOR = inside_circle ? tex_color : selected_color;
+            // Circle out: show checker inside circle, color outside
+            COLOR = inside_circle ? checker_color : selected_color;
         }
     } else {
-        // In texture mode (checkboard transition)
+        // In texture mode (show/hide checkboard)
         if (circle_in) {
-            // Circle in: show texture inside circle, transparent outside
-            COLOR = inside_circle ? tex_color : vec4(0.0, 0.0, 0.0, 0.0);
+            // Circle in: show checker inside circle, transparent outside
+            COLOR = inside_circle ? checker_color : vec4(0.0, 0.0, 0.0, 0.0);
         } else {
-            // Circle out: show transparent inside circle, texture outside
-            COLOR = inside_circle ? vec4(0.0, 0.0, 0.0, 0.0) : tex_color;
+            // Circle out: show transparent inside circle, checker outside
+            COLOR = inside_circle ? vec4(0.0, 0.0, 0.0, 0.0) : checker_color;
         }
     }
 }

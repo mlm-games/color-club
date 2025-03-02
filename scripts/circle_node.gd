@@ -1,6 +1,8 @@
 @tool  # Allows the node to work in the editor
 class_name SVGCircle
-extends Node2D
+extends SVGBase
+
+var highlighted : bool = false
 
 # SVG Properties
 @export var radius: float = 10.0:
@@ -29,6 +31,10 @@ extends Node2D
 		opacity = value
 		modulate.a = value
 
+func _ready() -> void:
+	gui_input.connect(_on_input_received.bind())
+	_update_control_size.call_deferred()
+
 # Optional: Helper method to set all properties at once
 func set_circle_properties(attributes: Dictionary) -> void:
 	if "cx" in attributes:
@@ -52,6 +58,15 @@ func set_circle_properties(attributes: Dictionary) -> void:
 	
 	queue_redraw()
 
+
+func _update_control_size() -> void:
+		# Set the control size to match the circle (plus stroke)
+		var total_radius = radius + stroke_width
+		custom_minimum_size = Vector2(total_radius * 2, total_radius * 2)
+		# Center the pivot
+		pivot_offset = custom_minimum_size / 2
+
+
 func _draw() -> void:
 	# Draw fill if color has any opacity
 	if fill_color.a > 0:
@@ -71,3 +86,30 @@ func _draw() -> void:
 			stroke_width, # Line width
 			true         # Antialiasing
 		)
+
+@onready var hud : HUD = get_tree().get_first_node_in_group("HUD")
+@onready var original_scale = scale
+var hover_scale : Vector2 = Vector2(1.05, 1.05)
+func _on_input_received(event: InputEvent):
+	if event.is_pressed() and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		
+		var center = custom_minimum_size / 2
+		var click_pos = event.position
+		var distance = click_pos.distance_to(center)
+				
+		if distance <= radius:
+			var click_tween : Tween = create_tween()
+			click_tween.set_trans(Tween.TRANS_QUINT)
+			click_tween.set_ease(Tween.EASE_OUT).set_ignore_time_scale()
+			click_tween.tween_property(self, "scale", original_scale * 0.95, 0.1)
+			click_tween.tween_property(self, "scale", hover_scale, 0.1)
+			click_tween.tween_property(self, "scale", original_scale, 0.1)
+			
+			# FIXME: Play click sound
+			#Sound.play_sfx("click")
+			
+			if highlighted:
+				fill_color = hud.selected_color
+				highlighted = false
+			
+			queue_redraw()

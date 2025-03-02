@@ -10,10 +10,12 @@ var highlighted: bool = false:
 	set(val):
 		highlighted = val
 		if val == true:
+			pass
 			#TODO: add_shader
-			set_instance_shader_parameter("shader_parameter/use_color_mode", false)
+			#set_instance_shader_parameter("shader_parameter/use_color_mode", false)
 		if val == false:
-			set_instance_shader_parameter("shader_parameter/use_color_mode", true)
+			pass
+			#set_instance_shader_parameter("shader_parameter/use_color_mode", true)
 			
 		else:
 			pass
@@ -21,8 +23,8 @@ var highlighted: bool = false:
 
 func _ready() -> void:
 	gui_input.connect(_on_input_received.bind())
-	material = ShaderMaterial.new()
-	material.shader = load("res://assets/shaders/individual_color_button.gdshader")
+	#material = ShaderMaterial.new()
+	#material.shader = load("res://assets/shaders/individual_color_button.gdshader")
 
 @onready var hud : HUD = get_tree().get_first_node_in_group("HUD")
 @onready var original_scale = scale

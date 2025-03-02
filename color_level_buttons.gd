@@ -227,7 +227,7 @@ static func remove_fill_colors_and_add_to_dict(root_node: Control) -> Dictionary
 	for child in root_node.get_children():
 		if child is SVGLayer:
 			for svg_layer_child in child.get_children():
-				if svg_layer_child is Panel or svg_layer_child is Node2D: #FIXME: Replace with base svg node?
+				if svg_layer_child is Panel or svg_layer_child is SVGBase: #FIXME: Replace with base svg node?
 					if colors_object_dict.has(svg_layer_child.fill_color):
 						colors_object_dict[svg_layer_child.fill_color].append(svg_layer_child)
 					else:

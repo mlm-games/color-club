@@ -1,20 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cptdr4cx7eus7"]
+[gd_scene load_steps=2 format=3 uid="uid://cptdr4cx7eus7"]
 
-[ext_resource type="Shader" uid="uid://dvl177nk7d5oi" path="res://assets/shaders/individual_color_button.gdshader" id="1_4saup"]
 [ext_resource type="Script" uid="uid://nrwj0bdmixfh" path="res://color_level_buttons.gd" id="2_4saup"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_pkfa7"]
-shader = ExtResource("1_4saup")
-shader_parameter/progress = 0.0
-shader_parameter/circle_in = true
-shader_parameter/circle_center = Vector2(0.5, 0.5)
-shader_parameter/max_radius = 1.5
-shader_parameter/use_color_mode = false
-shader_parameter/selected_color = Color(1, 0, 0, 1)
 
 [node name="TextureButton" type="Panel"]
 self_modulate = Color(1, 1, 1, 0.2)
-material = SubResource("ShaderMaterial_pkfa7")
 offset_right = 1154.0
 offset_bottom = 651.0
 size_flags_horizontal = 4
