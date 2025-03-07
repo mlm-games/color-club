@@ -47,4 +47,5 @@ func _on_input_received(event: InputEvent):
 			if highlighted:
 				fill_color = hud.selected_color
 				highlighted = false
-				
+				hud.colors_for_image[hud.selected_color].erase(self)
+				hud.remove_color_and_its_button_if_empty()

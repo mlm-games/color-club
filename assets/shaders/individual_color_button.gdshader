@@ -16,16 +16,16 @@ uniform vec4 selected_color : source_color = vec4(1.0, 0.0, 0.0, 1.0); // User s
 void fragment() {
     // Get the checkerboard texture color
     vec4 checker_color = texture(checkboard_texture, UV);
-    
+
     // Distance from current pixel to circle center
     float dist = distance(UV, circle_center);
-    
+
     // Calculate the current radius based on progress
     float current_radius = circle_in ? progress * max_radius : (1.0 - progress) * max_radius;
-    
+
     // Check if this pixel is inside the circle
     bool inside_circle = dist < current_radius;
-    
+
     // Decide what to show based on mode and whether inside circle
     if (use_color_mode) {
         // In color mode

@@ -1,42 +1,40 @@
-extends ColorRect
+extends Control
 
-const ColorPicScene = preload("uid://d23haj46gk4ea")
-var pics : Array = []
+static var local_pics : PackedStringArray = DirAccess.get_files_at(ART_FOLDER)
 
-var tween
+var tween : Tween
 
 func _on_button_pressed() -> void:
-	on_play_clickd()
+	on_play_clicked()
 	
 
-func on_play_clickd() -> void:
+func on_play_clicked() -> void:
 	tween = get_tree().create_tween()
 	tween.tween_property(%PlayButton, "modulate", Color.TRANSPARENT, 0.2)
+	await tween.finished
 	%PlayButton.hide()
+	
+	tween.tween_property(%PicContainer, "modulate", Color.WHITE, 0.2)
 	populate_pics()
+	
 	#add_child(SVGPath.new(SVGPath.Type.CURVE_TO, 0, 0 ,20 ,20 ,30, 40))
 
 func populate_pics() -> void:
-	add_child(ColorPicScene.instantiate())
-
-
-#var coloring_game: SVGColoringGame
-var color_palette: ColorPalette
-
-func _ready() -> void:
-	pass
-	#add_child(load_svg)
-	#coloring_game = SVGColoringGame.new()
-	#add_child(coloring_game)
-	#
-	## Load SVG and extract colors
-	#coloring_game.load_svg("res://assets/coloring_page.svg")
-
+	for pic_path: StringName in local_pics:
+		var pic_button := LevelButtonsScene.instantiate()
+		if pic_path.ends_with(".import"):
+			continue
+		pic_button.icon = load(ART_FOLDER + pic_path)
+		%PicContainer.add_child(pic_button)
+		
 
 
 
 
 
 #region Ideas
-#HACK: Have a seperate mode where the user is able to color the images on his own. And share the colored images if needed...
+#HACK: Have a seperate mode where the user is able to color the images on his own (get images from file picker or from vectorassests copyright free online). And share the colored images if needed...
 #endregion
+
+const ART_FOLDER = "res://assets/art/"
+const LevelButtonsScene = preload("uid://df6stj0kgo1jl")

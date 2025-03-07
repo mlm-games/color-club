@@ -1,6 +1,48 @@
-[gd_scene load_steps=2 format=3 uid="uid://cptdr4cx7eus7"]
+[gd_scene load_steps=7 format=3 uid="uid://cptdr4cx7eus7"]
 
 [ext_resource type="Script" uid="uid://nrwj0bdmixfh" path="res://color_level_buttons.gd" id="2_4saup"]
+[ext_resource type="Script" uid="uid://bg2cmjjewx8vu" path="res://scripts/circle_node.gd" id="2_d8ioo"]
+
+[sub_resource type="GDScript" id="GDScript_4saup"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4saup"]
+bg_color = Color(1, 0.8, 0.666667, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+anti_aliasing_size = 0.1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d8ioo"]
+bg_color = Color(1, 0.4, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+anti_aliasing_size = 0.1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5you3"]
+bg_color = Color(0.686275, 0.803922, 0.976471, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+anti_aliasing_size = 0.1
 
 [node name="TextureButton" type="Panel"]
 self_modulate = Color(1, 1, 1, 0.2)
@@ -9,3 +51,50 @@ offset_bottom = 651.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("2_4saup")
+
+[node name="SVGRoot" type="Control" parent="."]
+anchors_preset = 0
+
+[node name="DefaultLayer" type="Control" parent="SVGRoot"]
+anchors_preset = 0
+script = SubResource("GDScript_4saup")
+
+[node name="rect1" type="Panel" parent="SVGRoot/DefaultLayer"]
+custom_minimum_size = Vector2(124, 124)
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 126.0
+offset_bottom = 126.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4saup")
+
+[node name="rect2" type="Panel" parent="SVGRoot/DefaultLayer"]
+custom_minimum_size = Vector2(73.5361, 69.8003)
+layout_mode = 0
+offset_left = 27.232
+offset_top = 29.0998
+offset_right = 100.768
+offset_bottom = 98.9002
+theme_override_styles/panel = SubResource("StyleBoxFlat_d8ioo")
+
+[node name="rect3" type="Panel" parent="SVGRoot/DefaultLayer"]
+custom_minimum_size = Vector2(110.304, 24.9708)
+layout_mode = 0
+offset_left = 8.88563
+offset_top = 51.4769
+offset_right = 119.19
+offset_bottom = 76.4477
+theme_override_styles/panel = SubResource("StyleBoxFlat_5you3")
+
+[node name="path3" type="Control" parent="SVGRoot/DefaultLayer"]
+custom_minimum_size = Vector2(15.7921, 15.7921)
+anchors_preset = 0
+offset_left = -0.63729
+offset_top = -0.63729
+offset_right = 15.5923
+offset_bottom = 15.5923
+pivot_offset = Vector2(7.89607, 7.89607)
+script = ExtResource("2_d8ioo")
+radius = 7.86482
+fill_color = Color(0.4, 0.4, 0.4, 1)
+stroke_width = 0.03125

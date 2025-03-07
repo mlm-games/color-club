@@ -48,3 +48,4 @@ textures/vram_compression/import_etc2_astc=true
 2d/shadow_atlas/size=128
 textures/default_filters/use_nearest_mipmap_filter=true
 anti_aliasing/quality/msaa_2d=2
+environment/defaults/default_clear_color=Color(0.960784, 0.960784, 0.960784, 1)
