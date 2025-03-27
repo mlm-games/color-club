@@ -75,11 +75,9 @@ func _parse_path_data(d: String) -> void:
 			"S":
 				i = _parse_smooth_curve_to(tokens, i + 1, token == "s")
 			"Q":
-				i = _parse_smooth_curve_to(tokens, i + 1, token == "s")
-
-				#i = _parse_quad_to(tokens, i + 1, token == "q") #FIXME
-			"T":
-				i = _parse_smooth_quad_to(tokens, i + 1, token == "t") #FIXME
+				i = _parse_quad_to(tokens, i + 1, token == "q") #FIXME
+			#"T":
+				#i = _parse_smooth_quad_to(tokens, i + 1, token == "t") #FIXME
 			#"A":
 				#i = _parse_arc_to(tokens, i + 1, token == "a") #FIXME
 			"Z", "z":
@@ -351,7 +349,6 @@ func _parse_smooth_curve_to(tokens: Array, start_index: int, relative: bool) -> 
 
 func _parse_quad_to(tokens: Array, start_index: int, relative: bool) -> int:
 	var i := start_index
-	
 	while i < tokens.size():
 		if i + 3 >= tokens.size():
 			break
@@ -363,11 +360,8 @@ func _parse_quad_to(tokens: Array, start_index: int, relative: bool) -> int:
 			control += _current_pos
 			end += _current_pos
 			
-		# Convert quadratic to cubic Bezier
-		var control1 := _current_pos + (control - _current_pos) * (2.0/3.0)
-		var control2 := end + (control - end) * (2.0/3.0)
-		
-		_commands.append(PathCommand.new(PathCommandType.CURVE_TO, [control1, control2, end], relative))
+		var cubic_points := _quadratic_to_cubic(control, end, _current_pos)
+		_commands.append(PathCommand.new(PathCommandType.CURVE_TO, cubic_points, relative))
 		_current_pos = end
 		_last_control_point = control
 		
@@ -377,6 +371,7 @@ func _parse_quad_to(tokens: Array, start_index: int, relative: bool) -> int:
 			break
 			
 	return i
+
 
 func _parse_smooth_quad_to(tokens: Array, start_index: int, relative: bool) -> int:
 	var i := start_index
@@ -577,3 +572,8 @@ func _transform_point(x: float, y: float, cos_phi: float, sin_phi: float) -> Vec
 		cos_phi * x - sin_phi * y,
 		sin_phi * x + cos_phi * y
 	)
+
+func _quadratic_to_cubic(control: Vector2, end: Vector2, start: Vector2) -> Array:
+	var control1 := start + (control - start) * (2.0/3.0)
+	var control2 := end + (control - end) * (2.0/3.0)
+	return [control1, control2, end]
