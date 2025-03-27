@@ -69,6 +69,7 @@ static func parse_transform(transform_str: String, shape: CanvasItem) -> Transfo
 	
 	return transform
 
+## Fill here later
 static func apply_css_styles_for_shape(styles: Dictionary, shape: Node) -> void:
 	if styles.has("stroke"):
 		#print("adding default stroke")

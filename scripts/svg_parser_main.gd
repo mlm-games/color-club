@@ -21,7 +21,7 @@ class SVGLayer extends Control:
 
 func _run() -> void:
 	var parser := XMLParser.new()
-	parser.open("res://assets/art/pic.svg")
+	parser.open("res://assets/art/test1.svg")
 	
 	# Create root node for the SVG
 	var svg_root := Control.new()

@@ -2,7 +2,6 @@
 class_name SVGCircle
 extends SVGBase
 
-var highlighted : bool = false
 
 # SVG Properties
 @export var radius: float = 10.0:
@@ -88,10 +87,8 @@ func _draw() -> void:
 			stroke_width, # Line width
 			true         # Antialiasing
 		)
-	
-	
 
-@onready var hud : HUD = get_tree().get_first_node_in_group("HUD")
+
 @onready var original_scale := scale
 var hover_scale : Vector2 = Vector2(1.05, 1.05)
 func _on_input_received(event: InputEvent) -> void:
@@ -111,9 +108,9 @@ func _on_input_received(event: InputEvent) -> void:
 			#Sound.play_sfx("click")
 			
 			if highlighted:
-				fill_color = hud.selected_color
+				fill_color = HUD.selected_color
 				highlighted = false
-				hud.colors_for_image[hud.selected_color].erase(self)
-				hud.remove_color_and_its_button_if_empty()
+				HUD.colors_for_image[HUD.selected_color].erase(self)
+				HUD.remove_color_and_its_button_if_empty()
 			
 			queue_redraw()

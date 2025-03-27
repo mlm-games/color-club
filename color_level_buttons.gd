@@ -21,7 +21,7 @@ class SVGLayer extends Control:
 
 func _ready() -> void:
 	var parser := XMLParser.new()
-	parser.open("res://assets/art/pic2.svg")
+	parser.open("res://assets/art/test1.svg")
 	
 	# Create root node for the SVG
 	var svg_root := Control.new()
@@ -118,7 +118,7 @@ func _ready() -> void:
 				current_layer = layer_stack.back()
 	
 	
-	get_tree().get_first_node_in_group("HUD").colors_for_image = remove_fill_colors_and_add_to_dict(svg_root)
+	HUD.colors_for_image = remove_fill_colors_and_add_to_dict(svg_root)
 
 static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
 	var panel := ClickablePanel.new()
@@ -179,14 +179,17 @@ static func create_path_shape(attributes_dict: Dictionary) -> SVGPath:
 			"d":
 				path.set_path_data(attributes_dict[attribute])
 			"stroke":
-				print("Color: "); print(Color.html(attributes_dict[attribute]))
-				#path.stroke_color = Color.html(attributes_dict[attribute])
+				#print("Color: "); print(Color.html(attributes_dict[attribute]))
+				path.stroke_color = Color.html(attributes_dict[attribute])
 			"stroke-width":
 				path.stroke_width = float(attributes_dict[attribute])
 			"fill":
 				path.fill_color = Color.html(attributes_dict[attribute])
 			"opacity":
 				path.modulate.a = float(attributes_dict[attribute])
+			"style":
+				SVGUtils.apply_css_styles_for_shape(SVGUtils.analyse_style(attributes_dict[attribute]), path)
+
 	return path
 
 
@@ -217,22 +220,23 @@ static func apply_css_styles_for_rect(styles: Dictionary, style_box: StyleBox) -
 
 func parse_dimension(value: String) -> float:
 		# Remove units like px, mm, etc.
-		var numeric_part = value.replace("px", "").replace("mm", "").replace("cm", "").replace("pt", "")
+		var numeric_part := value.replace("px", "").replace("mm", "").replace("cm", "").replace("pt", "")
 		return float(numeric_part)
 
 #
-static func remove_fill_colors_and_add_to_dict(root_node: Control) -> Dictionary[Color, Array]:
-	var colors_object_dict :Dictionary[Color, Array]  = {}
+static func remove_fill_colors_and_add_to_dict(root_node: Control, colors_object_dict :Dictionary[Color, Array]  = {}) -> Dictionary[Color, Array]:
 	##Add fill color to the colors array
 	for child in root_node.get_children():
 		if child is SVGLayer:
-			for svg_layer_child in child.get_children():
-				if svg_layer_child is Panel or svg_layer_child is SVGBase: #FIXME: Replace with base svg node?
-					if colors_object_dict.has(svg_layer_child.fill_color):
-						colors_object_dict[svg_layer_child.fill_color].append(svg_layer_child)
-					else:
-						colors_object_dict.get_or_add(svg_layer_child.fill_color, [svg_layer_child,])
-					svg_layer_child.fill_color = Color.WHITE
+			remove_fill_colors_and_add_to_dict(child, colors_object_dict)
+		else:
+			if child is Panel or child is SVGBase: #FIXME: Replace with base svg node?
+				if colors_object_dict.has(child.fill_color):
+					colors_object_dict[child.fill_color].append(child)
+				else:
+					colors_object_dict.get_or_add(child.fill_color, [child,])
+				child.fill_color = Color.WHITE
+
 	
 	return colors_object_dict
 
