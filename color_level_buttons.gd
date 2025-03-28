@@ -23,6 +23,8 @@ func _ready() -> void:
 	var parser := XMLParser.new()
 	parser.open("res://assets/art/test1.svg")
 	
+	_check_unsupported_elements(parser)
+	
 	# Create root node for the SVG
 	var svg_root := Control.new()
 	svg_root.name = "SVGRoot"
@@ -97,7 +99,7 @@ func _ready() -> void:
 					layer_stack.push_back(new_layer)
 					current_layer = new_layer
 				"rect":
-					var shape := create_rect_shape(attributes_dict)
+					var shape := _parse_rect(attributes_dict)
 					current_layer.add_child(shape)
 					shape.owner = self
 				"circle":
@@ -120,49 +122,54 @@ func _ready() -> void:
 	
 	HUD.colors_for_image = remove_fill_colors_and_add_to_dict(svg_root)
 
-static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
-	var panel := ClickablePanel.new()
-	var style_box := StyleBoxFlat.new()
-	
-	for attribute:StringName in attributes_dict:
-		match attribute:
-			"id":
-				panel.name = attributes_dict[attribute]
-			"x":
-				panel.position.x = float(attributes_dict[attribute])
-			"y":
-				panel.position.y = float(attributes_dict[attribute])
-			"width":
-				panel.custom_minimum_size.x = float(attributes_dict[attribute])
-			"height":
-				panel.custom_minimum_size.y = float(attributes_dict[attribute])
-			"opacity":
-				panel.modulate.a = float(attributes_dict[attribute])
-			"rx":
-				style_box.corner_radius_top_left = float(attributes_dict[attribute])
-				style_box.corner_radius_top_right = float(attributes_dict[attribute])
-				style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
-				style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
-			"ry":
-				#TODO: Can be used in combination with rx for different horizontal/vertical rounding
-				style_box.corner_radius_top_left = float(attributes_dict[attribute])
-				style_box.corner_radius_top_right = float(attributes_dict[attribute])
-				style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
-				style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
-			"fill":
-				style_box.bg_color = Color.html(attributes_dict[attribute])
-				print("Color: "); print(Color.html(attributes_dict[attribute]))
-			"transform":
-				pass
-				#panel.pivot_offset = panel.size/2
-				#var self_transform := SVGUtils.parse_transform(attributes_dict[attribute], panel)
-			"style":
-				var styles := SVGUtils.analyse_style(attributes_dict[attribute])
-				apply_css_styles_for_rect(styles, style_box)
-			
-	style_box.anti_aliasing_size = 0.1
-	panel.add_theme_stylebox_override("panel", style_box)
-	return panel
+func _parse_rect(attributes_dict: Dictionary) -> SVGRect:
+	var rect := SVGRect.new()
+	rect.set_rect_properties(attributes_dict)
+	return rect
+
+#static func create_rect_shape(attributes_dict: Dictionary) -> Panel:
+	#var panel := ClickablePanel.new()
+	#var style_box := StyleBoxFlat.new()
+	#
+	#for attribute:StringName in attributes_dict:
+		#match attribute:
+			#"id":
+				#panel.name = attributes_dict[attribute]
+			#"x":
+				#panel.position.x = float(attributes_dict[attribute])
+			#"y":
+				#panel.position.y = float(attributes_dict[attribute])
+			#"width":
+				#panel.custom_minimum_size.x = float(attributes_dict[attribute])
+			#"height":
+				#panel.custom_minimum_size.y = float(attributes_dict[attribute])
+			#"opacity":
+				#panel.modulate.a = float(attributes_dict[attribute])
+			#"rx":
+				#style_box.corner_radius_top_left = float(attributes_dict[attribute])
+				#style_box.corner_radius_top_right = float(attributes_dict[attribute])
+				#style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
+				#style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
+			#"ry":
+				##TODO: Can be used in combination with rx for different horizontal/vertical rounding
+				#style_box.corner_radius_top_left = float(attributes_dict[attribute])
+				#style_box.corner_radius_top_right = float(attributes_dict[attribute])
+				#style_box.corner_radius_bottom_left = float(attributes_dict[attribute])
+				#style_box.corner_radius_bottom_right = float(attributes_dict[attribute])
+			#"fill":
+				#style_box.bg_color = Color.html(attributes_dict[attribute])
+				#print("Color: "); print(Color.html(attributes_dict[attribute]))
+			#"transform":
+				#pass
+				##panel.pivot_offset = panel.size/2
+				##var self_transform := SVGUtils.parse_transform(attributes_dict[attribute], panel)
+			#"style":
+				#var styles := SVGUtils.analyse_style(attributes_dict[attribute])
+				#apply_css_styles_for_rect(styles, style_box)
+			#
+	#style_box.anti_aliasing_size = 0.1
+	#panel.add_theme_stylebox_override("panel", style_box)
+	#return panel
 
 static func create_circle_shape(attributes_dict: Dictionary) -> SVGCircle:
 	var circle := SVGCircle.new()
@@ -230,7 +237,7 @@ static func remove_fill_colors_and_add_to_dict(root_node: Control, colors_object
 		if child is SVGLayer:
 			remove_fill_colors_and_add_to_dict(child, colors_object_dict)
 		else:
-			if child is Panel or child is SVGBase: #FIXME: Replace with base svg node?
+			if child is Panel or child is SVGElement: #FIXME: Replace with base svg node?
 				if colors_object_dict.has(child.fill_color):
 					colors_object_dict[child.fill_color].append(child)
 				else:
@@ -242,7 +249,22 @@ static func remove_fill_colors_and_add_to_dict(root_node: Control, colors_object
 
 #func add_color_and_object_to_dict(dict: Dictionary, color: Color, object: CanvasItem):
 
-
+func _check_unsupported_elements(parser: XMLParser) -> void:
+	var supported_elements = ["svg", "g", "rect", "circle", "path"]
+	var unsupported_elements = []
+	
+	# Reset parser to beginning
+	parser.seek(0)
+	
+	while parser.read() != ERR_FILE_EOF:
+		if parser.get_node_type() == XMLParser.NODE_ELEMENT:
+			var node_name = parser.get_node_name()
+			if not node_name in supported_elements and not node_name in unsupported_elements:
+				unsupported_elements.append(node_name)
+				push_warning("SVG element not fully implemented: " + node_name)
+	
+	# Reset parser to beginning again for the main parsing
+	parser.seek(0)
 
 #region old_stuff
 #var SourcePath: String = texture_normal.resource_path # Store the path of the SVG this sprite is using.

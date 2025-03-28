@@ -1,9 +1,5 @@
 @tool
-@icon("Curve2D")
-class_name SVGPath
-extends SVGBase
-
-@export_tool_button("Run a test", "Button") var run_test = set_path_data.bind("m 0,0 -0.01,-0.047 c -0.11,-0.006 -0.221,-0.012 -0.333,-0.015 -0.045,-0.003 -0.09,-0.003 -0.138,-0.007 -0.09,-0.003 -0.18,-0.006 -0.27,-0.006 -0.372,-0.01 -0.761,-0.01 -1.159,-0.006 l -0.356,0.009 c -0.058,0 -0.112,0.003 -0.17,0.007 -0.344,0.009 -0.694,0.025 -1.05,0.048 -0.144,0.009 -0.289,0.019 -0.436,0.029 -0.293,0.022 -0.588,0.048 -0.89,0.077 0,0 0.388,-3.399 0.068,-5.733 -0.375,-2.728 -2.257,-5.62 -2.257,-5.62 1.621,-0.158 3.127,-0.209 4.456,-0.158 0,0 0.007,0.015 0.018,0.038 3.158,0.124 5.294,0.833 5.522,2.028 0.003,0.023 0.003,0.108 0.006,0.108 H 3.004 L 5.129,2 C 4.914,0.855 2.943,0.164 0,0")
+class_name SVGPath extends SVGElement
 
 enum PathCommandType {
 	MOVE_TO,    # M, m
@@ -28,46 +24,23 @@ class PathCommand:
 		points = cmd_points
 		relative = is_relative
 
-@export var stroke_color := Color.BLACK:
-	set(value):
-		stroke_color = value
-		queue_redraw()
-
-@export var stroke_width := 1.0:
-	set(value):
-		stroke_width = value
-		queue_redraw()
-
-@export var fill_color := Color.TRANSPARENT:
-	set(value):
-		fill_color = value
-		queue_redraw()
-
 var _commands: Array[PathCommand] = []
 var _current_pos := Vector2.ZERO
 var _path_start := Vector2.ZERO
 var _last_control_point := Vector2.ZERO
-var _min_point := Vector2(INF, INF)
-var _max_point := Vector2(-INF, -INF)
-var _actual_shape_points: PackedVector2Array = []
-
-
+var _path_data: String = ""
 
 func set_path_data(d: String) -> void:
+	_path_data = d
 	_commands.clear()
+	_shape_points.clear()
+	_bounds_min = Vector2(INF, INF)
+	_bounds_max = Vector2(-INF, -INF)
 	_parse_path_data(d)
-	
-	var padding = Vector2(stroke_width, stroke_width) * 2
-	custom_minimum_size = (_max_point - _min_point) + padding
-	size = custom_minimum_size
-	
+	_update_control_size()
 	queue_redraw()
 
 func _parse_path_data(d: String) -> void:
-	_min_point = Vector2(INF, INF)
-	_max_point = Vector2(-INF, -INF)
-	_actual_shape_points.clear()
-
 	var tokens := _tokenize_path_data(d)
 	var i := 0
 	
@@ -105,6 +78,20 @@ func _parse_path_data(d: String) -> void:
 				_commands.append(PathCommand.new(PathCommandType.CLOSE_PATH, [], false))
 				i += 1
 
+func _update_control_size() -> void:
+	var padding = Vector2(stroke_width, stroke_width) * 2
+	custom_minimum_size = (_bounds_max - _bounds_min) + padding
+	size = custom_minimum_size
+	
+	# Adjust position to account for bounds
+	position.x += _bounds_min.x - stroke_width
+	position.y += _bounds_min.y - stroke_width
+	
+	# Adjust all points to be relative to new position
+	for i in range(_shape_points.size()):
+		_shape_points[i] -= _bounds_min
+		_shape_points[i] += Vector2(stroke_width, stroke_width)
+
 func _draw() -> void:
 	if _commands.is_empty():
 		return
@@ -113,30 +100,33 @@ func _draw() -> void:
 	var path_start := Vector2.ZERO
 	var vertices: PackedVector2Array = []
 	
+	# Adjust drawing coordinates based on bounds
+	var offset = Vector2(stroke_width, stroke_width) - _bounds_min
+	
 	for cmd in _commands:
 		match cmd.type:
 			PathCommandType.MOVE_TO:
 				if not vertices.is_empty() and fill_color.a > 0:
 					draw_colored_polygon(vertices, fill_color)
 				vertices.clear()
-				current_pos = cmd.points[0]
+				current_pos = cmd.points[0] + offset
 				path_start = current_pos
 				vertices.append(current_pos)
 				
 			PathCommandType.LINE_TO:
-				current_pos = cmd.points[0]
+				current_pos = cmd.points[0] + offset
 				vertices.append(current_pos)
 				if stroke_width > 0:
 					draw_line(vertices[-2], vertices[-1], stroke_color, stroke_width)
 					
 			PathCommandType.HORIZ_TO:
-				current_pos.x = cmd.points[0].x
+				current_pos.x = cmd.points[0].x + offset.x
 				vertices.append(current_pos)
 				if stroke_width > 0:
 					draw_line(vertices[-2], vertices[-1], stroke_color, stroke_width)
 					
 			PathCommandType.VERT_TO:
-				current_pos.y = cmd.points[0].y
+				current_pos.y = cmd.points[0].y + offset.y
 				vertices.append(current_pos)
 				if stroke_width > 0:
 					draw_line(vertices[-2], vertices[-1], stroke_color, stroke_width)
@@ -235,7 +225,6 @@ func _parse_move_to(tokens: Array, start_index: int, relative: bool) -> int:
 		i += 2
 		
 		_update_bounds(point)
-		_actual_shape_points.append(point)
 
 		# Check if next token is a command
 		if i < tokens.size() and tokens[i] in ["M", "m", "L", "l", "H", "h", "V", "v", "C", "c", "S", "s", "Q", "q", "T", "t", "A", "a", "Z", "z"]:
@@ -261,7 +250,6 @@ func _parse_line_to(tokens: Array, start_index: int, relative: bool) -> int:
 		_current_pos = point
 		
 		_update_bounds(point)
-		_actual_shape_points.append(point)
 		
 		i += 2
 		
@@ -289,7 +277,6 @@ func _parse_horizontal_to(tokens: Array, start_index: int, relative: bool) -> in
 		_current_pos = point
 		
 		_update_bounds(point)
-		_actual_shape_points.append(point)
 		
 		i += 1
 		
@@ -318,7 +305,6 @@ func _parse_vertical_to(tokens: Array, start_index: int, relative: bool) -> int:
 		_current_pos = point
 		
 		_update_bounds(point)
-		_actual_shape_points.append(point)
 		
 		i += 1
 		
@@ -633,36 +619,3 @@ func _quadratic_to_cubic(control: Vector2, end: Vector2, start: Vector2) -> Arra
 	var control1 := start + (control - start) * (2.0/3.0)
 	var control2 := end + (control - end) * (2.0/3.0)
 	return [control1, control2, end]
-
-func _update_bounds(point: Vector2) -> void:
-	_min_point.x = min(_min_point.x, point.x)
-	_min_point.y = min(_min_point.y, point.y)
-	_max_point.x = max(_max_point.x, point.x)
-	_max_point.y = max(_max_point.y, point.y)
-
-
-@onready var original_scale = scale
-var hover_scale : Vector2 = Vector2(1.05, 1.05)
-func _on_input_received(event: InputEvent):
-	if event.is_pressed():
-		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-			if _is_point_in_shape(get_local_mouse_position()):
-				# Click anim when unbuyable
-				var click_tween : Tween = create_tween().set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT).set_ignore_time_scale()
-				click_tween.tween_property(self, "scale", original_scale * 0.95, 0.1)
-				click_tween.tween_property(self, "scale", hover_scale, 0.1)
-				click_tween.tween_property(self, "scale", original_scale, 0.1)
-				
-				# FIXME: Play click sound
-				#Sound.play_sfx("click")
-				
-				if highlighted:
-					fill_color = HUD.selected_color
-					highlighted = false
-					HUD.colors_for_image[HUD.selected_color].erase(self)
-					HUD.remove_color_and_its_button_if_empty()
-
-func _is_point_in_shape(point: Vector2) -> bool:
-	# For complex shapes, use Geometry2D.is_point_in_polygon
-	# You may need to adjust the points based on your drawing logic
-	return Geometry2D.is_point_in_polygon(point, _actual_shape_points)

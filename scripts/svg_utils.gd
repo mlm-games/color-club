@@ -4,6 +4,34 @@ var id: String
 var opacity: float = 1.0
 var transform: Transform2D = Transform2D.IDENTITY
 
+static func create_element_from_tag(tag_name: String, attributes: Dictionary) -> SVGElement:
+	var element: SVGElement
+	
+	match tag_name:
+		"circle":
+			element = SVGCircle.new()
+			element.set_circle_properties(attributes)
+			
+		"rect":
+			element = SVGRect.new()
+			element.set_rect_properties(attributes)
+			
+		"path":
+			element = SVGPath.new()
+			if "d" in attributes:
+				element.set_path_data(attributes["d"])
+			element.set_common_attributes(attributes)
+			
+		"ellipse":
+			element = SVGEllipse.new()
+			element.set_ellipse_properties(attributes)
+			
+		_:
+			push_warning("Unsupported SVG element type: " + tag_name)
+			return null
+			
+	return element
+
 func apply_common_attributes(attributes_dict: Dictionary, svg_item: CanvasItem) -> void:
 	for attribute in attributes_dict:
 		match attribute:

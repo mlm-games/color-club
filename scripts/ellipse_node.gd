@@ -1,6 +1,6 @@
 @tool  # Allows the node to work in the editor
 class_name SVGEllipse
-extends Node2D
+extends SVGElement
 
 # SVG Properties
 @export var radius_x: float = 10.0:
@@ -12,26 +12,6 @@ extends Node2D
 	set(value):
 		radius_y= value
 		queue_redraw()
-
-@export var fill_color: Color = Color.WHITE:
-	set(value):
-		fill_color = value
-		queue_redraw()
-
-@export var stroke_color: Color = Color.BLACK:
-	set(value):
-		stroke_color = value
-		queue_redraw()
-
-@export var stroke_width: float = 0.0:
-	set(value):
-		stroke_width = value
-		queue_redraw()
-
-@export var opacity: float = 1.0:
-	set(value):
-		opacity = value
-		modulate.a = value
 
 # Optional: Helper method to set all properties at once
 func set_ellipse_properties(attributes: Dictionary) -> void:
