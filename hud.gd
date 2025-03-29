@@ -3,6 +3,8 @@ class_name HUD extends Control
 const ColorButtonScene = preload("uid://dhpkpl2gdud8q")
 const WinScreenScene = preload("uid://cevc21alsw44h")
 
+static var selected_svg_path : StringName
+
 static var colors_for_image : Dictionary[Color, Array] = {}#:
 	#set(val):
 		#add_colors_to_dict.call_deferred()

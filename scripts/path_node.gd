@@ -1,7 +1,7 @@
 @tool
 class_name SVGPath extends SVGElement
 
-#FIXME: the transform positions are not correct. Everything else is fine
+#FIXME: the transform positions are not correct. The path's control (pivot point) should be based on the center, Everything else is fine
 
 enum PathCommandType {
 	MOVE_TO,    # M, m
@@ -503,8 +503,8 @@ func _parse_arc_to(tokens: Array, start_index: int, relative: bool) -> int:
 		   not tokens[i + 6].is_valid_float():
 			break
 			
-		var rx := absf(tokens[i])
-		var ry := absf(tokens[i + 1])
+		var rx := absf(float(tokens[i]))
+		var ry := absf(float(tokens[i + 1]))
 		var x_rotation := float(tokens[i + 2])
 		var large_arc := int(float(tokens[i + 3])) != 0
 		var sweep := int(float(tokens[i + 4])) != 0

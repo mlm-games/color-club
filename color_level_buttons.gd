@@ -21,7 +21,7 @@ class SVGLayer extends Control:
 
 func _ready() -> void:
 	var parser := XMLParser.new()
-	parser.open("res://assets/art/test1.svg")
+	parser.open(HUD.selected_svg_path)
 	
 	_check_unsupported_elements(parser)
 	
