@@ -21,6 +21,7 @@ config/icon="res://assets/art/icon.svg"
 [autoload]
 
 Signals="*res://scripts/signals.gd"
+Utils="*res://scripts/utils.gd"
 
 [debug]
 

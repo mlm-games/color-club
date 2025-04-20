@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://d23haj46gk4ea"]
+[gd_scene load_steps=5 format=3 uid="uid://d23haj46gk4ea"]
 
 [ext_resource type="Script" uid="uid://bd17dmveu6b48" path="res://hud.gd" id="1_786tl"]
 [ext_resource type="PackedScene" uid="uid://cptdr4cx7eus7" path="res://color_level_buttons.tscn" id="1_myryi"]
 [ext_resource type="PackedScene" uid="uid://dhpkpl2gdud8q" path="res://individual_color_button.tscn" id="3_2bj2v"]
+
+[sub_resource type="Theme" id="Theme_2bj2v"]
 
 [node name="ColorPictureControl" type="Control" groups=["HUD"]]
 layout_mode = 3
@@ -94,3 +96,13 @@ layout_mode = 2
 [node name="Button" parent="VBoxContainer/ScrollContainer/PanelContainer/MarginContainer/ColorContainer" instance=ExtResource("3_2bj2v")]
 visible = false
 layout_mode = 2
+
+[node name="CompletionProgressBar" type="ProgressBar" parent="."]
+modulate = Color(0.407843, 0.411765, 1, 1)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 13.0
+grow_horizontal = 2
+theme = SubResource("Theme_2bj2v")
+show_percentage = false

@@ -14,6 +14,7 @@ func on_play_clicked() -> void:
 	await tween.finished
 	%PlayButton.hide()
 	
+	if tween: tween.kill(); tween = get_tree().create_tween()
 	tween.tween_property(%PicContainer, "modulate", Color.WHITE, 0.2)
 	populate_pics()
 	

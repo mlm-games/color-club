@@ -8,7 +8,7 @@ class_name SVGCircle extends SVGElement
 		queue_redraw()
 
 func _update_control_size() -> void:
-	var total_radius = radius + stroke_width
+	var total_radius := radius + stroke_width
 	custom_minimum_size = Vector2(total_radius * 2, total_radius * 2)
 	size = custom_minimum_size
 	pivot_offset = custom_minimum_size / 2
@@ -18,7 +18,7 @@ func _update_control_size() -> void:
 	_bounds_max = Vector2(radius, radius)
 
 func _draw() -> void:
-	var center = custom_minimum_size / 2
+	var center := custom_minimum_size / 2
 	
 	# Draw fill
 	if fill_color.a > 0:
@@ -29,8 +29,8 @@ func _draw() -> void:
 		draw_arc(center, radius, 0, TAU, 32, stroke_color, stroke_width, true)
 
 func _is_point_in_shape(point: Vector2) -> bool:
-	var center = custom_minimum_size / 2
-	var distance = point.distance_to(center)
+	var center := custom_minimum_size / 2
+	var distance := point.distance_to(center)
 	return distance <= radius
 	
 func set_circle_properties(attributes: Dictionary) -> void:

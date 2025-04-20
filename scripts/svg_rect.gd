@@ -53,8 +53,8 @@ func set_rect_properties(attributes: Dictionary) -> void:
 	queue_redraw()
 
 func _update_control_size() -> void:
-	var total_width = width + stroke_width * 2
-	var total_height = height + stroke_width * 2
+	var total_width := width + stroke_width * 2
+	var total_height := height + stroke_width * 2
 	custom_minimum_size = Vector2(total_width, total_height)
 	size = custom_minimum_size
 	
@@ -68,8 +68,8 @@ func _update_shape_points() -> void:
 	# Create a polygon approximation of the rectangle for hit detection
 	if corner_radius_x > 0 or corner_radius_y > 0:
 		# For rounded rectangles we use a simplified polygon
-		var rx = min(corner_radius_x, width/2)
-		var ry = min(corner_radius_y, height/2)
+		var rx := minf(corner_radius_x, width/2)
+		var ry := minf(corner_radius_y, height/2)
 		
 		# Add points in clockwise order
 		_shape_points.append(Vector2(rx, 0))
@@ -89,16 +89,16 @@ func _update_shape_points() -> void:
 
 func _draw() -> void:
 	# Account for stroke width in drawing
-	var offset = Vector2(stroke_width, stroke_width)
-	var draw_width = width
-	var draw_height = height
+	var offset := Vector2(stroke_width, stroke_width)
+	var draw_width := width
+	var draw_height := height
 	
 	# Draw fill
 	if fill_color.a > 0:
 		if corner_radius_x > 0 or corner_radius_y > 0:
 			# Use rounded rectangle
-			var rx = min(corner_radius_x, width/2)
-			var ry = min(corner_radius_y, height/2)
+			var rx := minf(corner_radius_x, width/2)
+			var ry := minf(corner_radius_y, height/2)
 			draw_rounded_rect(Rect2(offset, Vector2(draw_width, draw_height)), 
 							 rx, ry, fill_color)
 		else:
@@ -110,8 +110,8 @@ func _draw() -> void:
 	if stroke_width > 0:
 		if corner_radius_x > 0 or corner_radius_y > 0:
 			# Rounded rectangle stroke
-			var rx = min(corner_radius_x, width/2)
-			var ry = min(corner_radius_y, height/2)
+			var rx := minf(corner_radius_x, width/2)
+			var ry := minf(corner_radius_y, height/2)
 			draw_rounded_rect(Rect2(offset, Vector2(draw_width, draw_height)), 
 							 rx, ry, stroke_color, false, stroke_width)
 		else:
@@ -122,8 +122,8 @@ func _draw() -> void:
 func _is_point_in_shape(point: Vector2) -> bool:
 	# For non-rounded rectangles, simple bounds check is enough
 	if corner_radius_x == 0 and corner_radius_y == 0:
-		var offset = Vector2(stroke_width, stroke_width)
-		var rect = Rect2(offset, Vector2(width, height))
+		var offset := Vector2(stroke_width, stroke_width)
+		var rect := Rect2(offset, Vector2(width, height))
 		return rect.has_point(point)
 	
 	# For rounded rectangles, use the polygon approximation
@@ -187,14 +187,14 @@ func draw_rounded_rect(rect: Rect2, radius_x: float, radius_y: float,
 func draw_circle_arc(center: Vector2, radius_x: float, radius_y: float, 
 					angle_from: float, angle_to: float, color: Color, 
 					filled: bool = false, line_width: float = 1.0) -> void:
-	var nb_points = 32
-	var points_arc = PackedVector2Array()
+	var nb_points := 32
+	var points_arc := PackedVector2Array()
 	
 	if filled:
 		points_arc.append(center)
 	
 	for i in range(nb_points + 1):
-		var angle_point = angle_from + i * (angle_to - angle_from) / nb_points
+		var angle_point := angle_from + i * (angle_to - angle_from) / nb_points
 		points_arc.append(center + Vector2(
 			cos(angle_point) * radius_x,
 			sin(angle_point) * radius_y
