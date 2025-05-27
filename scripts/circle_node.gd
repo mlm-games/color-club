@@ -1,44 +1,46 @@
 @tool
-class_name SVGCircle extends SVGElement
+class_name SVGCircle
+extends SVGElement
 
 @export var radius: float = 10.0:
 	set(value):
-		radius = value
-		_update_control_size()
+		radius = max(0, value)
+		_update_size()
 		queue_redraw()
 
-func _update_control_size() -> void:
-	var total_radius := radius + stroke_width
-	custom_minimum_size = Vector2(total_radius * 2, total_radius * 2)
-	size = custom_minimum_size
-	pivot_offset = custom_minimum_size / 2
-	
-	# Update bounds
-	_bounds_min = Vector2(-radius, -radius)
-	_bounds_max = Vector2(radius, radius)
+func _calculate_shape_bounds() -> Rect2:
+	return Rect2(-radius, -radius, radius * 2, radius * 2)
 
-func _draw() -> void:
-	var center := custom_minimum_size / 2
+func _draw_content() -> void:
+	var draw_offset = _get_draw_offset()
+	var center = draw_offset + Vector2(radius, radius)
 	
 	# Draw fill
 	if fill_color.a > 0:
 		draw_circle(center, radius, fill_color)
 	
 	# Draw stroke
-	if stroke_width > 0:
-		draw_arc(center, radius, 0, TAU, 32, stroke_color, stroke_width, true)
+	if stroke_width > 0 and stroke_color.a > 0:
+		draw_arc(center, radius, 0, TAU, 64, stroke_color, stroke_width, true)
 
-func _is_point_in_shape(point: Vector2) -> bool:
-	var center := custom_minimum_size / 2
-	var distance := point.distance_to(center)
-	return distance <= radius
-	
 func set_circle_properties(attributes: Dictionary) -> void:
-	set_common_attributes(attributes)
-	
 	if "r" in attributes:
 		radius = float(attributes["r"])
+	
+	# Apply common attributes first
+	set_common_attributes(attributes)
+	
+	# Handle center positioning - keep original logic
+	var cx = 0.0
+	var cy = 0.0
 	if "cx" in attributes:
-		position.x = float(attributes["cx"])
+		cx = float(attributes["cx"])
 	if "cy" in attributes:
-		position.y = float(attributes["cy"])
+		cy = float(attributes["cy"])
+	
+	# Position so circle center is at cx,cy (original working logic)
+	position = Vector2(cx - radius - stroke_width * 0.5, cy - radius - stroke_width * 0.5)
+	
+	# Apply transform if it exists
+	if has_transform:
+		_apply_svg_transform()

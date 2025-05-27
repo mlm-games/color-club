@@ -1,207 +1,185 @@
 @tool
-class_name SVGRect extends SVGElement
+class_name SVGRect
+extends SVGElement
 
-# Rectangle properties
-@export var width: float = 10.0:
+@export var rect_width: float = 10.0:
 	set(value):
-		width = value
-		_update_control_size()
+		rect_width = max(0, value)
+		_update_size()
 		queue_redraw()
 
-@export var height: float = 10.0:
+@export var rect_height: float = 10.0:
 	set(value):
-		height = value
-		_update_control_size()
+		rect_height = max(0, value)
+		_update_size()
 		queue_redraw()
 
 @export var corner_radius_x: float = 0.0:
 	set(value):
-		corner_radius_x = value
+		corner_radius_x = max(0, value)
 		queue_redraw()
 
 @export var corner_radius_y: float = 0.0:
 	set(value):
-		corner_radius_y = value
+		corner_radius_y = max(0, value)
 		queue_redraw()
 
-func _ready() -> void:
-	super._ready()
-	_update_shape_points()
+func _calculate_shape_bounds() -> Rect2:
+	return Rect2(0, 0, rect_width, rect_height)
+
+func _draw_content() -> void:
+	var draw_offset = _get_draw_offset()
+	var shape_rect = Rect2(draw_offset, Vector2(rect_width, rect_height))
+	
+	# Draw fill first
+	if fill_color.a > 0:
+		if corner_radius_x > 0 or corner_radius_y > 0:
+			_draw_rounded_rect_fill(shape_rect, corner_radius_x, corner_radius_y, fill_color)
+		else:
+			draw_rect(shape_rect, fill_color)
+	
+	# Draw stroke
+	if stroke_width > 0 and stroke_color.a > 0:
+		if corner_radius_x > 0 or corner_radius_y > 0:
+			_draw_rounded_rect_stroke_proper(shape_rect, corner_radius_x, corner_radius_y, stroke_color)
+		else:
+			draw_rect(shape_rect, stroke_color, false, stroke_width)
+
+func _draw_rounded_rect_fill(rect: Rect2, rx: float, ry: float, color: Color) -> void:
+	rx = min(rx, rect.size.x * 0.5)
+	ry = min(ry, rect.size.y * 0.5)
+	
+	# Draw center rectangle (vertical)
+	draw_rect(Rect2(rect.position.x, rect.position.y + ry, rect.size.x, rect.size.y - 2*ry), color)
+	# Draw center rectangle (horizontal)
+	draw_rect(Rect2(rect.position.x + rx, rect.position.y, rect.size.x - 2*rx, rect.size.y), color)
+	
+	# Draw corner circles
+	var corners = [
+		rect.position + Vector2(rx, ry),
+		rect.position + Vector2(rect.size.x - rx, ry),
+		rect.position + Vector2(rx, rect.size.y - ry),
+		rect.position + Vector2(rect.size.x - rx, rect.size.y - ry)
+	]
+	
+	for corner in corners:
+		draw_circle(corner, min(rx, ry), color)
+
+# Fixed rounded rectangle stroke - no overlapping
+func _draw_rounded_rect_stroke_proper(rect: Rect2, rx: float, ry: float, color: Color) -> void:
+	rx = min(rx, rect.size.x * 0.5)
+	ry = min(ry, rect.size.y * 0.5)
+	var radius = min(rx, ry)
+	
+	# Create a continuous path for the rounded rectangle outline
+	var points = PackedVector2Array()
+	var segments_per_arc = 16  # Number of segments per corner arc
+	
+	# Start from top-left corner, going clockwise
+	
+	# Top-left arc (from 180° to 270°)
+	var center_tl = rect.position + Vector2(rx, ry)
+	for i in range(segments_per_arc + 1):
+		var angle = PI + (PI * 0.5) * float(i) / float(segments_per_arc)
+		points.append(center_tl + Vector2(cos(angle), sin(angle)) * radius)
+	
+	# Top edge (already have the start point from arc)
+	points.append(Vector2(rect.position.x + rect.size.x - rx, rect.position.y))
+	
+	# Top-right arc (from 270° to 360°)
+	var center_tr = rect.position + Vector2(rect.size.x - rx, ry)
+	for i in range(1, segments_per_arc + 1):
+		var angle = PI * 1.5 + (PI * 0.5) * float(i) / float(segments_per_arc)
+		points.append(center_tr + Vector2(cos(angle), sin(angle)) * radius)
+	
+	# Right edge
+	points.append(Vector2(rect.position.x + rect.size.x, rect.position.y + rect.size.y - ry))
+	
+	# Bottom-right arc (from 0° to 90°)
+	var center_br = rect.position + Vector2(rect.size.x - rx, rect.size.y - ry)
+	for i in range(1, segments_per_arc + 1):
+		var angle = (PI * 0.5) * float(i) / float(segments_per_arc)
+		points.append(center_br + Vector2(cos(angle), sin(angle)) * radius)
+	
+	# Bottom edge
+	points.append(Vector2(rect.position.x + rx, rect.position.y + rect.size.y))
+	
+	# Bottom-left arc (from 90° to 180°)
+	var center_bl = rect.position + Vector2(rx, rect.size.y - ry)
+	for i in range(1, segments_per_arc + 1):
+		var angle = PI * 0.5 + (PI * 0.5) * float(i) / float(segments_per_arc)
+		points.append(center_bl + Vector2(cos(angle), sin(angle)) * radius)
+	
+	# Left edge (close the path)
+	points.append(Vector2(rect.position.x, rect.position.y + ry))
+	
+	# Close the path by connecting back to start
+	if points.size() > 0:
+		points.append(points[0])
+	
+	# Draw the complete outline as one continuous stroke
+	if points.size() > 1:
+		draw_polyline(points, color, stroke_width, true)
 
 func set_rect_properties(attributes: Dictionary) -> void:
-	set_common_attributes(attributes)
-	
-	if "x" in attributes:
-		position.x = float(attributes["x"])
-	if "y" in attributes:
-		position.y = float(attributes["y"])
+	# Parse dimensions first
 	if "width" in attributes:
-		width = float(attributes["width"])
+		rect_width = float(attributes["width"])
 	if "height" in attributes:
-		height = float(attributes["height"])
+		rect_height = float(attributes["height"])
 	if "rx" in attributes:
 		corner_radius_x = float(attributes["rx"])
 		if not "ry" in attributes:
-			corner_radius_y = corner_radius_x  # Default behavior per SVG spec
+			corner_radius_y = corner_radius_x
 	if "ry" in attributes:
 		corner_radius_y = float(attributes["ry"])
 		if not "rx" in attributes:
-			corner_radius_x = corner_radius_y  # Default behavior per SVG spec
+			corner_radius_x = corner_radius_y
 	
-	_update_control_size()
-	_update_shape_points()
-	queue_redraw()
-
-func _update_control_size() -> void:
-	var total_width := width + stroke_width * 2
-	var total_height := height + stroke_width * 2
-	custom_minimum_size = Vector2(total_width, total_height)
-	size = custom_minimum_size
+	# Store SVG coordinates
+	var svg_x = 0.0
+	var svg_y = 0.0
+	if "x" in attributes:
+		svg_x = float(attributes["x"])
+	if "y" in attributes:
+		svg_y = float(attributes["y"])
 	
-	# Update bounds
-	_bounds_min = Vector2.ZERO
-	_bounds_max = Vector2(width, height)
-
-func _update_shape_points() -> void:
-	_shape_points.clear()
+	# Apply common attributes (this sets has_transform and svg_transform)
+	set_common_attributes(attributes)
 	
-	# Create a polygon approximation of the rectangle for hit detection
-	if corner_radius_x > 0 or corner_radius_y > 0:
-		# For rounded rectangles we use a simplified polygon
-		var rx := minf(corner_radius_x, width/2)
-		var ry := minf(corner_radius_y, height/2)
+	# Handle positioning based on whether we have transforms
+	if has_transform:
+		# For transformed elements, we need to handle SVG's transform origin
+		# SVG transforms are applied around the element's top-left corner by default
 		
-		# Add points in clockwise order
-		_shape_points.append(Vector2(rx, 0))
-		_shape_points.append(Vector2(width - rx, 0))
-		_shape_points.append(Vector2(width, ry))
-		_shape_points.append(Vector2(width, height - ry))
-		_shape_points.append(Vector2(width - rx, height))
-		_shape_points.append(Vector2(rx, height))
-		_shape_points.append(Vector2(0, height - ry))
-		_shape_points.append(Vector2(0, ry))
+		# Set position to SVG coordinates first
+		position = Vector2(svg_x, svg_y)
+		
+		# Apply the transform
+		_apply_svg_transform_properly()
 	else:
-		# Simple rectangle
-		_shape_points.append(Vector2(0, 0))
-		_shape_points.append(Vector2(width, 0))
-		_shape_points.append(Vector2(width, height))
-		_shape_points.append(Vector2(0, height))
+		# For non-transformed elements, use simple positioning
+		position = Vector2(svg_x, svg_y)
 
-func _draw() -> void:
-	# Account for stroke width in drawing
-	var offset := Vector2(stroke_width, stroke_width)
-	var draw_width := width
-	var draw_height := height
+# Proper transform application for SVG coordinate system
+func _apply_svg_transform_properly() -> void:
+	if not has_transform:
+		return
 	
-	# Draw fill
-	if fill_color.a > 0:
-		if corner_radius_x > 0 or corner_radius_y > 0:
-			# Use rounded rectangle
-			var rx := minf(corner_radius_x, width/2)
-			var ry := minf(corner_radius_y, height/2)
-			draw_rounded_rect(Rect2(offset, Vector2(draw_width, draw_height)), 
-							 rx, ry, fill_color)
-		else:
-			# Simple rectangle
-			draw_rect(Rect2(offset, Vector2(draw_width, draw_height)), 
-					 fill_color, true)
+	# Extract transform components
+	var transform_origin = svg_transform.origin
+	var transform_rotation = svg_transform.get_rotation()
+	var transform_scale = svg_transform.get_scale()
 	
-	# Draw stroke
-	if stroke_width > 0:
-		if corner_radius_x > 0 or corner_radius_y > 0:
-			# Rounded rectangle stroke
-			var rx := minf(corner_radius_x, width/2)
-			var ry := minf(corner_radius_y, height/2)
-			draw_rounded_rect(Rect2(offset, Vector2(draw_width, draw_height)), 
-							 rx, ry, stroke_color, false, stroke_width)
-		else:
-			# Simple rectangle stroke
-			draw_rect(Rect2(offset, Vector2(draw_width, draw_height)), 
-					 stroke_color, false, stroke_width)
-
-func _is_point_in_shape(point: Vector2) -> bool:
-	# For non-rounded rectangles, simple bounds check is enough
-	if corner_radius_x == 0 and corner_radius_y == 0:
-		var offset := Vector2(stroke_width, stroke_width)
-		var rect := Rect2(offset, Vector2(width, height))
-		return rect.has_point(point)
+	# For SVG, transforms are applied around the coordinate system origin,
+	# not the element center. We need to account for this.
 	
-	# For rounded rectangles, use the polygon approximation
-	return Geometry2D.is_point_in_polygon(point, _shape_points)
-
-# Helper function to draw rounded rectangles
-func draw_rounded_rect(rect: Rect2, radius_x: float, radius_y: float, 
-					  color: Color, filled: bool = true, line_width: float = 1.0) -> void:
-	# Ensure radii aren't too large
-	radius_x = min(radius_x, rect.size.x / 2)
-	radius_y = min(radius_y, rect.size.y / 2)
+	# Apply scale and rotation around the top-left corner (SVG default)
+	if transform_rotation != 0.0 or transform_scale != Vector2.ONE:
+		# Set pivot to top-left for SVG-style transforms
+		pivot_offset = Vector2.ZERO
+		rotation = transform_rotation
+		scale = transform_scale
 	
-	if filled:
-		# Draw center rectangle
-		draw_rect(Rect2(rect.position.x + radius_x, rect.position.y, 
-					   rect.size.x - 2 * radius_x, rect.size.y), color, true)
-		
-		# Draw left and right rectangles
-		draw_rect(Rect2(rect.position.x, rect.position.y + radius_y,
-					   radius_x, rect.size.y - 2 * radius_y), color, true)
-		draw_rect(Rect2(rect.position.x + rect.size.x - radius_x, rect.position.y + radius_y,
-					   radius_x, rect.size.y - 2 * radius_y), color, true)
-		
-		# Draw the four corner arcs
-		draw_circle_arc(Vector2(rect.position.x + radius_x, rect.position.y + radius_y), 
-						radius_x, radius_y, PI, 1.5 * PI, color, true)
-		draw_circle_arc(Vector2(rect.position.x + rect.size.x - radius_x, rect.position.y + radius_y), 
-						radius_x, radius_y, 1.5 * PI, TAU, color, true)
-		draw_circle_arc(Vector2(rect.position.x + radius_x, rect.position.y + rect.size.y - radius_y), 
-						radius_x, radius_y, 0.5 * PI, PI, color, true)
-		draw_circle_arc(Vector2(rect.position.x + rect.size.x - radius_x, rect.position.y + rect.size.y - radius_y), 
-						radius_x, radius_y, 0, 0.5 * PI, color, true)
-	else:
-		# Draw horizontal lines
-		draw_line(Vector2(rect.position.x + radius_x, rect.position.y), 
-				 Vector2(rect.position.x + rect.size.x - radius_x, rect.position.y), 
-				 color, line_width)
-		draw_line(Vector2(rect.position.x + radius_x, rect.position.y + rect.size.y), 
-				 Vector2(rect.position.x + rect.size.x - radius_x, rect.position.y + rect.size.y), 
-				 color, line_width)
-		
-		# Draw vertical lines
-		draw_line(Vector2(rect.position.x, rect.position.y + radius_y), 
-				 Vector2(rect.position.x, rect.position.y + rect.size.y - radius_y), 
-				 color, line_width)
-		draw_line(Vector2(rect.position.x + rect.size.x, rect.position.y + radius_y), 
-				 Vector2(rect.position.x + rect.size.x, rect.position.y + rect.size.y - radius_y), 
-				 color, line_width)
-		
-		# Draw the four corner arcs
-		draw_circle_arc(Vector2(rect.position.x + radius_x, rect.position.y + radius_y), 
-						radius_x, radius_y, PI, 1.5 * PI, color, false, line_width)
-		draw_circle_arc(Vector2(rect.position.x + rect.size.x - radius_x, rect.position.y + radius_y), 
-						radius_x, radius_y, 1.5 * PI, TAU, color, false, line_width)
-		draw_circle_arc(Vector2(rect.position.x + radius_x, rect.position.y + rect.size.y - radius_y), 
-						radius_x, radius_y, 0.5 * PI, PI, color, false, line_width)
-		draw_circle_arc(Vector2(rect.position.x + rect.size.x - radius_x, rect.position.y + rect.size.y - radius_y), 
-						radius_x, radius_y, 0, 0.5 * PI, color, false, line_width)
-
-# Helper function to draw elliptical arcs
-func draw_circle_arc(center: Vector2, radius_x: float, radius_y: float, 
-					angle_from: float, angle_to: float, color: Color, 
-					filled: bool = false, line_width: float = 1.0) -> void:
-	var nb_points := 32
-	var points_arc := PackedVector2Array()
-	
-	if filled:
-		points_arc.append(center)
-	
-	for i in range(nb_points + 1):
-		var angle_point := angle_from + i * (angle_to - angle_from) / nb_points
-		points_arc.append(center + Vector2(
-			cos(angle_point) * radius_x,
-			sin(angle_point) * radius_y
-		))
-	
-	if filled:
-		draw_colored_polygon(points_arc, color)
-	else:
-		for i in range(1, points_arc.size()):
-			draw_line(points_arc[i-1], points_arc[i], color, line_width)
+	# Apply translation
+	position += transform_origin

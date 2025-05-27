@@ -1,6 +1,6 @@
 class_name LevelSelectorButton extends Button
 
-const ColorPicScene : PackedScene = preload("uid://d23haj46gk4ea")
+const ColorPicScene : PackedScene = preload("uid://bmgl20mx1bn0g")
 
 #func _init(img_path: StringName) -> void:
 	#icon = load(img_path)
