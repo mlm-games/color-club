@@ -11,6 +11,7 @@ var svg_width: float = 100.0
 var svg_height: float = 100.0
 var viewbox: Rect2 = Rect2()
 var svg_root: Control
+var svg_scale_factor: float = 1.0
 
 # Color management
 var color_registry: Dictionary = {}  # Color -> Array[SVGElement]
@@ -22,6 +23,9 @@ func _ready() -> void:
 	if HUD.selected_svg_path.is_empty():
 		push_error("No SVG path selected")
 		return
+	
+	# Connect element clicked signal
+	connect("element_clicked", _on_element_clicked)
 	
 	load_svg(HUD.selected_svg_path)
 
@@ -39,6 +43,7 @@ func load_svg(file_path: String) -> bool:
 	# Create root container
 	svg_root = Control.new()
 	svg_root.name = "SVGRoot"
+	svg_root.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(svg_root)
 	
 	# Parse the SVG
@@ -58,6 +63,7 @@ func _clear_svg_content() -> void:
 
 func _parse_svg_document(parser: XMLParser) -> bool:
 	var element_stack: Array[Control] = [svg_root]
+	var transform_stack: Array[Transform2D] = [Transform2D.IDENTITY]
 	var svg_found = false
 	
 	while parser.read() != ERR_FILE_EOF:
@@ -70,18 +76,33 @@ func _parse_svg_document(parser: XMLParser) -> bool:
 					_parse_svg_root(attributes)
 					svg_found = true
 				elif tag_name == "g":
-					var group = _create_group(attributes)
+					var group = _create_group(attributes, transform_stack.back())
 					element_stack.back().add_child(group)
 					element_stack.push_back(group)
+					
+					# Update transform stack
+					var group_transform = transform_stack.back()
+					if group.has_transform:
+						group_transform = group_transform * group.svg_transform
+					transform_stack.push_back(group_transform)
 				else:
 					var element = SVGUtils.create_svg_element(tag_name, attributes)
 					if element:
+						# Apply accumulated transform
+						if transform_stack.back() != Transform2D.IDENTITY:
+							element.has_transform = true
+							element.svg_transform = transform_stack.back() * element.svg_transform
+						
 						element_stack.back().add_child(element)
 						_setup_element_interaction(element)
+						
+						# Apply transform after adding to tree
+						element.apply_svg_transform()
 			
 			XMLParser.NODE_ELEMENT_END:
 				if parser.get_node_name() == "g" and element_stack.size() > 1:
 					element_stack.pop_back()
+					transform_stack.pop_back()
 	
 	return svg_found
 
@@ -107,47 +128,40 @@ func _parse_svg_root(attributes: Dictionary) -> void:
 				float(parts[2]), float(parts[3])
 			)
 			# Use viewBox dimensions if no explicit width/height
-			if svg_width == 100.0 and svg_height == 100.0:
+			if not "width" in attributes and not "height" in attributes:
 				svg_width = viewbox.size.x
 				svg_height = viewbox.size.y
 
-func _create_group(attributes: Dictionary) -> SVGGroup:
+func _create_group(attributes: Dictionary, parent_transform: Transform2D) -> SVGGroup:
 	var group = SVGGroup.new()
+	group.set_accumulated_transform(parent_transform)
 	group.set_group_attributes(attributes)
 	return group
 
 func _setup_element_interaction(element: SVGElement) -> void:
-	# Make sure the element can receive input
+	# Ensure the element can receive input
 	element.mouse_filter = Control.MOUSE_FILTER_PASS
 	
-	# Connect the element's input signal
-	if not element.gui_input.is_connected(_on_element_input):
-		element.gui_input.connect(_on_element_input.bind(element))
+	# Connect through the parent signal system
+	element.gui_input.connect(_on_element_gui_input.bind(element))
 
-func _on_element_input(event: InputEvent, element: SVGElement) -> void:
+func _on_element_gui_input(event: InputEvent, element: SVGElement) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event = event as InputEventMouseButton
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			print("Element clicked: ", element.name, " at position: ", mouse_event.position)
-			element_clicked.emit(element)
-			_handle_element_click(element)
+			if element._has_point(mouse_event.position):
+				element_clicked.emit(element)
+
+func _on_element_clicked(element: SVGElement) -> void:
+	_handle_element_click(element)
 
 func _handle_element_click(element: SVGElement) -> void:
-	print("Handling click for element: ", element.name)
-	print("Current fill color: ", element.fill_color)
-	print("Selected color: ", HUD.selected_color)
-	
 	# Color the element if a color is selected
 	if HUD.selected_color != Color.TRANSPARENT and HUD.selected_color != Color.WHITE:
-		print("Coloring element with: ", HUD.selected_color)
 		_color_element(element, HUD.selected_color)
-	else:
-		print("No valid color selected")
 
 func _color_element(element: SVGElement, color: Color) -> void:
 	var old_color = element.fill_color
-	print("Changing color from ", old_color, " to ", color)
-	
 	element.fill_color = color
 	
 	# Update color registry
@@ -155,15 +169,15 @@ func _color_element(element: SVGElement, color: Color) -> void:
 		color_registry[old_color].erase(element)
 		if color_registry[old_color].is_empty():
 			color_registry.erase(old_color)
-			print("Removed empty color entry: ", old_color)
+			HUD.remove_color_if_empty(old_color)
 	
 	if not color in color_registry:
 		color_registry[color] = []
 	color_registry[color].append(element)
 	
-	# Notify HUD of color change
-	HUD.colors_for_image = color_registry
-	print("Updated color registry: ", color_registry.keys())
+	# Notify game manager
+	if GameManager.instance:
+		GameManager.instance.on_element_colored()
 
 func _finalize_svg_layout() -> void:
 	# Calculate scale to fit the panel
@@ -171,20 +185,36 @@ func _finalize_svg_layout() -> void:
 	if panel_size.x <= 0 or panel_size.y <= 0:
 		panel_size = Vector2(DEFAULT_SVG_SIZE, DEFAULT_SVG_SIZE)
 	
-	var scale_factor = min(
-		panel_size.x / svg_width,
-		panel_size.y / svg_height
+	# Account for viewBox if present
+	var effective_width = svg_width
+	var effective_height = svg_height
+	if viewbox != Rect2():
+		effective_width = viewbox.size.x
+		effective_height = viewbox.size.y
+	
+	svg_scale_factor = min(
+		panel_size.x / effective_width,
+		panel_size.y / effective_height
 	) * 0.9  # Leave some margin
 	
-	svg_root.scale = Vector2(scale_factor, scale_factor)
+	svg_root.scale = Vector2(svg_scale_factor, svg_scale_factor)
 	
 	# Center the SVG
-	var scaled_size = Vector2(svg_width, svg_height) * scale_factor
+	var scaled_size = Vector2(effective_width, effective_height) * svg_scale_factor
 	svg_root.position = (panel_size - scaled_size) * 0.5
 	
 	# Apply viewBox offset if needed
 	if viewbox != Rect2():
-		svg_root.position -= viewbox.position * scale_factor
+		# Create a transform for the viewBox
+		var viewbox_transform = Transform2D.IDENTITY
+		viewbox_transform.origin = -viewbox.position
+		
+		# Apply to all direct children of svg_root
+		for child in svg_root.get_children():
+			if child is SVGElement:
+				child.position -= viewbox.position * svg_scale_factor
+			elif child is SVGGroup:
+				child.position -= viewbox.position * svg_scale_factor
 
 func _extract_colors() -> void:
 	color_registry.clear()

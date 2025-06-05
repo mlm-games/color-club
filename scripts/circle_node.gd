@@ -8,14 +8,17 @@ extends SVGElement
 		_update_size()
 		queue_redraw()
 
-func _calculate_shape_bounds() -> Rect2:
-	return Rect2(-radius, -radius, radius * 2, radius * 2)
+var center_x: float = 0.0
+var center_y: float = 0.0
+
+func _calculate_content_bounds() -> Rect2:
+	return Rect2(0, 0, radius * 2, radius * 2)
 
 func _draw_content() -> void:
 	var draw_offset = _get_draw_offset()
 	var center = draw_offset + Vector2(radius, radius)
 	
-	# Draw fill
+		# Draw fill
 	if fill_color.a > 0:
 		draw_circle(center, radius, fill_color)
 	
@@ -27,20 +30,24 @@ func set_circle_properties(attributes: Dictionary) -> void:
 	if "r" in attributes:
 		radius = float(attributes["r"])
 	
-	# Apply common attributes first
+	# Store center coordinates
+	if "cx" in attributes:
+		center_x = float(attributes["cx"])
+	if "cy" in attributes:
+		center_y = float(attributes["cy"])
+	
+	# Apply common attributes
 	set_common_attributes(attributes)
 	
-	# Handle center positioning - keep original logic
-	var cx = 0.0
-	var cy = 0.0
-	if "cx" in attributes:
-		cx = float(attributes["cx"])
-	if "cy" in attributes:
-		cy = float(attributes["cy"])
+	# For circles, we need to adjust the position to account for the radius
+	# SVG circles are positioned by their center, but Godot positions by top-left
+	svg_x = center_x - radius
+	svg_y = center_y - radius
 	
-	# Position so circle center is at cx,cy (original working logic)
-	position = Vector2(cx - radius - stroke_width * 0.5, cy - radius - stroke_width * 0.5)
-	
-	# Apply transform if it exists
-	if has_transform:
-		_apply_svg_transform()
+	# Apply transform
+	apply_svg_transform()
+
+func _has_point(point: Vector2) -> bool:
+	var center = _get_draw_offset() + Vector2(radius, radius)
+	var distance = point.distance_to(center)
+	return distance <= radius + stroke_width * 0.5

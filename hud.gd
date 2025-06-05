@@ -76,7 +76,7 @@ func _clear_all_highlights() -> void:
 			if is_instance_valid(element):
 				element.highlighted = false
 
-func remove_color_if_empty(color: Color) -> void:
+static func remove_color_if_empty(color: Color) -> void:
 	if color in colors_for_image and colors_for_image[color].is_empty():
 		colors_for_image.erase(color)
 		if instance:
@@ -86,15 +86,15 @@ func remove_color_if_empty(color: Color) -> void:
 		if colors_for_image.is_empty():
 			_show_win_screen()
 
-func _remove_color_button(color: Color) -> void:
+static func _remove_color_button(color: Color) -> void:
 	for child in color_container.get_children():
 		if child.modulate.is_equal_approx(color):
 			child.queue_free()
 			break
 
-func _show_win_screen() -> void:
+static func _show_win_screen() -> void:
 	if instance:
-		get_tree().change_scene_to_packed(WinScreenScene)
+		Utils.game_tree.change_scene_to_packed(WinScreenScene)
 
 # Debug function
 func _on_debug_button_pressed() -> void:

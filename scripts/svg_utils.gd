@@ -206,14 +206,14 @@ static func create_svg_element(tag_name: String, attributes: Dictionary) -> SVGE
 			element = SVGPath.new()
 			element.set_path_properties(attributes)
 		"line":
-			push_warning("SVG <line> element not implemented")
-			return null
+			element = SVGLine.new()
+			element.set_line_properties(attributes)
 		"polyline":
-			push_warning("SVG <polyline> element not implemented")
-			return null
+			element = SVGPolyline.new()
+			element.set_polyline_properties(attributes)
 		"polygon":
-			push_warning("SVG <polygon> element not implemented")
-			return null
+			element = SVGPolygon.new()
+			element.set_polygon_properties(attributes)
 		"text":
 			push_warning("SVG <text> element not implemented")
 			return null
@@ -225,6 +225,8 @@ static func create_svg_element(tag_name: String, attributes: Dictionary) -> SVGE
 			return null
 	
 	return element
+
+
 
 # Dimension parsing with unit support
 static func parse_dimension(value: String) -> float:

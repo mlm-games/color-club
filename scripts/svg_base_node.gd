@@ -2,7 +2,7 @@
 class_name SVGElement
 extends Control
 
-# Core SVG properties that all elements share
+# Core SVG properties
 @export var fill_color: Color = Color.WHITE:
 	set(value):
 		fill_color = value
@@ -29,56 +29,74 @@ extends Control
 		highlighted = value
 		queue_redraw()
 
-# Transform and positioning
+# Transform properties
 var svg_transform: Transform2D = Transform2D.IDENTITY
 var has_transform: bool = false
 var svg_id: String = ""
 
+# SVG coordinate properties
+var svg_x: float = 0.0
+var svg_y: float = 0.0
+
 # Bounds for proper sizing
-var _shape_bounds: Rect2 = Rect2()
+var _content_bounds: Rect2 = Rect2()
 
 func _ready() -> void:
+	# Ensure we can receive input
+	mouse_filter = Control.MOUSE_FILTER_PASS
 	_update_size()
 
-# Only apply transforms if they exist
-func _apply_svg_transform() -> void:
+# Apply SVG transform properly according to Godot 4.4
+func apply_svg_transform() -> void:
 	if not has_transform:
+		# No transform, just apply position
+		position = Vector2(svg_x, svg_y)
 		return
 	
-	# Extract transform components
-	var transform_origin = svg_transform.origin
-	var transform_rotation = svg_transform.get_rotation()
-	var transform_scale = svg_transform.get_scale()
+	# In Godot 4.4, we need to be careful about transform order
+	# SVG transforms are applied in the order they appear, from right to left
+	# when written as matrices
 	
-	# Apply rotation and scale around center
-	if transform_rotation != 0.0 or transform_scale != Vector2.ONE:
-		pivot_offset = size * 0.5
-		rotation = transform_rotation
-		scale = transform_scale
+	# Reset to base position first
+	position = Vector2.ZERO
+	rotation = 0.0
+	scale = Vector2.ONE
 	
-	# Apply translation
-	if transform_origin != Vector2.ZERO:
-		position += transform_origin
+	# Create a compound transform that includes position
+	var compound_transform = Transform2D.IDENTITY
+	compound_transform.origin = Vector2(svg_x, svg_y)
+	compound_transform = svg_transform * compound_transform
+	
+	# Extract the final position, rotation, and scale
+	position = compound_transform.origin
+	rotation = compound_transform.get_rotation()
+	scale = compound_transform.get_scale()
+	
+	# For proper rotation/scale, we need to set the pivot
+	# SVG rotates around (0,0) by default, not the element center
+	pivot_offset = Vector2.ZERO
 
-# Virtual methods to be overridden by subclasses
-func _calculate_shape_bounds() -> Rect2:
-	push_warning("SVGElement._calculate_shape_bounds() not implemented in " + get_class())
+# Virtual methods to be overridden
+func _calculate_content_bounds() -> Rect2:
+	push_warning("SVGElement._calculate_content_bounds() not implemented in " + get_class())
 	return Rect2()
 
 func _draw_content() -> void:
 	push_warning("SVGElement._draw_content() not implemented in " + get_class())
 
 func _update_size() -> void:
-	_shape_bounds = _calculate_shape_bounds()
+	_content_bounds = _calculate_content_bounds()
 	
-	# The control size should accommodate both the shape and the stroke
-	var stroke_padding = stroke_width * 0.5
-	var total_size = _shape_bounds.size + Vector2(stroke_width, stroke_width)
+	# Account for stroke in size calculation
+	var total_size = _content_bounds.size + Vector2(stroke_width * 2, stroke_width * 2)
 	
 	custom_minimum_size = total_size
 	size = total_size
 
 func _draw() -> void:
+	# Apply clipping to prevent drawing outside bounds
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	
 	if highlighted:
 		_draw_highlight()
 	
@@ -86,17 +104,23 @@ func _draw() -> void:
 
 func _draw_highlight() -> void:
 	var highlight_rect = Rect2(Vector2.ZERO, size)
-	draw_rect(highlight_rect, Color.YELLOW, false, 2.0)
+	draw_rect(highlight_rect, Color.YELLOW, false, 3.0)
 
-# Get the drawing offset to center the shape within the control
+# Get the drawing offset to account for stroke
 func _get_draw_offset() -> Vector2:
-	return Vector2(stroke_width * 0.5, stroke_width * 0.5)
+	return Vector2(stroke_width, stroke_width)
 
 # Common attribute parsing
 func set_common_attributes(attributes: Dictionary) -> void:
 	if "id" in attributes:
 		svg_id = attributes["id"]
 		name = svg_id
+	
+	# Store position attributes for later use
+	if "x" in attributes:
+		svg_x = float(attributes["x"])
+	if "y" in attributes:
+		svg_y = float(attributes["y"])
 	
 	if "fill" in attributes:
 		var fill_val = attributes["fill"].strip_edges().to_lower()
@@ -111,7 +135,6 @@ func set_common_attributes(attributes: Dictionary) -> void:
 			stroke_color = Color.TRANSPARENT
 		else:
 			stroke_color = SVGUtils.parse_color(stroke_val)
-			# If stroke is specified but no width, default to 1
 			if stroke_width == 0.0:
 				stroke_width = 1.0
 	
@@ -124,13 +147,9 @@ func set_common_attributes(attributes: Dictionary) -> void:
 	if "style" in attributes:
 		_apply_style_string(attributes["style"])
 	
-	# Only handle transform if it exists
 	if "transform" in attributes:
 		has_transform = true
 		svg_transform = SVGUtils.parse_transform(attributes["transform"])
-	
-	# Make sure the element can receive mouse input
-	mouse_filter = Control.MOUSE_FILTER_PASS
 
 func _apply_style_string(style_string: String) -> void:
 	var styles = SVGUtils.parse_style_string(style_string)
@@ -143,7 +162,6 @@ func _apply_style_string(style_string: String) -> void:
 				var stroke_val = styles[property].to_lower()
 				if stroke_val == "none":
 					stroke_color = Color.TRANSPARENT
-					stroke_width = 0.0
 				else:
 					stroke_color = SVGUtils.parse_color(stroke_val)
 					if stroke_width == 0.0:
@@ -152,21 +170,23 @@ func _apply_style_string(style_string: String) -> void:
 				stroke_width = float(styles[property])
 			"opacity":
 				opacity = float(styles[property])
-			_:
-				push_warning("Unimplemented CSS property: " + property)
 
-func contains_point(point: Vector2) -> bool:
-	var offset = _get_draw_offset()
-	var shape_rect = Rect2(offset, _shape_bounds.size)
-	return shape_rect.has_point(point)
+# Improved hit testing
+func _has_point(point: Vector2) -> bool:
+	# Transform the point to local space
+	var local_point = point
+	
+	# Check if point is within content bounds
+	var content_rect = Rect2(_get_draw_offset(), _content_bounds.size)
+	return content_rect.has_point(local_point)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event = event as InputEventMouseButton
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			if contains_point(mouse_event.position):
-				_on_clicked()
-
-func _on_clicked() -> void:
-	if get_parent().has_signal("element_clicked"):
-		get_parent().emit_signal("element_clicked", self)
+			if _has_point(mouse_event.position):
+				accept_event()  # Prevent event propagation
+				get_viewport().set_input_as_handled()
+				# Emit signal through parent
+				if get_parent() and get_parent().has_signal("element_clicked"):
+					get_parent().emit_signal("element_clicked", self)
