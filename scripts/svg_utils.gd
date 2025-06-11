@@ -2,6 +2,10 @@
 class_name SVGUtils
 extends RefCounted
 
+# For curve tessellation
+const CURVE_SEGMENTS = 32
+const BEZIER_TOLERANCE = 0.5
+
 # Color parsing with better error handling
 static func parse_color(color_string: String) -> Color:
 	color_string = color_string.strip_edges().to_lower()
@@ -249,3 +253,131 @@ static func parse_dimension(value: String) -> float:
 		return 0.0
 	else:
 		return float(value)
+
+static func tessellate_elliptical_arc(p1: Vector2, rx_in: float, ry_in: float, phi_deg: float, fA: bool, fS: bool, p2: Vector2, num_segments_hint: int) -> PackedVector2Array:
+	var phi = deg_to_rad(phi_deg)
+	var cos_phi = cos(phi)
+	var sin_phi = sin(phi)
+
+	# Ensure radii are positive
+	var rx = abs(rx_in)
+	var ry = abs(ry_in)
+
+	# Step 1: Compute (x1', y1')
+	var p1_prime = Vector2(
+		cos_phi * (p1.x - p2.x) / 2.0 + sin_phi * (p1.y - p2.y) / 2.0,
+		-sin_phi * (p1.x - p2.x) / 2.0 + cos_phi * (p1.y - p2.y) / 2.0
+	)
+
+	# Ensure radii are large enough (F.6.6)
+	var lambda_sq = (p1_prime.x * p1_prime.x) / (rx * rx) + (p1_prime.y * p1_prime.y) / (ry * ry)
+	if lambda_sq > 1.0:
+		var lambda = sqrt(lambda_sq)
+		rx *= lambda
+		ry *= lambda
+
+	var rx_sq = rx * rx
+	var ry_sq = ry * ry
+	var p1p_sq = p1_prime.x * p1_prime.x
+	var p1p_y_sq = p1_prime.y * p1_prime.y
+
+	# Step 2: Compute (cx', cy')
+	var num = rx_sq * ry_sq - rx_sq * p1p_y_sq - ry_sq * p1p_sq
+	if num < 0: num = 0 # Handle precision errors
+	var den = rx_sq * p1p_y_sq + ry_sq * p1p_sq
+	var sign = -1.0 if fA == fS else 1.0
+	var c_factor = sign * sqrt(num / den)
+
+	var c_prime = Vector2(
+		c_factor * (rx * p1_prime.y / ry),
+		c_factor * -(ry * p1_prime.x / rx)
+	)
+
+	# Step 3: Compute (cx, cy)
+	var p1_p2_mid = (p1 + p2) / 2.0
+	var center = Vector2(
+		cos_phi * c_prime.x - sin_phi * c_prime.y + p1_p2_mid.x,
+		sin_phi * c_prime.x + cos_phi * c_prime.y + p1_p2_mid.y
+	)
+
+	# Step 4: Compute start_angle and delta_angle
+	var v1 = Vector2((p1_prime.x - c_prime.x) / rx, (p1_prime.y - c_prime.y) / ry)
+	var v2 = Vector2((-p1_prime.x - c_prime.x) / rx, (-p1_prime.y - c_prime.y) / ry)
+
+	var start_angle = Vector2.RIGHT.angle_to(v1) # Angle from (1,0) to v1
+	var delta_angle = v1.angle_to(v2)           # Signed angle from v1 to v2
+
+	# Correct delta_angle based on sweep_flag (fS)
+	if not fS and delta_angle > 0: # sweep-flag is 0 (counter-clockwise) and angle is positive
+		delta_angle -= TAU       # We need to go the long way around counter-clockwise
+	elif fS and delta_angle < 0: # sweep-flag is 1 (clockwise) and angle is negative
+		delta_angle += TAU       # We need to go the long way around clockwise
+
+	# Adaptive segmentation based on angle sweep
+	# A good heuristic is ~4-8 segments per 90 degrees (PI/2 radians)
+	var num_segments = ceil(abs(delta_angle) / (PI / 8.0))
+	if num_segments < 2: num_segments = 2
+	if num_segments > 64: num_segments = 64 # Cap max segments for performance
+
+	var points := PackedVector2Array()
+	points.append(p1) # Start with the first point
+
+	for i in range(1, int(num_segments) + 1):
+		var t = float(i) / float(num_segments)
+		var angle = start_angle + delta_angle * t
+		
+		# Point on unrotated, untranslated ellipse
+		var ellipse_point = Vector2(rx * cos(angle), ry * sin(angle))
+		
+		# Apply rotation and translate to center
+		var final_point = Vector2(
+			cos_phi * ellipse_point.x - sin_phi * ellipse_point.y + center.x,
+			sin_phi * ellipse_point.x + cos_phi * ellipse_point.y + center.y
+		)
+		points.append(final_point)
+
+	return points
+
+# Cubic Bezier curve tessellation
+static func _add_cubic_bezier(points: PackedVector2Array, p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2) -> void:
+	# Adaptive subdivision based on curvature
+	var segments = _calculate_bezier_segments(p0, p1, p2, p3)
+	
+	for i in range(1, segments + 1):
+		var t = float(i) / float(segments)
+		var point = _cubic_bezier_point(p0, p1, p2, p3, t)
+		points.append(point)
+
+static func _cubic_bezier_point(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2, t: float) -> Vector2:
+	var u = 1.0 - t
+	var tt = t * t
+	var uu = u * u
+	var uuu = uu * u
+	var ttt = tt * t
+	
+	var point = uuu * p0
+	point += 3 * uu * t * p1
+	point += 3 * u * tt * p2
+	point += ttt * p3
+	
+	return point
+
+# Quadratic Bezier curve tessellation
+static func _add_quadratic_bezier(points: PackedVector2Array, p0: Vector2, p1: Vector2, p2: Vector2) -> void:
+	# Convert to cubic for consistency
+	var cp1 = p0 + 2.0/3.0 * (p1 - p0)
+	var cp2 = p2 + 2.0/3.0 * (p1 - p2)
+	_add_cubic_bezier(points, p0, cp1, cp2, p2)
+
+# Adaptive subdivision for curves
+static func _calculate_bezier_segments(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2) -> int:
+	# Estimate curve length
+	var chord = p0.distance_to(p3)
+	var control_net = p0.distance_to(p1) + p1.distance_to(p2) + p2.distance_to(p3)
+	
+	if chord < 0.001:
+		return 1
+	
+	# More segments for curvier paths
+	var curviness = (control_net - chord) / chord
+	return clamp(int(curviness * CURVE_SEGMENTS), 4, CURVE_SEGMENTS * 2)

@@ -133,7 +133,6 @@ layout_mode = 2
 
 [node name="Button" parent="VBoxContainer/ScrollContainer/PanelContainer/MarginContainer/ColorContainer" instance=ExtResource("3_2bj2v")]
 visible = false
-custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 theme_override_styles/hover = SubResource("StyleBoxFlat_2bj2v")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_24ypn")
