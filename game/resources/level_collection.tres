@@ -1,43 +1,13 @@
-[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=15 format=3 uid="uid://c8hgo3a60n77q"]
+[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=10 format=3 uid="uid://c8hgo3a60n77q"]
 
 [ext_resource type="Script" uid="uid://dajrkkvy1jtv0" path="res://game/resources/level_data.gd" id="1_qqssn"]
 [ext_resource type="Script" uid="uid://cfgmmxbnkar52" path="res://game/resources/level_collection_resource.gd" id="2_oeqvw"]
-
-[sub_resource type="Resource" id="Resource_4qmh0"]
-script = ExtResource("1_qqssn")
-id = &"bomb"
-name = "Bomb"
-svg_path = "res://game/assets/art//unrecognisable/bomb.svg"
 
 [sub_resource type="Resource" id="Resource_fa6lw"]
 script = ExtResource("1_qqssn")
 id = &"crossy-road-imitation"
 name = "Crossy Road Imitation"
 svg_path = "res://game/assets/art//crossy-road-imitation.svg"
-
-[sub_resource type="Resource" id="Resource_8yr1r"]
-script = ExtResource("1_qqssn")
-id = &"icon"
-name = "Icon"
-svg_path = "res://game/assets/art//icon.svg"
-
-[sub_resource type="Resource" id="Resource_l8o58"]
-script = ExtResource("1_qqssn")
-id = &"icon (2)"
-name = "Icon (2)"
-svg_path = "res://game/assets/art//unrecognisable/icon (2).svg"
-
-[sub_resource type="Resource" id="Resource_1j0ht"]
-script = ExtResource("1_qqssn")
-id = &"icon_outline"
-name = "Icon Outline"
-svg_path = "res://game/assets/art//unrecognisable/icon_outline.svg"
-
-[sub_resource type="Resource" id="Resource_wo0ei"]
-script = ExtResource("1_qqssn")
-id = &"map01"
-name = "Map 01"
-svg_path = "res://game/assets/art//external/map01.svg"
 
 [sub_resource type="Resource" id="Resource_lia0c"]
 script = ExtResource("1_qqssn")
@@ -78,12 +48,7 @@ svg_path = "res://game/assets/art//test1.svg"
 [resource]
 script = ExtResource("2_oeqvw")
 levels = Dictionary[StringName, ExtResource("1_qqssn")]({
-&"bomb": SubResource("Resource_4qmh0"),
 &"crossy-road-imitation": SubResource("Resource_fa6lw"),
-&"icon": SubResource("Resource_8yr1r"),
-&"icon (2)": SubResource("Resource_l8o58"),
-&"icon_outline": SubResource("Resource_1j0ht"),
-&"map01": SubResource("Resource_wo0ei"),
 &"pic1": SubResource("Resource_lia0c"),
 &"pic2": SubResource("Resource_ma6xv"),
 &"pic3": SubResource("Resource_06y7x"),
