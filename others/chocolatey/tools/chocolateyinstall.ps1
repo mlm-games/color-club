@@ -1,14 +1,14 @@
 $ErrorActionPreference = 'Stop'
 
-$packageName = '<placeholdername>'
+$packageName = 'color-club'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-$url = 'https://github.com/mlm-games/<placeholdername>/releases/download/<PlaceHolderVersion>/<placeholdername>.exe'
+$url = 'https://github.com/mlm-games/color-club/releases/download/0.7.0/color-club.exe'
 
 $packageArgs = @{
   packageName   = $packageName
   fileType      = 'EXE'
   url           = $url
-  softwareName  = '<PlaceHolderName>*'
+  softwareName  = 'Color Club*'
   checksum      = '0000000000000000000000000000000000000000000000000000000000000000'
   checksumType  = 'sha256'
   silentArgs    = "/S"
@@ -30,4 +30,4 @@ $startMenu = Join-Path $env:ProgramData "Microsoft\Windows\Start Menu\Programs"
 $shortcutFile = Join-Path $startMenu "$packageName.lnk"
 Install-ChocolateyShortcut -ShortcutFilePath $shortcutFile -TargetPath $fileLocation
 
-Write-Host "<PlaceHolderName> has been installed to $installDir"
+Write-Host "Color Club has been installed to $installDir"

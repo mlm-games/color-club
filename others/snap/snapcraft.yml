@@ -1,6 +1,6 @@
-name: <placeholdername>
+name: color-club
 base: core22
-version: '<PlaceHolderVersion>'
+version: '0.7.0'
 summary: <PlaceHolderShortDesc>
 description: |
   <PlaceHolderLongDesc>
@@ -13,8 +13,8 @@ architectures:
   - build-on: arm64
 
 apps:
-  <placeholdername>:
-    command: <placeholdername>
+  color-club:
+    command: color-club
     extensions: [gnome]
     plugs:
       - home
@@ -26,10 +26,10 @@ apps:
       - desktop
       - desktop-legacy
       - unity7
-    desktop: others/snap/gui/<placeholdername>.desktop
+    desktop: others/snap/gui/color-club.desktop
 
 parts:
-  <placeholdername>:
+  color-club:
     plugin: dump
     source: ./builds/
     source-type: local
@@ -42,8 +42,8 @@ parts:
       - libpulse0
     override-build: |
       snapcraftctl build
-      chmod +x $SNAPCRAFT_PART_INSTALL/<placeholdername>
+      chmod +x $SNAPCRAFT_PART_INSTALL/color-club
 
 layout:
-  /usr/share/<placeholdername>:
-    bind: $SNAP/usr/share/<placeholdername>
+  /usr/share/color-club:
+    bind: $SNAP/usr/share/color-club

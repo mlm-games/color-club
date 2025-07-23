@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=<PlaceHolderName>
-GenericName=<PlaceHolderName>
+Name=Color Club
+GenericName=Color Club
 Comment=<PlaceholderShortDesc>
-Exec=<placeholdername> %F
+Exec=color-club %F
 Icon=${SNAP}/meta/gui/icon.png
 Terminal=false
 Type=Application
