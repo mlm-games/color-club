@@ -16,7 +16,7 @@ var highlight: bool = false:
 signal colored(shape_script: Node, old_color: Color, new_color: Color)
 
 func _ready() -> void:
-	var parent = get_parent()
+	var parent : CanvasItem = get_parent()
 	if not parent is CanvasItem:
 		push_error("ColorableShape must be a child of a CanvasItem.")
 		return
@@ -31,16 +31,27 @@ func _ready() -> void:
 func _on_parent_draw() -> void:
 	# This function is called by the parent's drawing process
 	if highlight and not is_colored:
-		var parent = get_parent()
-		var highlight_color = Color.YELLOW
+		var parent : CanvasItem = get_parent()
+		var highlight_color = Color.DARK_GOLDENROD
 		highlight_color.a = 0.5
 		
-		# Draw a thick, translucent outline for highlighting
 		if parent is Polygon2D and parent.polygon.size() > 2:
-			parent.draw_polyline(parent.polygon, highlight_color, 2.0, true)
+			# Make sure the polygon is closed by adding the first point at the end
+			var closed_polygon = parent.polygon.duplicate()
+			if not closed_polygon[0].is_equal_approx(closed_polygon[-1]):
+				closed_polygon.append(closed_polygon[0])
+			parent.draw_polyline(closed_polygon, highlight_color, 1.0, true)
 		elif parent is Line2D and parent.points.size() > 1:
-			# For Line2D, we need to draw a thicker line around it
-			parent.draw_polyline(parent.points, highlight_color, parent.width + 6.0, parent.closed)
+			# For Line2D, check if it should be closed
+			if parent.closed:
+				var closed_points = parent.points.duplicate()
+				if not closed_points[0].is_equal_approx(closed_points[-1]):
+					closed_points.append(closed_points[0])
+				parent.draw_polyline(closed_points, highlight_color)
+			else:
+				parent.draw_polyline(parent.points, highlight_color, parent.width + 1.0, false)
+		
+
 
 func _input(event: InputEvent) -> void:
 	if is_colored:

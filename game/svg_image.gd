@@ -54,6 +54,11 @@ func _prepare_nodes_for_game() -> void:
 	var shapes = A.find_nodes_by_type(svg_root, ["Polygon2D", "Line2D"])
 	
 	for shape in shapes:
+		if shape is Line2D and not SettingsManager.I.color_strokes:
+			# Auto-color the stroke if enabled
+			if SettingsManager.I.auto_color_strokes:
+				shape.default_color = SettingsManager.I.stroke_color
+			continue
 		# Attach the interactive component script
 		var colorable_script = ColorableShape.new()
 		shape.add_child(colorable_script)

@@ -17,6 +17,8 @@ func _ready() -> void:
 	play_button.grab_focus()
 	play_button.pivot_offset = play_button.size/2
 	
+	%AutoColorStrokesButton.toggle_mode = SettingsManager.I.auto_color_strokes
+	
 	_animate_title_entrance()
 	
 	var dir = DirAccess.open(ART_FOLDER)

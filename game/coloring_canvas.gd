@@ -40,7 +40,7 @@ func _play_completion_animation() -> void:
 	main_tween.tween_property(root_node, "scale", root_node.scale * 1.1, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	main_tween.tween_property(root_node, "scale", root_node.scale, 0.2).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	
-	var colorable_shapes = A.find_nodes_with_script(root_node, "uid://dnfuu7hosi1en")
+	var colorable_shapes = A.find_nodes_with_script(root_node, ColorableShape.new().get_script().resource_path)#"uid://dnfuu7hosi1en")
 	
 	main_tween.tween_callback(_create_wiggle_animations.bind(colorable_shapes))
 	

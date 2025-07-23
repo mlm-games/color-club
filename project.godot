@@ -27,6 +27,10 @@ A="*res://game/autoload.tscn"
 
 gdscript/warnings/static_called_on_instance=0
 
+[display]
+
+window/stretch/mode="canvas_items"
+
 [global_group]
 
 HUD=""

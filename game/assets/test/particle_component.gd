@@ -19,7 +19,7 @@ func emit_selection_particles(color: Color, pos: Vector2 = position) -> void:
 		var distance = randf_range(50, 100)
 		
 		var tween = particle.create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-		tween.tween_property(particle, "position", pos + direction * distance, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(particle, "scale", Vector2.ZERO, 0.5).set_trans(Tween.TRANS_QUAD)
-		tween.tween_property(particle, "modulate:a", 0.0, 0.5)
+		tween.tween_property(particle, "position", pos + direction * distance, 1.05).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(particle, "scale", Vector2.ZERO, 1.05).set_trans(Tween.TRANS_QUAD)
+		tween.tween_property(particle, "modulate:a", 0.0, 1.05)
 		tween.chain().tween_callback(particle.queue_free)

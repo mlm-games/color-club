@@ -24,9 +24,7 @@ static var selected_color: Color = Color.TRANSPARENT:
 	set(value):
 		if selected_color != value:
 			selected_color = value
-			var hud_instance = A.tree.get_first_node_in_group("HUD")
-			if is_instance_valid(hud_instance):
-				hud_instance._on_color_selected(value)
+			HUD.I._on_color_selected(value)
 
 func _ready() -> void:
 	svg_image.svg_loaded.connect(_on_svg_loaded)
@@ -35,6 +33,47 @@ func _ready() -> void:
 	
 	# Animate HUD entrance
 	_animate_hud_entrance()
+
+func register_colored_shape(shape_script: Node, old_color: Color, _new_color: Color) -> void:
+	if old_color in color_registry:
+		color_registry[old_color].erase(shape_script)
+		if color_registry[old_color].is_empty():
+			# This color is now complete
+			color_registry.erase(old_color)
+			_remove_color_button(old_color)
+			GameManager.I.register_color_completed()
+			
+			if selected_color.is_equal_approx(old_color):
+				selected_color = Color.TRANSPARENT
+				if current_selected_button:
+					current_selected_button.set_selected(false)
+					current_selected_button = null
+
+func get_total_colorable_elements() -> int:
+	var count = 0
+	for color in color_registry:
+		count += color_registry[color].size()
+	return count
+
+func get_remaining_colors() -> int:
+	return color_registry.size()
+
+func show_win_screen() -> void:
+	# Fancy transition to win screen
+	var transition_tween = create_tween()
+	
+	# Create a white flash effect
+	var flash = ColorRect.new()
+	flash.color = Color.WHITE
+	flash.modulate.a = 0.0
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_tree().root.add_child(flash)
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	
+	transition_tween.tween_property(flash, "modulate:a", 0.8, 0.3)
+	transition_tween.tween_callback(get_tree().change_scene_to_packed.bind(WinScreenScene))
+	transition_tween.tween_property(flash, "modulate:a", 0.0, 0.3)
+	transition_tween.tween_callback(flash.queue_free)
 
 func _animate_hud_entrance() -> void:
 	# Animate progress bar sliding in from top
@@ -56,7 +95,7 @@ func _animate_hud_entrance() -> void:
 	progress_tween.tween_property(svg_image, "modulate", Color.WHITE, 0.4)
 
 func _on_progress_updated(progress: float) -> void:
-	progress_bar.value = progress * 100
+	Juice.set_tweened_value(progress_bar, "value", progress * 100, 0.3)
 	
 	# Update progress label with percentage
 	if progress_label:
@@ -80,16 +119,9 @@ func _on_svg_loaded(registry: Dictionary) -> void:
 		for shape_script in color_registry[color]:
 			if not shape_script.colored.is_connected(register_colored_shape):
 				shape_script.colored.connect(register_colored_shape)
-
-func get_total_colorable_elements() -> int:
-	var count = 0
-	for color in color_registry:
-		count += color_registry[color].size()
-	return count
-
-func get_remaining_colors() -> int:
-	return color_registry.size()
-
+				
+	#HACK: Should probably fix this later
+	GameManager.I.start_game()
 
 func _update_color_buttons() -> void:
 	for child in color_container.get_children():
@@ -155,18 +187,6 @@ func _clear_all_highlights() -> void:
 			if is_instance_valid(shape_script):
 				shape_script.highlight = false
 
-func register_colored_shape(shape_script: Node, old_color: Color, _new_color: Color) -> void:
-	if old_color in color_registry:
-		color_registry[old_color].erase(shape_script)
-		if color_registry[old_color].is_empty():
-			color_registry.erase(old_color)
-			_remove_color_button(old_color)
-			if selected_color.is_equal_approx(old_color):
-				selected_color = Color.TRANSPARENT
-				if current_selected_button:
-					#current_selected_button.set_selected(false)
-					current_selected_button = null
-
 func _remove_color_button(color: Color) -> void:
 	for child in color_container.get_children():
 		if child is Button and child.has_meta("target_color") and child.get_meta("target_color").is_equal_approx(color):
@@ -176,20 +196,3 @@ func _remove_color_button(color: Color) -> void:
 			remove_tween.parallel().tween_property(child, "modulate:a", 0.0, 0.2)
 			remove_tween.tween_callback(child.queue_free)
 			break
-
-func show_win_screen() -> void:
-	# Fancy transition to win screen
-	var transition_tween = create_tween()
-	
-	# Create a white flash effect
-	var flash = ColorRect.new()
-	flash.color = Color.WHITE
-	flash.modulate.a = 0.0
-	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	get_tree().root.add_child(flash)
-	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	
-	transition_tween.tween_property(flash, "modulate:a", 0.8, 0.3)
-	transition_tween.tween_callback(get_tree().change_scene_to_packed.bind(WinScreenScene))
-	transition_tween.tween_property(flash, "modulate:a", 0.0, 0.3)
-	transition_tween.tween_callback(flash.queue_free)
