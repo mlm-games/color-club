@@ -1,3 +1,9 @@
+## v0.7.1
+
+- do not use broken imgs by @mlm-games
+- fix imgs using the new SVGTexture by @mlm-games
+
+
 # Changelog
 
 ## v0.7.0

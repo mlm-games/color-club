@@ -1,0 +1,2 @@
+- do not use broken imgs by @mlm-games
+- fix imgs using the new SVGTexture by @mlm-games
