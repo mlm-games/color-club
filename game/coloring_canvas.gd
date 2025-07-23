@@ -5,13 +5,22 @@ extends Control
 @onready var hud: HUD = $HUD
 
 func _ready() -> void:
-	var svg_path = GameManager.I.current_svg_path
-	if svg_path.is_empty():
-		GameManager.log_error("No SVG path was provided to the coloring scene.", "GameSetup")
+	var level = GameManager.I.current_level
+	if not level:
+		GameManager.log_error("No level data provided", "GameSetup")
 		get_tree().change_scene_to_file("uid://bnxj7rhwgcg67")
 		return
-
-	GameManager.I.start_game()
+	
+	var svg_content = level.load_content()
+	if svg_content.is_empty():
+		GameManager.log_error("Failed to load SVG content", "GameSetup")
+		get_tree().change_scene_to_file("uid://bnxj7rhwgcg67")
+		return
+	
+	if not svg_image.load_svg_from_content(svg_content):
+		GameManager.log_error("Failed to parse SVG", "GameSetup")
+		get_tree().change_scene_to_file("uid://bnxj7rhwgcg67")
+		return
 	
 	GameManager.I.game_completed_signal.connect(_on_game_completed)
 

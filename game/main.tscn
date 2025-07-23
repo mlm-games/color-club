@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://bnxj7rhwgcg67"]
+[gd_scene load_steps=7 format=3 uid="uid://bnxj7rhwgcg67"]
 
 [ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://game/main.gd" id="1_ig7tw"]
 [ext_resource type="Shader" uid="uid://7nwccalo1ysn" path="res://game/assets/shaders/animated.gdshader" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://ci7gwrmywq748" path="res://game/assets/settings_panel.gd" id="3_emt18"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_h2yge"]
 shader = ExtResource("2_0xm2m")
@@ -118,8 +119,34 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.8
 
+[node name="SettingsPanel" type="PanelContainer" parent="MarginContainer"]
+visible = false
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(200, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("3_emt18")
+metadata/_custom_type_script = "uid://ci7gwrmywq748"
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/SettingsPanel"]
+layout_mode = 2
+
+[node name="StrokeColoringCheck" type="CheckBox" parent="MarginContainer/SettingsPanel/VBox"]
+layout_mode = 2
+text = "Stroke color Check"
+
+[node name="AutoColorCheck" type="CheckBox" parent="MarginContainer/SettingsPanel/VBox"]
+layout_mode = 2
+text = "Auto color Strokes"
+
+[node name="StrokeColorPicker" type="ColorPickerButton" parent="MarginContainer/SettingsPanel/VBox"]
+visible = false
+layout_mode = 2
+
 [node name="AutoColorStrokesButton" type="CheckButton" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -133,5 +160,15 @@ offset_bottom = -119.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Auto color strokes"
+
+[node name="AddOnlineButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 33.0
+offset_top = 177.0
+offset_right = 220.0
+offset_bottom = 260.0
+text = "Try an online svg"
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/PlayButton" to="." method="_on_play_button_pressed"]

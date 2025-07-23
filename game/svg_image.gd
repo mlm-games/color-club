@@ -11,18 +11,29 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	
-	var svg_path = GameManager.I.current_svg_path
-	if svg_path.is_empty():
-		GameManager.log_error("No SVG path was provided to SVGImage.", "SVGImage")
-		return
+	load_svg_from_content(GameManager.I.current_level.cached_svg_content)
+
+func load_svg_from_content(svg_content: String) -> bool:
+	_clear_svg_content()
 	
-	load_svg(svg_path)
+	var temp_path = "user://temp_svg_" + str(Time.get_unix_time_from_system()) + ".svg"
+	var file = FileAccess.open(temp_path, FileAccess.WRITE)
+	if not file:
+		GameManager.log_error("Failed to create temp file", "SVGImage")
+		return false
 	
+	file.store_string(svg_content)
+	file.close()
+	
+	var success = load_svg(temp_path)
+	
+	DirAccess.remove_absolute(temp_path)
+	
+	return success
 
 func load_svg(file_path: String) -> bool:
 	_clear_svg_content()
 	
-	# 1. Import SVG into a raw node tree using the addon
 	svg_root = SVGImporter.import_as_nodes(file_path)
 	if not is_instance_valid(svg_root):
 		GameManager.log_error("SVG Importer failed for: " + file_path, "SVGImage")
@@ -30,8 +41,6 @@ func load_svg(file_path: String) -> bool:
 	
 	add_child(svg_root)
 	
-	# 2. Wait for nodes to be ready, then prepare them for the game
-	await get_tree().process_frame
 	_prepare_nodes_for_game()
 	
 	_finalize_svg_layout()

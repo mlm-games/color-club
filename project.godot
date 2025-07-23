@@ -21,7 +21,7 @@ config/icon="res://game/assets/art/icon.svg"
 [autoload]
 
 SVGImporter="*res://addons/svg_importer/svg_importer.gd"
-A="*res://game/autoload.tscn"
+A="*res://game/assets/autoloads/autoload.tscn"
 
 [debug]
 

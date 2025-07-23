@@ -18,15 +18,16 @@ func _ready() -> void:
 	mouse_entered.connect(GlobalAudioExports.I.play_ui_sound.bind(GlobalAudioExports.Sound.Hover))
 
 func _on_level_selected() -> void:
-	var svg_path = get_meta("svg_path", "")
-	if svg_path.is_empty():
-		GameManager.log_error("Level button has no SVG path assigned.", "UI")
+	var level_data = get_meta("level_data") as LevelData
+	if not level_data:
+		GameManager.log_error("Level button has no level data.", "UI")
 		return
+	
+	GameManager.I.current_level = level_data
 	
 	var pulse_tween = create_tween()
 	pulse_tween.tween_property(self, "scale", Vector2(0.9, 0.9), 0.1)
 	pulse_tween.tween_property(self, "scale", Vector2(1.2, 1.2), 0.1)
 	pulse_tween.tween_callback(func():
-		GameManager.I.current_svg_path = svg_path
 		get_tree().change_scene_to_packed(ColorPicScene)
 	)

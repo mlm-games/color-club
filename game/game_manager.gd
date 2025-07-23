@@ -7,7 +7,7 @@ func _init() -> void:
 	I = self
 
 # Game state
-var current_svg_path: String = ""
+var current_level: LevelData = null
 var game_started: bool = false
 var start_time: float = 0.0
 
@@ -31,7 +31,7 @@ func start_game() -> void:
 	
 	game_started_signal.emit()
 	progress_updated.emit(0.0)
-	log_info("Game started with SVG: " + current_svg_path, "Game")
+	log_info("Game started with SVG: " + str(current_level), "Game")
 	log_info("Total colorable elements: " + str(total_colorable_elements), "Game")
 	log_info("Total unique colors: " + str(total_unique_colors), "Game")
 
