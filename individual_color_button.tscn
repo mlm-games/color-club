@@ -1,32 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://dhpkpl2gdud8q"]
+[gd_scene load_steps=6 format=3 uid="uid://dhpkpl2gdud8q"]
 
 [ext_resource type="Script" uid="uid://cu582j5anss7c" path="res://individual_color_button.gd" id="1_d1cbj"]
+[ext_resource type="Script" uid="uid://cxtn1tfhg6nyp" path="res://assets/test/particle_component.gd" id="2_1mpnb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d1cbj"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 0.843137, 0, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1mpnb"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 0.270588, 0, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjkqc"]
 bg_color = Color(1, 1, 1, 1)
 border_width_left = 2
 border_width_top = 2
@@ -38,12 +15,46 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1mpnb"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.27058825, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjkqc"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.84313726, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [node name="Button" type="Button"]
+z_index = 1
 custom_minimum_size = Vector2(50, 50)
+offset_left = -25.0
+offset_top = -25.0
+offset_right = 25.0
+offset_bottom = 25.0
+pivot_offset = Vector2(25, 25)
 size_flags_horizontal = 4
-theme_override_styles/hover = SubResource("StyleBoxFlat_d1cbj")
+theme_override_styles/normal = SubResource("StyleBoxFlat_d1cbj")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_1mpnb")
-theme_override_styles/normal = SubResource("StyleBoxFlat_hjkqc")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hjkqc")
 script = ExtResource("1_d1cbj")
 
-[connection signal="pressed" from="." to="." method="_on_pressed"]
+[node name="ParticleComponent" type="Node2D" parent="."]
+z_index = -1
+position = Vector2(25, 25)
+script = ExtResource("2_1mpnb")
+metadata/_custom_type_script = "uid://cxtn1tfhg6nyp"

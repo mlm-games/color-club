@@ -12,7 +12,7 @@ var local_pics: PackedStringArray = []
 var button_hover_tweens: Dictionary = {}
 
 func _ready() -> void:
-	title_label.theme_type_variation = "TitleLabel"
+	#title_label.theme_type_variation = "TitleLabel"
 	play_button.theme_type_variation = "PlayButton"
 	play_button.grab_focus()
 	play_button.pivot_offset = play_button.size/2

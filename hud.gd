@@ -142,6 +142,8 @@ func _on_color_button_pressed(color: Color, button: Button) -> void:
 	
 	selected_color = color
 	
+	button.particle_component.emit_selection_particles(color)
+	
 	# Visual feedback
 	var feedback_tween = create_tween()
 	feedback_tween.tween_property(progress_bar, "modulate", Color(1.2, 1.2, 1.2), 0.1)
