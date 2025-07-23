@@ -1,6 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://bnxj7rhwgcg67"]
+[gd_scene load_steps=6 format=3 uid="uid://bnxj7rhwgcg67"]
 
 [ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Shader" uid="uid://7nwccalo1ysn" path="res://assets/shaders/animated.gdshader" id="2_0xm2m"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h2yge"]
+shader = ExtResource("2_0xm2m")
+shader_parameter/color1 = Color(0.101961, 0.101961, 0.180392, 0.121569)
+shader_parameter/color2 = Color(0.0862745, 0.129412, 0.243137, 0.0705882)
+shader_parameter/accent_color = Color(0.31, 0.804, 0.769, 0.3)
+shader_parameter/wave_speed = 0.5
+shader_parameter/wave_amplitude = 0.1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0xm2m"]
 content_margin_left = 0.0
@@ -31,6 +40,15 @@ grow_vertical = 2
 script = ExtResource("1_ig7tw")
 metadata/_edit_use_anchors_ = true
 
+[node name="Background" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_h2yge")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -47,9 +65,11 @@ layout_mode = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="TitleLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 bbcode_enabled = true
 text = "[b][i][font_size=64][color=#2c2c2c]Color Club: Coloring Game"
 fit_content = true
@@ -72,29 +92,30 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.8
 
-[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="LevelSelectContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Container" type="ScrollContainer" parent="MarginContainer/VBoxContainer/PanelContainer2"]
+[node name="Container" type="ScrollContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/VBoxContainer/PanelContainer2/Container"]
+[node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer/Container"]
 layout_mode = 2
 
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/PanelContainer2/Container/HBoxContainer4"]
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/LevelSelectContainer/Container/HBoxContainer4"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.8
 
-[node name="PicContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/PanelContainer2/Container/HBoxContainer4"]
+[node name="PicContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer/Container/HBoxContainer4"]
 unique_name_in_owner = true
 layout_mode = 2
-columns = 2
+columns = 5
 
-[node name="Control2" type="Control" parent="MarginContainer/VBoxContainer/PanelContainer2/Container/HBoxContainer4"]
+[node name="Control2" type="Control" parent="MarginContainer/VBoxContainer/LevelSelectContainer/Container/HBoxContainer4"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.8
 
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/PlayButton" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/PlayButton" to="." method="_on_play_button_pressed"]

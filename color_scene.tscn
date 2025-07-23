@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bmgl20mx1bn0g"]
+[gd_scene load_steps=4 format=3 uid="uid://bmgl20mx1bn0g"]
 
-[ext_resource type="Script" uid="uid://dhd3yw82ptc2m" path="res://scripts/coloring_canvas.gd" id="1_rcabi"]
+[ext_resource type="Script" uid="uid://dhd3yw82ptc2m" path="res://coloring_canvas.gd" id="1_rcabi"]
 [ext_resource type="PackedScene" uid="uid://cptdr4cx7eus7" path="res://svg_image.tscn" id="2_fs4ej"]
-[ext_resource type="PackedScene" uid="uid://d23haj46gk4ea" path="res://color_the_picture_screen.tscn" id="2_jt0ih"]
-[ext_resource type="Script" uid="uid://qywokpomwigp" path="res://game_manager.gd" id="4_whwku"]
+[ext_resource type="PackedScene" uid="uid://d23haj46gk4ea" path="res://hud.tscn" id="2_jt0ih"]
 
 [node name="ColorScene" type="Control"]
 layout_mode = 3
@@ -18,8 +17,13 @@ script = ExtResource("1_rcabi")
 layout_mode = 1
 
 [node name="SVGImage" parent="." instance=ExtResource("2_fs4ej")]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="GameManager" type="Node" parent="."]
-script = ExtResource("4_whwku")
-metadata/_custom_type_script = "uid://qywokpomwigp"
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

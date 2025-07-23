@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Color The Picture"
 run/main_scene="uid://bnxj7rhwgcg67"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.5", "Forward Plus")
 run/max_fps=120
 run/low_processor_mode=true
 run/delta_smoothing=false
@@ -20,8 +20,12 @@ config/icon="res://assets/art/icon.svg"
 
 [autoload]
 
-Signals="*res://scripts/signals.gd"
-Utils="*res://scripts/utils.gd"
+SVGImporter="*res://addons/svg_importer/svg_importer.gd"
+A="*res://autoload.tscn"
+
+[debug]
+
+gdscript/warnings/static_called_on_instance=0
 
 [editor_plugins]
 
@@ -34,6 +38,7 @@ HUD=""
 [gui]
 
 common/snap_controls_to_pixels=false
+theme/custom="uid://dpiarvji88k81"
 
 [physics]
 
@@ -49,4 +54,4 @@ textures/vram_compression/import_etc2_astc=true
 2d/shadow_atlas/size=128
 textures/default_filters/use_nearest_mipmap_filter=true
 anti_aliasing/quality/msaa_2d=2
-environment/defaults/default_clear_color=Color(0.960784, 0.960784, 0.960784, 1)
+environment/defaults/default_clear_color=Color(0.7708398, 0.7708394, 0.77083945, 1)

@@ -1,3 +1,3 @@
 # color-club
 
-A game about coloring pictures
+A game about coloring (simple svg) pictures

@@ -4,7 +4,8 @@
 [ext_resource type="Script" uid="uid://c600jw7hyvtm" path="res://level_selector_buttons.gd" id="2_ndrx5"]
 
 [node name="LevelSelectorButton" type="Button"]
-custom_minimum_size = Vector2(50, 50)
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(200, 200)
 anchors_preset = -1
 anchor_left = 0.33724
 anchor_top = 0.215278

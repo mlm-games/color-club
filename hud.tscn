@@ -1,0 +1,169 @@
+[gd_scene load_steps=8 format=3 uid="uid://d23haj46gk4ea"]
+
+[ext_resource type="Script" uid="uid://bd17dmveu6b48" path="res://hud.gd" id="1_8sq4i"]
+[ext_resource type="PackedScene" uid="uid://cptdr4cx7eus7" path="res://svg_image.tscn" id="2_640wx"]
+[ext_resource type="PackedScene" uid="uid://dhpkpl2gdud8q" path="res://individual_color_button.tscn" id="3_a2258"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2bj2v"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_24ypn"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.27058825, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3rd0q"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.84313726, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Theme" id="Theme_2bj2v"]
+
+[node name="HUD" type="Control" groups=["HUD"]]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_8sq4i")
+metadata/_edit_use_anchors_ = true
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.960784, 0.960784, 0.960784, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 8.0
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TextureButton" parent="VBoxContainer/MarginContainer/HBoxContainer" instance=ExtResource("2_640wx")]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Control" type="Control" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+vertical_scroll_mode = 0
+metadata/_edit_use_anchors_ = true
+
+[node name="ColorPalettePanel" type="PanelContainer" parent="VBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/ScrollContainer/ColorPalettePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ColorContainer" type="HBoxContainer" parent="VBoxContainer/ScrollContainer/ColorPalettePanel/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="VSeparator" type="VSeparator" parent="VBoxContainer/ScrollContainer/ColorPalettePanel/MarginContainer/ColorContainer"]
+layout_mode = 2
+
+[node name="VSeparator2" type="VSeparator" parent="VBoxContainer/ScrollContainer/ColorPalettePanel/MarginContainer/ColorContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Button" parent="VBoxContainer/ScrollContainer/ColorPalettePanel/MarginContainer/ColorContainer" instance=ExtResource("3_a2258")]
+visible = false
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_2bj2v")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_24ypn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_3rd0q")
+
+[node name="CompletionProgressBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+modulate = Color(0.407843, 0.411765, 1, 1)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 13.0
+grow_horizontal = 2
+theme = SubResource("Theme_2bj2v")
+show_percentage = false
+
+[node name="ProgressLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 979.0
+offset_top = 29.0
+offset_right = 1120.0
+offset_bottom = 85.0
+
+[node name="BackButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 1052.0
+offset_top = 509.0
+offset_right = 1132.0
+offset_bottom = 559.0
