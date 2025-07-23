@@ -1,4 +1,4 @@
-# Robust SVG Path 'd' attribute parser.
+## Robust SVG Path 'd' attribute parser.
 class_name SVGImporterPathParser
 extends RefCounted
 

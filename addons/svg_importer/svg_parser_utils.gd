@@ -1,4 +1,4 @@
-# Utility functions for parsing SVG attributes and converting shapes.
+## Utility functions for parsing SVG attributes and converting shapes.
 class_name SVGImporterUtils
 extends RefCounted
 

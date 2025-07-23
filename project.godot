@@ -27,10 +27,6 @@ A="*res://game/autoload.tscn"
 
 gdscript/warnings/static_called_on_instance=0
 
-[editor_plugins]
-
-enabled=PackedStringArray()
-
 [global_group]
 
 HUD=""
