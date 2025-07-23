@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://bmgl20mx1bn0g"]
+
+[ext_resource type="Script" uid="uid://dhd3yw82ptc2m" path="res://game/coloring_canvas.gd" id="1_rcabi"]
+[ext_resource type="PackedScene" uid="uid://cptdr4cx7eus7" path="res://game/svg_image.tscn" id="2_fs4ej"]
+[ext_resource type="PackedScene" uid="uid://d23haj46gk4ea" path="res://game/hud.tscn" id="2_jt0ih"]
+
+[node name="ColorScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rcabi")
+
+[node name="HUD" parent="." instance=ExtResource("2_jt0ih")]
+layout_mode = 1
+
+[node name="SVGImage" parent="." instance=ExtResource("2_fs4ej")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

@@ -1,0 +1,24 @@
+[gd_scene load_steps=7 format=3 uid="uid://bsss38x5ucg0k"]
+
+[ext_resource type="Script" uid="uid://6lclffe7cwf" path="res://game/autoload.gd" id="1_bphty"]
+[ext_resource type="Script" uid="uid://qywokpomwigp" path="res://game/game_manager.gd" id="2_me7gt"]
+[ext_resource type="Script" uid="uid://0kpbv12lmvj2" path="res://game/assets/test/global_exports.gd" id="3_f2na2"]
+[ext_resource type="AudioStream" uid="uid://ch8uqpgcsg6o1" path="res://game/assets/sfx/win.wav" id="4_scw74"]
+[ext_resource type="AudioStream" uid="uid://bdfhdsml8gtfo" path="res://game/assets/sfx/click-small-win.wav" id="5_srpg3"]
+[ext_resource type="AudioStream" uid="uid://b6aqsh8netdje" path="res://game/assets/sfx/hover.wav" id="6_m0rrb"]
+
+[node name="Autoload" type="Node"]
+script = ExtResource("1_bphty")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("2_me7gt")
+metadata/_custom_type_script = "uid://qywokpomwigp"
+
+[node name="GlobalAudioExports" type="AudioStreamPlayer" parent="."]
+script = ExtResource("3_f2na2")
+Sounds = Dictionary[int, AudioStreamWAV]({
+0: ExtResource("4_scw74"),
+1: ExtResource("5_srpg3"),
+2: ExtResource("6_m0rrb")
+})
+metadata/_custom_type_script = "uid://0kpbv12lmvj2"

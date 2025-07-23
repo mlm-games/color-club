@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://df6stj0kgo1jl"]
+
+[ext_resource type="Texture2D" uid="uid://dojnp54fgwmat" path="res://game/assets/art/icon.svg" id="1_ngl2x"]
+[ext_resource type="Script" uid="uid://c600jw7hyvtm" path="res://game/level_selector_buttons.gd" id="2_ndrx5"]
+
+[node name="LevelSelectorButton" type="Button"]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(200, 200)
+anchors_preset = -1
+anchor_left = 0.33724
+anchor_top = 0.215278
+anchor_right = 0.66276
+anchor_bottom = 0.784722
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+icon = ExtResource("1_ngl2x")
+expand_icon = true
+script = ExtResource("2_ndrx5")
+metadata/_edit_use_anchors_ = true
