@@ -25,8 +25,8 @@ func load_content() -> String:
 			file.close()
 	else:
 		if ResourceLoader.exists(svg_path):
-			var file = FileAccess.open(svg_path, FileAccess.READ)
-			cached_svg_content = file.get_as_text()
-			file.close()
+			#var file = FileAccess.open(svg_path, FileAccess.READ)
+			cached_svg_content = (load(svg_path) as SVGTexture).get_source()
+			#file.close()
 	
 	return cached_svg_content

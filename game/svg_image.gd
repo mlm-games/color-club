@@ -20,6 +20,7 @@ func load_svg_from_content(svg_content: String) -> bool:
 	var file = FileAccess.open(temp_path, FileAccess.WRITE)
 	if not file:
 		GameManager.log_error("Failed to create temp file", "SVGImage")
+		printerr(FileAccess.get_open_error())
 		return false
 	
 	file.store_string(svg_content)
