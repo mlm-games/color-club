@@ -131,7 +131,7 @@ func _finalize_svg_layout() -> void:
 	var scale_factor = min(
 		panel_size.x / bounds.size.x,
 		panel_size.y / bounds.size.y
-	) * 0.9 # 10% margin
+	) * 0.6 # 40% margin
 
 	svg_root.scale = Vector2(scale_factor, scale_factor)
 	var scaled_size = bounds.size * scale_factor
