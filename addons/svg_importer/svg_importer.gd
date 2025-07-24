@@ -1,5 +1,5 @@
 #@tool
-# Main entry point for converting an SVG file into a Godot Node2D scene. To use as autoload
+# Main entry point for converting an SVG file into a Godot Node2D scene. To use as autoload (can be used an an editorscript by adding the _ready fn with the img)
 #class_name SVGImporter
 extends Node
 

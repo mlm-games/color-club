@@ -53,7 +53,7 @@ func _play_completion_animation() -> void:
 	
 	main_tween.tween_callback(_create_wiggle_animations.bind(colorable_shapes))
 	
-	main_tween.tween_interval(1.5)
+	main_tween.tween_interval(2.0)
 	
 	main_tween.tween_property(root_node, "rotation", root_node.rotation + deg_to_rad(360), 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN_OUT)
 	

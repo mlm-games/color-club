@@ -5,8 +5,8 @@ static var I: SettingsManager
 func _init() -> void:
 	I = self
 
-var color_strokes: bool = false
-var auto_color_strokes: bool = true
+var color_strokes: bool = true
+var auto_color_strokes: bool = false
 var stroke_color: Color = Color.BLACK
 
 signal settings_changed
