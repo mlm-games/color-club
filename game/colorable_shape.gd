@@ -105,7 +105,6 @@ func _input(event: InputEvent) -> void:
 					break
 		
 		if click_is_inside:
-			# Debug print
 			GameManager.log_info("Click detected on shape. Selected color: %s, Original color: %s" % [HUD.selected_color, original_color], "ColorableShape")
 			
 			if HUD.selected_color.a > 0 and original_color.is_equal_approx(HUD.selected_color):
@@ -114,24 +113,28 @@ func _input(event: InputEvent) -> void:
 
 func set_original_color(color: Color) -> void:
 	original_color = color
+	var parent = get_parent()
+	if parent and parent.modulate.a < 1.0:
+		original_color.a *= parent.modulate.a
 	revert_to_uncolored()
 
 func apply_color(new_color: Color) -> void:
 	var parent = get_parent()
+	
+	new_color.a = original_color.a
+	
 	if parent is Polygon2D:
 		parent.color = new_color
 	elif parent is Line2D:
 		parent.default_color = new_color
 	
 	is_colored = true
-	highlight = false # Turn off highlight once colored
+	highlight = false
 	colored.emit(self, original_color, new_color)
 	GameManager.I.register_element_colored()
 
 func revert_to_uncolored() -> void:
 	var parent = get_parent()
-	# The uncolored state is white, but we preserve original alpha
-	# to handle semi-transparent original shapes correctly.
 	var uncolored = Color.WHITE
 	uncolored.a = original_color.a
 	

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duju3lkpfuvde"
-path="res://.godot/imported/icon_outline.svg-22235d0d0623db882694cae315a84aa5.ctex"
+path="res://.godot/imported/icon_outline.svg-ce8d872ad354bd86d532bb2fc57c952f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game/assets/art/unrecognisable/icon_outline.svg"
-dest_files=["res://.godot/imported/icon_outline.svg-22235d0d0623db882694cae315a84aa5.ctex"]
+source_file="res://game/assets/broken/unrecognisable/icon_outline.svg"
+dest_files=["res://.godot/imported/icon_outline.svg-ce8d872ad354bd86d532bb2fc57c952f.ctex"]
 
 [params]
 

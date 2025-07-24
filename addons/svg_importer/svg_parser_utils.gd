@@ -10,20 +10,6 @@ const COLOR_MAP = {
 }
 
 # --- Property Parsers ---
-static func get_style_property(style: Dictionary, prop: String) -> Variant:
-	var value = style.get(prop, null)
-	if value == null:
-		# Default SVG values
-		match prop:
-			"fill": return Color.BLACK
-			"stroke": return Color.TRANSPARENT
-			"stroke-width": return 1.0
-		return null
-
-	match prop:
-		"fill", "stroke": return parse_color(value)
-		"stroke-width": return parse_dimension(value)
-		_: return value
 
 static func parse_color(color_string: String) -> Color:
 	var s = color_string.strip_edges().to_lower()
@@ -51,10 +37,29 @@ static func extract_styles_from_attributes(attributes: Dictionary) -> Dictionary
 	if "style" in attributes:
 		style.merge(parse_style_string(attributes["style"]), true)
 	
-	for key in ["fill", "stroke", "stroke-width", "opacity"]:
+	for key in ["fill", "stroke", "stroke-width", "opacity", "fill-opacity", "stroke-opacity"]:
 		if key in attributes:
 			style[key] = attributes[key]
 	return style
+
+static func get_style_property(style: Dictionary, prop: String) -> Variant:
+	var value = style.get(prop, null)
+	if value == null:
+		# Default SVG values
+		match prop:
+			"fill": return Color.BLACK
+			"stroke": return Color.TRANSPARENT
+			"stroke-width": return 1.0
+			"opacity": return 1.0
+			"fill-opacity": return 1.0
+			"stroke-opacity": return 1.0
+		return null
+
+	match prop:
+		"fill", "stroke": return parse_color(value)
+		"stroke-width": return parse_dimension(value)
+		"opacity", "fill-opacity", "stroke-opacity": return clamp(float(value), 0.0, 1.0)
+		_: return value
 
 static func parse_style_string(style_str: String) -> Dictionary:
 	var styles = {}
@@ -129,8 +134,29 @@ static func rect_to_points(attr: Dictionary) -> PackedVector2Array:
 	var w = parse_dimension(attr.get("width", "0"))
 	var h = parse_dimension(attr.get("height", "0"))
 	# Note: rx/ry for rounded rects would require path conversion.
-	# For a coloring book, sharp corners are usually sufficient.
 	return [Vector2(x, y), Vector2(x + w, y), Vector2(x + w, y + h), Vector2(x, y + h)]
+
+static func rect_to_path_string(x: float, y: float, w: float, h: float, rx: float, ry: float) -> String:
+	if rx == 0 and ry == 0:
+		return "M %f %f L %f %f L %f %f L %f %f Z" % [x, y, x+w, y, x+w, y+h, x, y+h]
+	
+	if rx == 0: rx = ry
+	if ry == 0: ry = rx
+	rx = min(rx, w / 2.0)
+	ry = min(ry, h / 2.0)
+	
+	var path = "M %f %f " % [x + rx, y]  # Move to start
+	path += "L %f %f " % [x + w - rx, y]  # Top edge
+	path += "A %f %f 0 0 1 %f %f " % [rx, ry, x + w, y + ry]  # Top-right
+	path += "L %f %f " % [x + w, y + h - ry]  # Right edge
+	path += "A %f %f 0 0 1 %f %f " % [rx, ry, x + w - rx, y + h]  # Bottom-right
+	path += "L %f %f " % [x + rx, y + h]  # Bottom edge
+	path += "A %f %f 0 0 1 %f %f " % [rx, ry, x, y + h - ry]  # Bottom-left
+	path += "L %f %f " % [x, y + ry]  # Left edge
+	path += "A %f %f 0 0 1 %f %f " % [rx, ry, x + rx, y]  # Top-left
+	path += "Z"  # Close path
+	
+	return path
 
 static func circle_to_points(attr: Dictionary) -> PackedVector2Array:
 	var cx = parse_dimension(attr.get("cx", "0"))

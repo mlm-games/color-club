@@ -42,6 +42,10 @@ func import_as_nodes(file_path: String) -> Node2D:
 					group.name = attributes.get("id", "Group")
 					group.transform = Utils.parse_transform(attributes.get("transform", ""))
 					
+					var opacity = Utils.get_style_property(inherited_style, "opacity")
+					if opacity < 1.0:
+						group.modulate.a = opacity
+					
 					node_stack.back().add_child(group)
 					node_stack.push_back(group)
 					style_stack.push_back(inherited_style)
@@ -75,8 +79,22 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 	
 	match tag:
 		"rect":
-			points = Utils.rect_to_points(attributes)
-			is_closed = true
+			var rx = Utils.parse_dimension(attributes.get("rx", "0"))
+			var ry = Utils.parse_dimension(attributes.get("ry", "0"))
+			
+			if rx > 0 or ry > 0:
+				var x = Utils.parse_dimension(attributes.get("x", "0"))
+				var y = Utils.parse_dimension(attributes.get("y", "0"))
+				var w = Utils.parse_dimension(attributes.get("width", "0"))
+				var h = Utils.parse_dimension(attributes.get("height", "0"))
+				
+				var path_string = Utils.rect_to_path_string(x, y, w, h, rx, ry)
+				var result = PathParser.parse(path_string)
+				points = result.points
+				is_closed = result.is_closed
+			else:
+				points = Utils.rect_to_points(attributes)
+				is_closed = true
 		"circle":
 			points = Utils.circle_to_points(attributes)
 			is_closed = true
@@ -102,13 +120,19 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 	if points.is_empty():
 		return null
 	
-	# Container node to hold the fill and stroke
 	var node = Node2D.new()
 	node.name = attributes.get("id", tag.capitalize())
+	
+	var opacity = Utils.get_style_property(style, "opacity")
+	if opacity < 1.0:
+		node.modulate.a = opacity
 	
 	var fill_color = Utils.get_style_property(style, "fill")
 	var stroke_color = Utils.get_style_property(style, "stroke")
 	var stroke_width = Utils.get_style_property(style, "stroke-width")
+	
+	var fill_opacity = Utils.get_style_property(style, "fill-opacity")
+	fill_color.a *= fill_opacity
 
 	# Create Fill Node (Polygon2D)
 	if fill_color.a > 0.01:
@@ -117,6 +141,10 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 		fill_node.polygon = points
 		fill_node.color = fill_color
 		node.add_child(fill_node)
+
+	# Apply stroke-opacity
+	var stroke_opacity = Utils.get_style_property(style, "stroke-opacity")
+	stroke_color.a *= stroke_opacity
 
 	# Create Stroke Node (Line2D)
 	if stroke_color.a > 0.01 and stroke_width > 0:

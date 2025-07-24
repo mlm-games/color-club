@@ -1,19 +1,19 @@
-[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=10 format=3 uid="uid://c8hgo3a60n77q"]
+[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=13 format=3]
 
-[ext_resource type="Script" uid="uid://dajrkkvy1jtv0" path="res://game/resources/level_data.gd" id="1_qqssn"]
-[ext_resource type="Script" uid="uid://cfgmmxbnkar52" path="res://game/resources/level_collection_resource.gd" id="2_oeqvw"]
+[ext_resource type="Script" path="res://game/resources/level_data.gd" id="1_qqssn"]
+[ext_resource type="Script" path="res://game/resources/level_collection_resource.gd" id="2_oeqvw"]
 
-[sub_resource type="Resource" id="Resource_fa6lw"]
+[sub_resource type="Resource" id="Resource_8yr1r"]
 script = ExtResource("1_qqssn")
-id = &"crossy-road-imitation"
-name = "Crossy Road Imitation"
-svg_path = "res://game/assets/art//crossy-road-imitation.svg"
+id = &"icon"
+name = "Icon"
+svg_path = "res://game/assets/art//icon.svg"
 
-[sub_resource type="Resource" id="Resource_lia0c"]
+[sub_resource type="Resource" id="Resource_ah2mb"]
 script = ExtResource("1_qqssn")
-id = &"pic1"
-name = "Pic 1"
-svg_path = "res://game/assets/art//unrecognisable/pic1.svg"
+id = &"test1"
+name = "Test 1"
+svg_path = "res://game/assets/art//test1.svg"
 
 [sub_resource type="Resource" id="Resource_ma6xv"]
 script = ExtResource("1_qqssn")
@@ -33,23 +33,44 @@ id = &"pino-face"
 name = "Pino Face"
 svg_path = "res://game/assets/art//pino-face.svg"
 
+[sub_resource type="Resource" id="Resource_fa6lw"]
+script = ExtResource("1_qqssn")
+id = &"crossy-road-imitation"
+name = "Crossy Road Imitation"
+svg_path = "res://game/assets/art//crossy-road-imitation.svg"
+
 [sub_resource type="Resource" id="Resource_481xw"]
 script = ExtResource("1_qqssn")
 id = &"star"
 name = "Star"
 svg_path = "res://game/assets/art//particles/star.svg"
 
-[sub_resource type="Resource" id="Resource_ah2mb"]
+[sub_resource type="Resource" id="Resource_4qmh0"]
 script = ExtResource("1_qqssn")
-id = &"test1"
-name = "Test 1"
-svg_path = "res://game/assets/art//test1.svg"
+id = &"boxes-isometric"
+name = "Boxes Isometric"
+svg_path = "res://game/assets/art//boxes-isometric.svg"
+
+[sub_resource type="Resource" id="Resource_l8o58"]
+script = ExtResource("1_qqssn")
+id = &"imagot-icon"
+name = "Imagot Icon"
+svg_path = "res://game/assets/art//imagot-icon.svg"
+
+[sub_resource type="Resource" id="Resource_1j0ht"]
+script = ExtResource("1_qqssn")
+id = &"bg"
+name = "Bg"
+svg_path = "res://game/assets/art//bg.svg"
 
 [resource]
 script = ExtResource("2_oeqvw")
 levels = Dictionary[StringName, ExtResource("1_qqssn")]({
+&"bg": SubResource("Resource_1j0ht"),
+&"boxes-isometric": SubResource("Resource_4qmh0"),
 &"crossy-road-imitation": SubResource("Resource_fa6lw"),
-&"pic1": SubResource("Resource_lia0c"),
+&"icon": SubResource("Resource_8yr1r"),
+&"imagot-icon": SubResource("Resource_l8o58"),
 &"pic2": SubResource("Resource_ma6xv"),
 &"pic3": SubResource("Resource_06y7x"),
 &"pino-face": SubResource("Resource_4fmic"),
