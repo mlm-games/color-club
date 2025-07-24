@@ -1,3 +1,8 @@
+## v0.7.2
+
+- add opacity identifiers, and rect rounded corner conv., use some of my other pics by @mlm-games
+
+
 ## v0.7.1
 
 - do not use broken imgs by @mlm-games
