@@ -2,17 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dojnp54fgwmag"
-path="res://.godot/imported/icon (2).svg-6f998f8a69a772da363dbac7c8c120d1.ctex"
+uid="uid://duju3lkpfuvde"
+path="res://.godot/imported/icon_outline.svg-8a1ac8bfdc7a2a54aad059e60c17aabc.ctex"
 metadata={
-"has_editor_variant": true,
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game/assets/broken/unrecognisable/icon (2).svg"
-dest_files=["res://.godot/imported/icon (2).svg-6f998f8a69a772da363dbac7c8c120d1.ctex"]
+source_file="res://game/assets/art/broken/unrecognisable/icon_outline.svg"
+dest_files=["res://.godot/imported/icon_outline.svg-8a1ac8bfdc7a2a54aad059e60c17aabc.ctex"]
 
 [params]
 
@@ -39,6 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=4.0
-editor/scale_with_editor_scale=true
+svg/scale=1.0
+editor/scale_with_editor_scale=false
 editor/convert_colors_with_editor_theme=false

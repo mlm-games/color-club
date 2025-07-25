@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://duju3lkpfuvde"
-path="res://.godot/imported/icon_outline.svg-ce8d872ad354bd86d532bb2fc57c952f.ctex"
+uid="uid://isrq85uke7uc"
+path="res://.godot/imported/icon.svg-c5a16fc4508a73ee9e82411584ec8c7f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://game/assets/broken/unrecognisable/icon_outline.svg"
-dest_files=["res://.godot/imported/icon_outline.svg-ce8d872ad354bd86d532bb2fc57c952f.ctex"]
+source_file="res://fastlane/metadata/android/en-US/images/icon.svg"
+dest_files=["res://.godot/imported/icon.svg-c5a16fc4508a73ee9e82411584ec8c7f.ctex"]
 
 [params]
 
