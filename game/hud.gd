@@ -16,15 +16,9 @@ const WinScreenScene = preload("uid://cevc21alsw44h")
 @onready var progress_label: Label = %ProgressLabel
 @onready var svg_image: SVGImage = get_node("../SVGImage")
 
-
+var original_color_registry: Dictionary = {}
 var color_registry: Dictionary = {}
 var current_selected_button: Button = null
-
-static var selected_color: Color = Color.TRANSPARENT:
-	set(value):
-		if selected_color != value:
-			selected_color = value
-			HUD.I._on_color_selected(value)
 
 func _ready() -> void:
 	svg_image.svg_loaded.connect(_on_svg_loaded)
@@ -39,12 +33,13 @@ func register_colored_shape(shape_script: Node, old_color: Color, _new_color: Co
 		color_registry[old_color].erase(shape_script)
 		if color_registry[old_color].is_empty():
 			# This color is now complete
+			_celebrate_color_completion(old_color)
+			
 			color_registry.erase(old_color)
-			_remove_color_button(old_color)
 			GameManager.I.register_color_completed()
 			
-			if selected_color.is_equal_approx(old_color):
-				selected_color = Color.TRANSPARENT
+			if GameManager.I.selected_color.is_equal_approx(old_color):
+				GameManager.I.selected_color = Color.TRANSPARENT
 				if current_selected_button:
 					current_selected_button.set_selected(false)
 					current_selected_button = null
@@ -54,6 +49,28 @@ func get_total_colorable_elements() -> int:
 	for color in color_registry:
 		count += color_registry[color].size()
 	return count
+
+func _celebrate_color_completion(color: Color) -> void:
+	_remove_color_button(color)
+	#TODO: AUDIO
+	
+	var i = 0
+	for shape_script in original_color_registry[color]:
+		var shape_parent = shape_script.get_parent()
+		if not is_instance_valid(shape_parent): continue
+		
+		# Animate each shape with a slight delay
+		var tween = create_tween()
+		tween.tween_interval(i * 0.03)
+		
+		var container = shape_parent.get_parent()
+		if is_instance_valid(container):
+			var original_rotation = container.rotation
+			tween.tween_property(container, "rotation", original_rotation + deg_to_rad(1), 0.1)
+			tween.tween_property(container, "rotation", original_rotation - deg_to_rad(1), 0.2)
+			tween.tween_property(container, "rotation", original_rotation, 0.1)
+		
+		i += 1
 
 func get_remaining_colors() -> int:
 	return color_registry.size()
@@ -112,7 +129,8 @@ func _play_milestone_effect() -> void:
 	burst_tween.tween_property(progress_bar, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BOUNCE)
 
 func _on_svg_loaded(registry: Dictionary) -> void:
-	color_registry = registry
+	original_color_registry = registry
+	color_registry = registry.duplicate(true)
 	_update_color_buttons()
 
 	for color in color_registry:
@@ -172,7 +190,7 @@ func _on_color_button_pressed(color: Color, button: Button) -> void:
 	if button.has_method("set_selected"):
 		button.set_selected(true)
 	
-	selected_color = color
+	GameManager.I.selected_color = color
 	
 	button.particle_component.emit_selection_particles(color)
 	
@@ -196,3 +214,22 @@ func _remove_color_button(color: Color) -> void:
 			remove_tween.parallel().tween_property(child, "modulate:a", 0.0, 0.2)
 			remove_tween.tween_callback(child.queue_free)
 			break
+
+
+func _on_back_button_pressed() -> void:
+	STransitions.change_scene_with_transition(ProjectSettings.get_setting("application/run/main_scene"))
+
+
+func _on_hint_button_pressed() -> void:
+	if GameManager.I.selected_color.a == 0:
+		#TODO: show a tooltip?
+		return
+		
+	var selected = GameManager.I.selected_color
+	if selected in color_registry and not color_registry[selected].is_empty():
+		var shape_to_hint = color_registry[selected][0] as ColorableShape
+		
+		var shape_node = shape_to_hint.get_parent()
+		var tween = create_tween()
+		tween.tween_property(shape_node, "modulate", Color.YELLOW, 0.2)
+		tween.tween_property(shape_node, "modulate", Color.WHITE, 0.4).set_delay(0.2)

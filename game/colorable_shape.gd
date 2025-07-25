@@ -65,7 +65,7 @@ func _input(event: InputEvent) -> void:
 	var parent_global_transform = parent.get_global_transform()
 	
 	# Handle mouse motion for hover highlighting
-	if event is InputEventMouseMotion and HUD.selected_color.a > 0:
+	if event is InputEventMouseMotion and GameManager.I.selected_color.a > 0:
 		var global_pos = event.position
 		var local_pos = parent_global_transform.affine_inverse() * global_pos
 		var is_hovering = false
@@ -81,7 +81,7 @@ func _input(event: InputEvent) -> void:
 					break
 		
 		# Only highlight if this shape matches the selected color
-		if is_hovering and original_color.is_equal_approx(HUD.selected_color):
+		if is_hovering and original_color.is_equal_approx(GameManager.I.selected_color):
 			highlight = true
 		else:
 			highlight = false
@@ -105,10 +105,10 @@ func _input(event: InputEvent) -> void:
 					break
 		
 		if click_is_inside:
-			GameManager.log_info("Click detected on shape. Selected color: %s, Original color: %s" % [HUD.selected_color, original_color], "ColorableShape")
+			GameManager.log_info("Click detected on shape. Selected color: %s, Original color: %s" % [GameManager.I.selected_color, original_color], "ColorableShape")
 			
-			if HUD.selected_color.a > 0 and original_color.is_equal_approx(HUD.selected_color):
-				apply_color(HUD.selected_color)
+			if GameManager.I.selected_color.a > 0 and original_color.is_equal_approx(GameManager.I.selected_color):
+				apply_color(GameManager.I.selected_color)
 				get_viewport().set_input_as_handled()
 
 func set_original_color(color: Color) -> void:
@@ -136,8 +136,7 @@ func apply_color(new_color: Color) -> void:
 	set_process_unhandled_input(false) 
 
 	var tween = create_tween().set_trans(Tween.TRANS_SPRING).set_ease(Tween.EASE_OUT)
-	# The parent is the Polygon2D/Line2D, need its container Node2D
-	var shape_container : CanvasItem = parent.get_parent() 
+	var shape_container : CanvasItem = HUD.I.svg_image
 	
 	tween.tween_property(shape_container, "scale", Vector2.ONE * 1.01, 0.15)
 	tween.tween_property(shape_container, "scale", Vector2.ONE, 0.3)

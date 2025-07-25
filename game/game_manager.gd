@@ -11,6 +11,12 @@ var current_level: LevelData = null
 var game_started: bool = false
 var start_time: float = 0.0
 
+static var selected_color: Color = Color.TRANSPARENT:
+	set(value):
+		if selected_color != value:
+			selected_color = value
+			HUD.I._on_color_selected(value)
+
 # Statistics
 var elements_colored: int = 0
 var total_colorable_elements: int = 0
