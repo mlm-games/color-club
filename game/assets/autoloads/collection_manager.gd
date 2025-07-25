@@ -27,7 +27,7 @@ func _ready() -> void:
 		_update_collection_in_editor()
 
 func _update_collection_in_editor() -> void:
-	var svg_files = _scan_directory("res://game/assets/art/", "svg")
+	var svg_files = _scan_directory("res://game/assets/art", "svg")
 	var updated = false
 	
 	for file_path in svg_files:

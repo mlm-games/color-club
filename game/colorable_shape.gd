@@ -132,6 +132,15 @@ func apply_color(new_color: Color) -> void:
 	highlight = false
 	colored.emit(self, original_color, new_color)
 	GameManager.I.register_element_colored()
+	
+	set_process_unhandled_input(false) 
+
+	var tween = create_tween().set_trans(Tween.TRANS_SPRING).set_ease(Tween.EASE_OUT)
+	# The parent is the Polygon2D/Line2D, need its container Node2D
+	var shape_container : CanvasItem = parent.get_parent() 
+	
+	tween.tween_property(shape_container, "scale", Vector2.ONE * 1.01, 0.15)
+	tween.tween_property(shape_container, "scale", Vector2.ONE, 0.3)
 
 func revert_to_uncolored() -> void:
 	var parent = get_parent()
