@@ -35,7 +35,7 @@ func _on_load_pressed() -> void:
 		load_button.disabled = false
 		http_request.queue_free()
 
-func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http_request: HTTPRequest) -> void:
+func _on_request_completed(_result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray, http_request: HTTPRequest) -> void:
 	http_request.queue_free()
 	
 	if response_code == 200:
@@ -59,7 +59,7 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 			load_button.text = "Invalid SVG"
 			load_button.disabled = false
 	else:
-		load_button.text = "Load Failed: Response code: " + str(response_code) #FIXME: currently gives the response code 0, (no conn) disable for now
+		load_button.text = "Load Failed: Response code: " + str(response_code) #FIXME: currently gives the response code 0 in web debug, (no conn) disable for now
 		load_button.disabled = false
 
 func _on_add_pressed() -> void:

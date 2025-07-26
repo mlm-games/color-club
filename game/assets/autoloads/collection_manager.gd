@@ -25,6 +25,7 @@ func _ready() -> void:
 		
 	if OS.has_feature("editor"):
 		_update_collection_in_editor()
+	_update_user_collection()
 
 func _update_collection_in_editor() -> void:
 	var svg_files = _scan_directory("res://game/assets/art", "svg")
@@ -44,6 +45,25 @@ func _update_collection_in_editor() -> void:
 	if updated:
 		ResourceSaver.save(collection, COLLECTION_PATH)
 		print("Updated level collection with %d levels" % collection.levels.size())
+
+func _update_user_collection() -> void:
+	var svg_files = _scan_directory("user://", "svg")
+	var updated = false
+	
+	for file_path in svg_files:
+		var id = file_path.get_file().get_basename()
+		if not id in user_collection.levels:
+			var level = LevelData.new()
+			level.id = id
+			level.name = id.capitalize().replace("_", " ")
+			level.svg_path = file_path
+			level.is_online = false
+			user_collection.levels[id] = level
+			updated = true
+	
+	if updated:
+		ResourceSaver.save(user_collection, USER_COLLECTION_PATH)
+		print("Updated level user_collection" % user_collection.levels.size())
 
 func _scan_directory(path: String, extension: String) -> Array:
 	var files = []

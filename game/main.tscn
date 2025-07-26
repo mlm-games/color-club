@@ -107,6 +107,16 @@ flat = true
 script = ExtResource("3_vop5m")
 metadata/_custom_type_script = "uid://cmo5qw3rubish"
 
+[node name="QuitButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+unique_name_in_owner = true
+modulate = Color(0.19076231, 0.19076234, 0.19076231, 1)
+layout_mode = 2
+theme_type_variation = &"PlayButton"
+text = "Quit"
+flat = true
+script = ExtResource("3_vop5m")
+metadata/_custom_type_script = "uid://cmo5qw3rubish"
+
 [node name="Control" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
 layout_mode = 2
 size_flags_horizontal = 3

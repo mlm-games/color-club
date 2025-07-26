@@ -1,6 +1,6 @@
-class_name SettingsManager extends Node
+class_name SettingsOptions extends Node
 
-static var I: SettingsManager
+static var I: SettingsOptions
 
 func _init() -> void:
 	I = self

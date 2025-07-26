@@ -25,8 +25,8 @@ func _ready() -> void:
 	level_select_container.modulate.a = 0.0
 	level_select_container.visible = false
 	
-	if add_online_button:
-		add_online_button.pressed.connect(_on_add_online_pressed)
+	add_online_button.pressed.connect(_on_add_online_pressed)
+	%QuitButton.pressed.connect(get_tree().quit)
 
 func populate_pics() -> void:
 	# Clear existing

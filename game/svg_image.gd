@@ -102,10 +102,9 @@ func _prepare_nodes_for_game() -> void:
 		if shape in hidden_shapes:
 			shape.visible = false
 			continue
-		if shape is Line2D and not SettingsManager.I.color_strokes:
-			# Auto-color the stroke if enabled
-			if SettingsManager.I.auto_color_strokes:
-				shape.default_color = SettingsManager.I.stroke_color
+		if shape is Line2D and not SettingsManager.get_setting("gameplay", "color_strokes"):
+			if SettingsManager.get_setting("gameplay", "auto_color_strokes"):
+				shape.default_color = SettingsManager.get_setting("gameplay", "stroke_color")
 			continue
 		# Attach the interactive component script
 		var colorable_script = ColorableShape.new()
