@@ -78,6 +78,7 @@ jobs:
           exclude-patterns: 'Update ,Merge ,Auto-generate changelog'
           auto-commit: 'true'
           commit-message: 'Update release notes for v{{version}}'
+          format: '- {{subject}}'
           # metainfo-path: './others/flathub/io.github.mlm_games.imagot.metainfo.xml'  # TODO: Change here when copying
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
