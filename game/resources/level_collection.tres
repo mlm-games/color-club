@@ -1,37 +1,7 @@
-[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=21 format=3]
+[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://game/resources/level_data.gd" id="1_qqssn"]
 [ext_resource type="Script" path="res://game/resources/level_collection_resource.gd" id="2_s5iu4"]
-
-[sub_resource type="Resource" id="Resource_1j0ht"]
-script = ExtResource("1_qqssn")
-id = &"bg"
-name = "Bg"
-svg_path = "res://game/assets/art/bg.svg"
-
-[sub_resource type="Resource" id="Resource_b3yvl"]
-script = ExtResource("1_qqssn")
-id = &"bomb"
-name = "Bomb"
-svg_path = "res://game/assets/art/broken/unrecognisable/bomb.svg"
-
-[sub_resource type="Resource" id="Resource_4qmh0"]
-script = ExtResource("1_qqssn")
-id = &"boxes-isometric"
-name = "Boxes Isometric"
-svg_path = "res://game/assets/art/boxes-isometric.svg"
-
-[sub_resource type="Resource" id="Resource_lia0c"]
-script = ExtResource("1_qqssn")
-id = &"component"
-name = "Component"
-svg_path = "res://game/assets/art/component.svg"
-
-[sub_resource type="Resource" id="Resource_fa6lw"]
-script = ExtResource("1_qqssn")
-id = &"crossy-road-imitation"
-name = "Crossy Road Imitation"
-svg_path = "res://game/assets/art/crossy-road-imitation.svg"
 
 [sub_resource type="Resource" id="Resource_8yr1r"]
 script = ExtResource("1_qqssn")
@@ -39,35 +9,11 @@ id = &"icon"
 name = "Icon"
 svg_path = "res://game/assets/art/icon.svg"
 
-[sub_resource type="Resource" id="Resource_n4gau"]
+[sub_resource type="Resource" id="Resource_ah2mb"]
 script = ExtResource("1_qqssn")
-id = &"icon (2)"
-name = "Icon (2)"
-svg_path = "res://game/assets/art/broken/unrecognisable/icon (2).svg"
-
-[sub_resource type="Resource" id="Resource_xkasb"]
-script = ExtResource("1_qqssn")
-id = &"icon_outline"
-name = "Icon Outline"
-svg_path = "res://game/assets/art/broken/unrecognisable/icon_outline.svg"
-
-[sub_resource type="Resource" id="Resource_l8o58"]
-script = ExtResource("1_qqssn")
-id = &"imagot-icon"
-name = "Imagot Icon"
-svg_path = "res://game/assets/art/imagot-icon.svg"
-
-[sub_resource type="Resource" id="Resource_wo0ei"]
-script = ExtResource("1_qqssn")
-id = &"manager"
-name = "Manager"
-svg_path = "res://game/assets/art/manager.svg"
-
-[sub_resource type="Resource" id="Resource_thecf"]
-script = ExtResource("1_qqssn")
-id = &"pic1"
-name = "Pic 1"
-svg_path = "res://game/assets/art/broken/unrecognisable/pic1.svg"
+id = &"test1"
+name = "Test 1"
+svg_path = "res://game/assets/art/test1.svg"
 
 [sub_resource type="Resource" id="Resource_ma6xv"]
 script = ExtResource("1_qqssn")
@@ -87,25 +33,73 @@ id = &"pino-face"
 name = "Pino Face"
 svg_path = "res://game/assets/art/pino-face.svg"
 
+[sub_resource type="Resource" id="Resource_fa6lw"]
+script = ExtResource("1_qqssn")
+id = &"crossy-road-imitation"
+name = "Crossy Road Imitation"
+svg_path = "res://game/assets/art/crossy-road-imitation.svg"
+
 [sub_resource type="Resource" id="Resource_481xw"]
 script = ExtResource("1_qqssn")
 id = &"star"
 name = "Star"
 svg_path = "res://game/assets/art/particles/star.svg"
 
-[sub_resource type="Resource" id="Resource_ah2mb"]
+[sub_resource type="Resource" id="Resource_4qmh0"]
 script = ExtResource("1_qqssn")
-id = &"test1"
-name = "Test 1"
-svg_path = "res://game/assets/art/test1.svg"
+id = &"boxes-isometric"
+name = "Boxes Isometric"
+svg_path = "res://game/assets/art/boxes-isometric.svg"
+
+[sub_resource type="Resource" id="Resource_l8o58"]
+script = ExtResource("1_qqssn")
+id = &"imagot-icon"
+name = "Imagot Icon"
+svg_path = "res://game/assets/art/imagot-icon.svg"
+
+[sub_resource type="Resource" id="Resource_1j0ht"]
+script = ExtResource("1_qqssn")
+id = &"bg"
+name = "Bg"
+svg_path = "res://game/assets/art/bg.svg"
+
+[sub_resource type="Resource" id="Resource_lia0c"]
+script = ExtResource("1_qqssn")
+id = &"component"
+name = "Component"
+svg_path = "res://game/assets/art/component.svg"
+
+[sub_resource type="Resource" id="Resource_wo0ei"]
+script = ExtResource("1_qqssn")
+id = &"manager"
+name = "Manager"
+svg_path = "res://game/assets/art/manager.svg"
 
 [sub_resource type="Resource" id="Resource_wwdaw"]
 script = ExtResource("1_qqssn")
-id = &"void-liner"
-name = "Void Liner"
-svg_path = "res://game/assets/art/void-liner.svg"
+id = &"bomb"
+name = "Bomb"
+svg_path = "res://game/assets/art/broken/unrecognisable/bomb.svg"
 
-[sub_resource type="Resource" id="Resource_qqssn"]
+[sub_resource type="Resource" id="Resource_b3yvl"]
+script = ExtResource("1_qqssn")
+id = &"icon (2)"
+name = "Icon (2)"
+svg_path = "res://game/assets/art/broken/unrecognisable/icon (2).svg"
+
+[sub_resource type="Resource" id="Resource_n4gau"]
+script = ExtResource("1_qqssn")
+id = &"icon_outline"
+name = "Icon Outline"
+svg_path = "res://game/assets/art/broken/unrecognisable/icon_outline.svg"
+
+[sub_resource type="Resource" id="Resource_xkasb"]
+script = ExtResource("1_qqssn")
+id = &"pic1"
+name = "Pic 1"
+svg_path = "res://game/assets/art/broken/unrecognisable/pic1.svg"
+
+[sub_resource type="Resource" id="Resource_thecf"]
 script = ExtResource("1_qqssn")
 id = &"void_liner"
 name = "Void Liner"
@@ -115,21 +109,20 @@ svg_path = "res://game/assets/art/void_liner.svg"
 script = ExtResource("2_s5iu4")
 levels = Dictionary[StringName, ExtResource("1_qqssn")]({
 &"bg": SubResource("Resource_1j0ht"),
-&"bomb": SubResource("Resource_b3yvl"),
+&"bomb": SubResource("Resource_wwdaw"),
 &"boxes-isometric": SubResource("Resource_4qmh0"),
 &"component": SubResource("Resource_lia0c"),
 &"crossy-road-imitation": SubResource("Resource_fa6lw"),
 &"icon": SubResource("Resource_8yr1r"),
-&"icon (2)": SubResource("Resource_n4gau"),
-&"icon_outline": SubResource("Resource_xkasb"),
+&"icon (2)": SubResource("Resource_b3yvl"),
+&"icon_outline": SubResource("Resource_n4gau"),
 &"imagot-icon": SubResource("Resource_l8o58"),
 &"manager": SubResource("Resource_wo0ei"),
-&"pic1": SubResource("Resource_thecf"),
+&"pic1": SubResource("Resource_xkasb"),
 &"pic2": SubResource("Resource_ma6xv"),
 &"pic3": SubResource("Resource_06y7x"),
 &"pino-face": SubResource("Resource_4fmic"),
 &"star": SubResource("Resource_481xw"),
 &"test1": SubResource("Resource_ah2mb"),
-&"void-liner": SubResource("Resource_wwdaw"),
-&"void_liner": SubResource("Resource_qqssn")
+&"void_liner": SubResource("Resource_thecf")
 })

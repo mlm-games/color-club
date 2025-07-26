@@ -1,7 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://d23haj46gk4ea"]
+[gd_scene load_steps=7 format=3 uid="uid://d23haj46gk4ea"]
 
 [ext_resource type="Script" uid="uid://bd17dmveu6b48" path="res://game/hud.gd" id="1_8sq4i"]
-[ext_resource type="PackedScene" uid="uid://cptdr4cx7eus7" path="res://game/svg_image.tscn" id="2_640wx"]
 [ext_resource type="PackedScene" uid="uid://dhpkpl2gdud8q" path="res://game/individual_color_button.tscn" id="3_a2258"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2bj2v"]
@@ -77,24 +76,6 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 8.0
 metadata/_edit_use_anchors_ = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer"]
-visible = false
-layout_mode = 2
-
-[node name="Control2" type="Control" parent="VBoxContainer/MarginContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="TextureButton" parent="VBoxContainer/MarginContainer/HBoxContainer" instance=ExtResource("2_640wx")]
-visible = false
-layout_mode = 2
-
-[node name="Control" type="Control" parent="VBoxContainer/MarginContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
 [node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 8
@@ -161,12 +142,14 @@ flat = true
 unique_name_in_owner = true
 modulate = Color(0.407843, 0.411765, 1, 1)
 layout_mode = 1
-anchors_preset = 10
+anchors_preset = -1
 anchor_right = 1.0
-offset_bottom = 13.0
+anchor_bottom = 0.015432099
+offset_bottom = 1.0
 grow_horizontal = 2
 theme = SubResource("Theme_2bj2v")
 show_percentage = false
+metadata/_edit_use_anchors_ = true
 
 [node name="ProgressLabel" type="Label" parent="."]
 unique_name_in_owner = true

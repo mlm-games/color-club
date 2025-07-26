@@ -2,6 +2,14 @@
 class_name SVGImage
 extends Control
 
+static var I
+
+func _init() -> void:
+	if Engine.is_editor_hint():
+		return
+	
+	I = self
+
 var svg_root: Node2D
 var color_registry: Dictionary = {} # Color -> Array[ColorableShape]
 
@@ -61,9 +69,39 @@ func _prepare_nodes_for_game() -> void:
 	color_registry.clear()
 	if not is_instance_valid(svg_root): return
 	
+	var all_polygons = A.find_nodes_by_type(svg_root, ["Polygon2D"])
+	var hidden_shapes: Array[Node] = []
+
+	## Check every polygon against every other polygon drawn on top of it
+	#for i in range(all_polygons.size()):
+		#var shape_to_check : Polygon2D = all_polygons[i]
+		#if not shape_to_check.visible or shape_to_check.polygon.size() < 3:
+			#continue
+#
+		## Now check against all polygons that are drawn ON TOP of this one
+		## (We assume the node order from find_nodes_by_type reflects draw order)
+		#for j in range(i + 1, all_polygons.size()):
+			#var occluder_shape = all_polygons[j]
+			#if not occluder_shape.visible or occluder_shape.polygon.size() < 3:
+				#continue
+#
+			## Convert the center point to the occluder's local space
+			#var point_in_occluder_space = occluder_shape.to_local(shape_to_check.position)
+			#
+			#if Geometry2D.is_point_in_polygon(point_in_occluder_space, occluder_shape.polygon):
+				## The center of our shape is inside an overlapping, later-drawn polygon. Mark it as hidden.
+				#hidden_shapes.append(shape_to_check)
+				## We found an occluder, no need to check others for this shape
+				#break
+	#
+	#GameManager.log_info("Found and ignored %d hidden shapes." % hidden_shapes.size(), "SVGImage")
+	#
 	var shapes = A.find_nodes_by_type(svg_root, ["Polygon2D", "Line2D"])
 	
 	for shape in shapes:
+		if shape in hidden_shapes:
+			shape.visible = false
+			continue
 		if shape is Line2D and not SettingsManager.I.color_strokes:
 			# Auto-color the stroke if enabled
 			if SettingsManager.I.auto_color_strokes:

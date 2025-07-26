@@ -14,7 +14,7 @@ const WinScreenScene = preload("uid://cevc21alsw44h")
 @onready var color_palette_panel: PanelContainer = %ColorPalettePanel
 @onready var back_button: Button = %BackButton
 @onready var progress_label: Label = %ProgressLabel
-@onready var svg_image: SVGImage = get_node("../SVGImage")
+@onready var svg_image: SVGImage = SVGImage.I
 
 var original_color_registry: Dictionary = {}
 var color_registry: Dictionary = {}
@@ -96,14 +96,13 @@ func _animate_hud_entrance() -> void:
 	# Animate progress bar sliding in from top
 	progress_bar.position.y = -50
 	var progress_tween = create_tween()
-	progress_tween.tween_property(progress_bar, "position:y", 10, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	progress_tween.tween_property(progress_bar, "position:y", 0, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
 	# Animate color palette sliding in from bottom
 	var original_y = color_palette_panel.position.y
 	color_palette_panel.position.y = get_viewport_rect().size.y + 100
 	progress_tween.tween_property(color_palette_panel, "position:y", original_y, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
-	# And animate the svg node popping in
 	
 	#svg_image.scale = Vector2.ZERO
 	svg_image.modulate = Color.TRANSPARENT
@@ -123,7 +122,6 @@ func _on_progress_updated(progress: float) -> void:
 		_play_milestone_effect()
 
 func _play_milestone_effect() -> void:
-	# Create a burst effect
 	var burst_tween = create_tween()
 	burst_tween.tween_property(progress_bar, "scale", Vector2(1.05, 1.2), 0.2).set_trans(Tween.TRANS_QUAD)
 	burst_tween.tween_property(progress_bar, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BOUNCE)
@@ -225,11 +223,11 @@ func _on_hint_button_pressed() -> void:
 		#TODO: show a tooltip?
 		return
 		
-	var selected = GameManager.I.selected_color
+	var selected := GameManager.I.selected_color
 	if selected in color_registry and not color_registry[selected].is_empty():
 		var shape_to_hint = color_registry[selected][0] as ColorableShape
 		
-		var shape_node = shape_to_hint.get_parent()
-		var tween = create_tween()
+		var shape_node := shape_to_hint.get_parent()
+		var tween := create_tween()
 		tween.tween_property(shape_node, "modulate", Color.YELLOW, 0.2)
 		tween.tween_property(shape_node, "modulate", Color.WHITE, 0.4).set_delay(0.2)

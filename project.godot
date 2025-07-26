@@ -23,6 +23,7 @@ config/icon="res://game/assets/art/icon.svg"
 SVGImporter="*res://addons/svg_importer/svg_importer.gd"
 A="*res://game/assets/autoloads/autoload.tscn"
 STransitions="*res://addons/my-ecosystem-template/transitions/screen_transitions.tscn"
+UiAudioM="*res://addons/my-ecosystem-template/utils/audio/ui_audio_manager.gd"
 
 [debug]
 

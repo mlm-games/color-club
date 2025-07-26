@@ -31,3 +31,13 @@ func _on_level_selected() -> void:
 	pulse_tween.tween_callback(func():
 		get_tree().change_scene_to_packed(ColorPicScene)
 	)
+
+func _on_level_button_hover(button: Button, is_hovering: bool) -> void:
+	var hover_tween = create_tween()
+	
+	if is_hovering:
+		hover_tween.parallel().tween_property(button, "scale", Vector2(1.1, 1.1), 0.2).set_trans(Tween.TRANS_QUAD)
+		hover_tween.parallel().tween_property(button, "rotation", deg_to_rad(5), 0.2)
+	else:
+		hover_tween.parallel().tween_property(button, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_QUAD)
+		hover_tween.parallel().tween_property(button, "rotation", 0.0, 0.2)

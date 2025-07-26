@@ -1,6 +1,9 @@
 extends Control
 
 const LevelButtonsScene := preload("uid://df6stj0kgo1jl")
+const CREDITS_SCENE = "uid://bq0gelfcjnqvg"
+const SETTINGS_SCENE = "uid://dp42fom7cc3n0"
+
 
 @onready var play_button: Button = %PlayButton
 @onready var pic_container: GridContainer = %PicContainer
@@ -63,8 +66,7 @@ func create_level_button(level: LevelData) -> void:
 		online_label.position = Vector2(5, 5)
 		pic_button.add_child(online_label)
 	
-	pic_button.mouse_entered.connect(_on_level_button_hover.bind(pic_button, true))
-	pic_button.mouse_exited.connect(_on_level_button_hover.bind(pic_button, false))
+
 	
 	pic_container.add_child(pic_button)
 
@@ -89,18 +91,17 @@ func _animate_title_entrance() -> void:
 	title_tween.parallel().tween_property(title_label, "modulate:a", 1.0, 0.8)
 	title_tween.parallel().tween_property(title_label, "position:y", title_label.position.y + 50, 0.8)
 	
-	play_button.scale = Vector2(0, 0)
+	play_button.scale = Vector2.ZERO #FIXME: Not playing,...
 	title_tween.tween_property(play_button, "scale", Vector2.ONE, 0.5).set_trans(Tween.TRANS_BACK)
 
 func on_play_clicked() -> void:
 	play_button.pivot_offset = play_button.size / 2
-	var tween := create_tween()
+	var tween := create_tween().set_trans(Tween.TRANS_CUBIC)
 	
-	tween.parallel().tween_property(play_button, "rotation", deg_to_rad(360), 0.5)
+	#tween.parallel().tween_property(play_button, "rotation", deg_to_rad(360), 0.5)
 	tween.parallel().tween_property(play_button, "scale", Vector2.ZERO, 0.5).set_trans(Tween.TRANS_BACK)
 	tween.parallel().tween_property(play_button, "modulate:a", 0.0, 0.3)
 	
-	# Level select with stagger animation
 	tween.tween_callback(func():
 		play_button.visible = false
 		level_select_container.visible = true
@@ -123,19 +124,11 @@ func _animate_level_buttons_entrance() -> void:
 			
 			delay += 0.05
 
-func _on_level_button_hover(button: Button, is_hovering: bool) -> void:
-	if button in button_hover_tweens:
-		button_hover_tweens[button].kill()
-	
-	var hover_tween = create_tween()
-	button_hover_tweens[button] = hover_tween
-	
-	if is_hovering:
-		hover_tween.parallel().tween_property(button, "scale", Vector2(1.1, 1.1), 0.2).set_trans(Tween.TRANS_QUAD)
-		hover_tween.parallel().tween_property(button, "rotation", deg_to_rad(5), 0.2)
-	else:
-		hover_tween.parallel().tween_property(button, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_QUAD)
-		hover_tween.parallel().tween_property(button, "rotation", 0.0, 0.2)
+
 
 func _on_play_button_pressed() -> void:
 	on_play_clicked()
+
+
+func _on_credits_button_pressed() -> void:
+	STransitions.change_scene_with_transition(CREDITS_SCENE)
