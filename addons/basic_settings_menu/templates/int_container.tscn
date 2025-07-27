@@ -20,6 +20,5 @@ size_flags_stretch_ratio = 5.5
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 300.0
-step = 5.0
 rounded = true
 alignment = 1

@@ -4,6 +4,7 @@
 
 [node name="AddOnlineDialog" type="AcceptDialog"]
 oversampling_override = 1.0
+position = Vector2i(0, 36)
 size = Vector2i(500, 500)
 visible = true
 script = ExtResource("1_m5cld")
@@ -24,7 +25,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="URLInput" type="LineEdit" parent="VBox"]
 layout_mode = 2
-text = "Example: https://www.svgrepo.com/show/514352/calendar.svg"
+text = "Example: https://www.svgrepo.com/show/530077/watermelon-1.svg"
 placeholder_text = "Enter the URL here (try to use simple svgs)"
 
 [node name="NameInput" type="LineEdit" parent="VBox"]

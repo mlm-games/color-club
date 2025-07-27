@@ -71,46 +71,71 @@ func _prepare_nodes_for_game() -> void:
 	
 	var all_polygons = A.find_nodes_by_type(svg_root, ["Polygon2D"])
 	var hidden_shapes: Array[Node] = []
-
-	## Check every polygon against every other polygon drawn on top of it
-	#for i in range(all_polygons.size()):
-		#var shape_to_check : Polygon2D = all_polygons[i]
-		#if not shape_to_check.visible or shape_to_check.polygon.size() < 3:
-			#continue
-#
-		## Now check against all polygons that are drawn ON TOP of this one
-		## (We assume the node order from find_nodes_by_type reflects draw order)
-		#for j in range(i + 1, all_polygons.size()):
-			#var occluder_shape = all_polygons[j]
-			#if not occluder_shape.visible or occluder_shape.polygon.size() < 3:
-				#continue
-#
-			## Convert the center point to the occluder's local space
-			#var point_in_occluder_space = occluder_shape.to_local(shape_to_check.position)
-			#
-			#if Geometry2D.is_point_in_polygon(point_in_occluder_space, occluder_shape.polygon):
-				## The center of our shape is inside an overlapping, later-drawn polygon. Mark it as hidden.
-				#hidden_shapes.append(shape_to_check)
-				## We found an occluder, no need to check others for this shape
-				#break
-	#
-	#GameManager.log_info("Found and ignored %d hidden shapes." % hidden_shapes.size(), "SVGImage")
-	#
+	var invalid_shapes: Array[Node] = []
+	
+	# Minimum area threshold (adjust as needed)
+	var min_area_threshold = SettingsManager.get_setting("gameplay", "min_shape_area_in_px", 50.0)
+	var min_dimension_threshold = SettingsManager.get_setting("gameplay", "min_shape_dimension_in_px", 5.0)
+	
+	# First, filter out invalid shapes
+	for shape in all_polygons:
+		if not shape.visible or shape.polygon.size() < 3:
+			continue
+			
+		# Check if shape is too thin or small
+		if _is_shape_too_thin(shape, min_area_threshold, min_dimension_threshold):
+			invalid_shapes.append(shape)
+			shape.modulate.a = 0.3 # Make it semi-transparent to indicate it's not colorable
+			continue
+	
+	# Then check for hidden shapes
+	if SettingsManager.get_setting("gameplay", "ignore_background_parts_hack"):
+		for i in range(all_polygons.size()):
+			var shape_to_check: Polygon2D = all_polygons[i]
+			if not shape_to_check.visible or shape_to_check.polygon.size() < 3 or shape_to_check in invalid_shapes:
+				continue
+	
+			for j in range(i + 1, all_polygons.size()):
+				var occluder_shape = all_polygons[j]
+				if not occluder_shape.visible or occluder_shape.polygon.size() < 3 or occluder_shape in invalid_shapes:
+					continue
+	
+				var point_in_occluder_space = occluder_shape.to_local(shape_to_check.global_position)
+				
+				if Geometry2D.is_point_in_polygon(point_in_occluder_space, occluder_shape.polygon):
+					hidden_shapes.append(shape_to_check)
+					break
+		
+		GameManager.log_info("Found and ignored %d hidden shapes." % hidden_shapes.size(), "SVGImage")
+	
+	GameManager.log_info("Found and ignored %d invalid/thin shapes." % invalid_shapes.size(), "SVGImage")
+	
+	# Process all shapes
 	var shapes = A.find_nodes_by_type(svg_root, ["Polygon2D", "Line2D"])
 	
 	for shape in shapes:
+		# Skip hidden or invalid shapes
 		if shape in hidden_shapes:
 			shape.visible = false
 			continue
+		
+		if shape in invalid_shapes:
+			continue
+			
+		# Skip strokes if not coloring them
 		if shape is Line2D and not SettingsManager.get_setting("gameplay", "color_strokes"):
 			if SettingsManager.get_setting("gameplay", "auto_color_strokes"):
 				shape.default_color = SettingsManager.get_setting("gameplay", "stroke_color")
 			continue
-		# Attach the interactive component script
+			
+		# Additional validation for Line2D
+		if shape is Line2D and _is_line_too_thin(shape, min_dimension_threshold):
+			shape.modulate.a = 0.3
+			continue
+		
 		var colorable_script = ColorableShape.new()
 		shape.add_child(colorable_script)
 		
-		# Get the shape's original color from the importer
 		var original_color: Color
 		if shape is Polygon2D:
 			original_color = shape.color
@@ -119,12 +144,76 @@ func _prepare_nodes_for_game() -> void:
 	
 		colorable_script.set_original_color(original_color)
 			
-		# Register the shape in the color registry for the HUD palette
 		# Only add non-white, non-transparent colors that need to be colored in.
 		if original_color.a > 0.1 and original_color.get_luminance() < 0.99:
 			if not color_registry.has(original_color):
 				color_registry[original_color] = []
 			color_registry[original_color].append(colorable_script)
+
+func _is_shape_too_thin(shape: Polygon2D, min_area: float, min_dimension: float) -> bool:
+	var polygon = shape.polygon
+	if polygon.size() < 3:
+		return true
+	
+	# Calculate area using shoelace formula
+	var area = 0.0
+	for i in range(polygon.size()):
+		var j = (i + 1) % polygon.size()
+		area += polygon[i].x * polygon[j].y
+		area -= polygon[j].x * polygon[i].y
+	area = abs(area) / 2.0
+	
+	if area < min_area:
+		return true
+	
+	# Calculate bounding box
+	var min_point = polygon[0]
+	var max_point = polygon[0]
+	for point in polygon:
+		min_point.x = min(min_point.x, point.x)
+		min_point.y = min(min_point.y, point.y)
+		max_point.x = max(max_point.x, point.x)
+		max_point.y = max(max_point.y, point.y)
+	
+	var width = max_point.x - min_point.x
+	var height = max_point.y - min_point.y
+	
+	if width < min_dimension or height < min_dimension:
+		return true
+	
+	var aspect_ratio = max(width / height, height / width)
+	if aspect_ratio > 20.0: # Shape is 20x longer in one dimension
+		return true
+	
+	# Calculate the "thinness" of the shape
+	# by comparing area to perimeter squared
+	var perimeter = 0.0
+	for i in range(polygon.size()):
+		var j = (i + 1) % polygon.size()
+		perimeter += polygon[i].distance_to(polygon[j])
+	
+	# Isoperimetric quotient (circle = 1, thin shapes approach 0)
+	var thinness = (4.0 * PI * area) / (perimeter * perimeter)
+	if thinness < 0.01: # Very thin shape
+		return true
+	
+	return false
+
+func _is_line_too_thin(line: Line2D, min_width: float) -> bool:
+	if line.width < min_width:
+		return true
+	
+	if line.points.size() < 2:
+		return true
+		
+	var total_length = 0.0
+	for i in range(line.points.size() - 1):
+		total_length += line.points[i].distance_to(line.points[i + 1])
+	
+	if total_length < min_width * 2: # Line is too short relative to its width
+		return true
+	
+	return false
 
 func _finalize_svg_layout() -> void:
 	if not is_instance_valid(svg_root): return

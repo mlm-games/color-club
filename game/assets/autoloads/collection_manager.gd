@@ -63,7 +63,7 @@ func _update_user_collection() -> void:
 	
 	if updated:
 		ResourceSaver.save(user_collection, USER_COLLECTION_PATH)
-		print("Updated level user_collection" % user_collection.levels.size())
+		print("Updated level user_collection", user_collection.levels.size())
 
 func _scan_directory(path: String, extension: String) -> Array:
 	var files = []
