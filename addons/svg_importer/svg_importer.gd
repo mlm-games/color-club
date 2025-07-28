@@ -74,54 +74,95 @@ static func _get_attributes(parser: XMLParser) -> Dictionary:
 	return attr
 
 static func _create_element_node(tag: String, attributes: Dictionary, style: Dictionary) -> Node2D:
-	var points: PackedVector2Array
+	var path_string: String = ""
 	var is_closed := false
 	
 	match tag:
 		"rect":
+			var x = Utils.parse_dimension(attributes.get("x", "0"))
+			var y = Utils.parse_dimension(attributes.get("y", "0"))
+			var w = Utils.parse_dimension(attributes.get("width", "0"))
+			var h = Utils.parse_dimension(attributes.get("height", "0"))
 			var rx = Utils.parse_dimension(attributes.get("rx", "0"))
 			var ry = Utils.parse_dimension(attributes.get("ry", "0"))
 			
-			if rx > 0 or ry > 0:
-				var x = Utils.parse_dimension(attributes.get("x", "0"))
-				var y = Utils.parse_dimension(attributes.get("y", "0"))
-				var w = Utils.parse_dimension(attributes.get("width", "0"))
-				var h = Utils.parse_dimension(attributes.get("height", "0"))
-				
-				var path_string = Utils.rect_to_path_string(x, y, w, h, rx, ry)
-				var result = PathParser.parse(path_string)
-				points = result.points
-				is_closed = result.is_closed
-			else:
-				points = Utils.rect_to_points(attributes)
-				is_closed = true
+			# If only one radius is specified, use it for both
+			if rx > 0 and ry == 0:
+				ry = rx
+			elif ry > 0 and rx == 0:
+				rx = ry
+			
+			path_string = Utils.rect_to_path_string(x, y, w, h, rx, ry)
+			is_closed = true
+			
 		"circle":
-			points = Utils.circle_to_points(attributes)
+			var cx = Utils.parse_dimension(attributes.get("cx", "0"))
+			var cy = Utils.parse_dimension(attributes.get("cy", "0"))
+			var r = Utils.parse_dimension(attributes.get("r", "0"))
+			
+			path_string = Utils.circle_to_path_string(cx, cy, r)
 			is_closed = true
+			
 		"ellipse":
-			points = Utils.ellipse_to_points(attributes)
+			var cx = Utils.parse_dimension(attributes.get("cx", "0"))
+			var cy = Utils.parse_dimension(attributes.get("cy", "0"))
+			var rx = Utils.parse_dimension(attributes.get("rx", "0"))
+			var ry = Utils.parse_dimension(attributes.get("ry", "0"))
+			
+			path_string = Utils.ellipse_to_path_string(cx, cy, rx, ry)
 			is_closed = true
+			
 		"polygon":
-			points = Utils.points_string_to_array(attributes.get("points", ""))
+			var points_str = attributes.get("points", "")
+			path_string = Utils.polygon_to_path_string(points_str)
 			is_closed = true
+			
 		"polyline":
-			points = Utils.points_string_to_array(attributes.get("points", ""))
+			var points_str = attributes.get("points", "")
+			path_string = Utils.polyline_to_path_string(points_str)
+			is_closed = false
+			
 		"line":
-			points = Utils.line_to_points(attributes)
+			var x1 = Utils.parse_dimension(attributes.get("x1", "0"))
+			var y1 = Utils.parse_dimension(attributes.get("y1", "0"))
+			var x2 = Utils.parse_dimension(attributes.get("x2", "0"))
+			var y2 = Utils.parse_dimension(attributes.get("y2", "0"))
+			
+			path_string = Utils.line_to_path_string(x1, y1, x2, y2)
+			is_closed = false
+			
 		"path":
-			var path_data = attributes.get("d", "")
-			if path_data.is_empty(): return null
-			var result = PathParser.parse(path_data)
-			points = result.points
+			path_string = attributes.get("d", "")
+			if path_string.is_empty():
+				return null
+			# Let the path parser determine if it's closed
+			var result = PathParser.parse(path_string)
+			var points = result.points
 			is_closed = result.is_closed
+			
+			if points.is_empty():
+				return null
+			
+			return _create_node_from_points(points, is_closed, attributes, style)
+			
 		_:
 			return null
 
-	if points.is_empty():
-		return null
+	# Parse the path string for all non-path elements
+	if not path_string.is_empty():
+		var result = PathParser.parse(path_string)
+		var points = result.points
+		
+		if points.is_empty():
+			return null
+			
+		return _create_node_from_points(points, is_closed, attributes, style)
 	
+	return null
+
+static func _create_node_from_points(points: PackedVector2Array, is_closed: bool, attributes: Dictionary, style: Dictionary) -> Node2D:
 	var node = Node2D.new()
-	node.name = attributes.get("id", tag.capitalize())
+	node.name = attributes.get("id", "Shape")
 	
 	var opacity = Utils.get_style_property(style, "opacity")
 	if opacity < 1.0:
@@ -134,26 +175,27 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 	var fill_opacity = Utils.get_style_property(style, "fill-opacity")
 	fill_color.a *= fill_opacity
 
-	# Create Fill Node (Polygon2D)
-	if fill_color.a > 0.01:
+	if fill_color.a > 0.01 and is_closed:
 		var fill_node = Polygon2D.new()
 		fill_node.name = "Fill"
 		fill_node.polygon = points
 		fill_node.color = fill_color
 		node.add_child(fill_node)
 
-	# Apply stroke-opacity
 	var stroke_opacity = Utils.get_style_property(style, "stroke-opacity")
 	stroke_color.a *= stroke_opacity
 
-	# Create Stroke Node (Line2D)
-	if stroke_color.a > 0.01 and stroke_width > 0:
-		var stroke_node = Line2D.new()
+	if stroke_color.a > 0.01 and stroke_width > 0.01:
+		var stroke_node := Line2D.new()
 		stroke_node.name = "Stroke"
 		stroke_node.points = points
 		stroke_node.closed = is_closed
 		stroke_node.default_color = stroke_color
-		stroke_node.width = stroke_width
+		stroke_node.width = max(stroke_width, 1.0)  # Ensure minimum visible width
+		
+		stroke_node.joint_mode = Line2D.LINE_JOINT_ROUND
+		stroke_node.end_cap_mode = Line2D.LINE_CAP_ROUND
+		
 		node.add_child(stroke_node)
 	
 	node.transform = Utils.parse_transform(attributes.get("transform", ""))
