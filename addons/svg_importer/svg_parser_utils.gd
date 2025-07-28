@@ -29,9 +29,9 @@ static func _parse_rgb_color(rgb_string: String) -> Color:
 		return Color.BLACK
 	
 	# Parse RGB values (handle both 0-255 and percentage)
-	var r = _parse_rgb_value(values[0].strip_edges())
-	var g = _parse_rgb_value(values[1].strip_edges())
-	var b = _parse_rgb_value(values[2].strip_edges())
+	var r = _parse_color_value(values[0].strip_edges())
+	var g = _parse_color_value(values[1].strip_edges())
+	var b = _parse_color_value(values[2].strip_edges())
 	var a = 1.0
 	
 	# Parse alpha if present
@@ -44,7 +44,7 @@ static func _parse_rgb_color(rgb_string: String) -> Color:
 	
 	return Color(r, g, b, a)
 
-static func _parse_rgb_value(value: String) -> float:
+static func _parse_color_value(value: String) -> float:
 	if value.ends_with("%"):
 		return float(value.trim_suffix("%")) / 100.0
 	else:
@@ -99,7 +99,7 @@ static func parse_transform(transform_str: String) -> Transform2D:
 	func_regex.compile("(\\w+)\\s*\\(([^)]*)\\)")
 	var num_regex = RegEx.new()
 	num_regex.compile("(-?\\d*\\.?\\d+)")
-	transform_str.reverse()
+	
 	for match in func_regex.search_all(transform_str):
 		var type = match.get_string(1).to_lower()
 		var params_str = match.get_string(2)
@@ -114,7 +114,8 @@ static func parse_transform(transform_str: String) -> Transform2D:
 			"translate":
 				t = Transform2D(0.0, Vector2(params[0], params[1] if params.size() > 1 else 0.0))
 			"scale":
-				t = Transform2D.IDENTITY.scaled(Vector2(params[0], params[1] if params.size() > 1 else params[0]))
+				var scale_y = params[1] if params.size() > 1 else params[0]
+				t = Transform2D.IDENTITY.scaled(Vector2(params[0], scale_y))
 			"rotate":
 				var angle_rad = deg_to_rad(params[0] if not params.is_empty() else 0.0)
 				if params.size() >= 3:
@@ -124,7 +125,19 @@ static func parse_transform(transform_str: String) -> Transform2D:
 					t = Transform2D(angle_rad, Vector2.ZERO)
 			"matrix":
 				if params.size() >= 6:
-					t = Transform2D(Vector2(params[0], params[1]), Vector2(params[2], params[3]), Vector2(params[4], params[5]))
+					t = Transform2D(
+						Vector2(params[0], params[1]),
+						Vector2(params[2], params[3]),
+						Vector2(params[4], params[5])
+					)
+			"skewx":
+				if params.size() >= 1:
+					var angle = deg_to_rad(params[0])
+					t = Transform2D(Vector2(1, 0), Vector2(tan(angle), 1), Vector2.ZERO)
+			"skewy":
+				if params.size() >= 1:
+					var angle = deg_to_rad(params[0])
+					t = Transform2D(Vector2(1, tan(angle)), Vector2(0, 1), Vector2.ZERO)
 
 		final_transform = final_transform * t
 	return final_transform
