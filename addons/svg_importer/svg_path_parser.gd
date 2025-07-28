@@ -1,4 +1,4 @@
-## Robust SVG Path 'd' attribute parser.
+## SVG Path 'd' attribute parser.
 class_name SVGImporterPathParser
 extends RefCounted
 
@@ -8,152 +8,146 @@ class PathParseResult:
 	var points: PackedVector2Array = []
 	var is_closed: bool = false
 
-class PathState:
-	var subpaths: Array[PackedVector2Array] = []
-	var current_subpath: PackedVector2Array = []
-	var current_pos := Vector2.ZERO
-	var subpath_start := Vector2.ZERO
-	var last_control_point := Vector2.ZERO
-	var last_command := ""
-
 static func parse(path_data: String) -> PathParseResult:
-	var state = PathState.new()
+	var result = PathParseResult.new()
+	var current_pos := Vector2.ZERO
+	var start_pos := Vector2.ZERO
+	var last_control := Vector2.ZERO
+	var last_cmd := ""
+	
 	var tokens = _tokenize(path_data)
 	var i = 0
 	
-	var result = PathParseResult.new()
-	
 	while i < tokens.size():
-		var command = tokens[i]
+		var cmd = tokens[i]
 		
-		if command.is_valid_float():
-			command = _get_implicit_command(state.last_command)
+		# Handle implicit commands
+		if cmd.is_valid_float():
+			cmd = _get_implicit_command(last_cmd)
 		else:
 			i += 1
 		
-		var is_relative = command == command.to_lower()
-		var cmd_upper = command.to_upper()
-		state.last_command = command
+		var is_relative = cmd == cmd.to_lower()
+		var cmd_upper = cmd.to_upper()
+		last_cmd = cmd
 		
-		var consumed = _execute_command(cmd_upper, is_relative, tokens, i, state)
-		if consumed == 0 and not cmd_upper in ["Z"]:
-			printerr("SVG Path Parser: Parsing stopped due to invalid command sequence for '", command, "'")
-			break
-		i += consumed
-
-	if not state.current_subpath.is_empty():
-		state.subpaths.push_back(state.current_subpath)
-
-	# Combine all subpaths into a single polyline for drawing, but keep structure for fill/close logic
-	for subpath in state.subpaths:
-		result.points.append_array(subpath)
-	
-	# A path is considered closed if its last command was Z
-	if state.last_command.to_upper() == "Z":
-		result.is_closed = true
-
-	return result
-
-static func _execute_command(cmd: String, is_rel: bool, tokens: Array, index: int, state: PathState) -> int:
-	var params_per_cmd = {"M":2, "L":2, "H":1, "V":1, "C":6, "S":4, "Q":4, "T":2, "A":7, "Z":0}
-	if not cmd in params_per_cmd: return 0
-	
-	var count = params_per_cmd[cmd]
-	var consumed = 0
-
-	while index + count <= tokens.size() or (count == 0 and cmd == "Z"):
-		var params: Array[float] = []
-		for j in range(count):
-			if not tokens[index + j].is_valid_float(): return consumed
-			params.append(float(tokens[index + j]))
-
-		match cmd:
+		match cmd_upper:
 			"M":
-				if not state.current_subpath.is_empty():
-					state.subpaths.push_back(state.current_subpath)
-				state.current_subpath = PackedVector2Array()
+				if i + 2 > tokens.size(): break
+				var x = float(tokens[i])
+				var y = float(tokens[i + 1])
+				current_pos = Vector2(x, y) if not is_relative else current_pos + Vector2(x, y)
+				start_pos = current_pos
+				result.points.append(current_pos)
+				i += 2
 				
-				state.current_pos = _get_point(params, 0, is_rel, state.current_pos if consumed > 0 else Vector2.ZERO)
-				state.current_subpath.append(state.current_pos)
-				state.subpath_start = state.current_pos
-				state.last_command = "l" if is_rel else "L" # Implicit LineTo
 			"L":
-				state.current_pos = _get_point(params, 0, is_rel, state.current_pos)
-				state.current_subpath.append(state.current_pos)
+				if i + 2 > tokens.size(): break
+				var x = float(tokens[i])
+				var y = float(tokens[i + 1])
+				current_pos = Vector2(x, y) if not is_relative else current_pos + Vector2(x, y)
+				result.points.append(current_pos)
+				i += 2
+				
 			"H":
-				state.current_pos.x = params[0] + (state.current_pos.x if is_rel else 0)
-				state.current_subpath.append(state.current_pos)
+				if i + 1 > tokens.size(): break
+				var x = float(tokens[i])
+				current_pos.x = x if not is_relative else current_pos.x + x
+				result.points.append(current_pos)
+				i += 1
+				
 			"V":
-				state.current_pos.y = params[0] + (state.current_pos.y if is_rel else 0)
-				state.current_subpath.append(state.current_pos)
+				if i + 1 > tokens.size(): break
+				var y = float(tokens[i])
+				current_pos.y = y if not is_relative else current_pos.y + y
+				result.points.append(current_pos)
+				i += 1
+				
 			"C":
-				var p1 = _get_point(params, 0, is_rel, state.current_pos)
-				var p2 = _get_point(params, 2, is_rel, state.current_pos)
-				var p3 = _get_point(params, 4, is_rel, state.current_pos)
-				_tessellate_cubic_bezier(state.current_subpath, state.current_pos, p1, p2, p3)
-				state.last_control_point = p2
-				state.current_pos = p3
+				if i + 6 > tokens.size(): break
+				var cp1 = Vector2(float(tokens[i]), float(tokens[i + 1]))
+				var cp2 = Vector2(float(tokens[i + 2]), float(tokens[i + 3]))
+				var end = Vector2(float(tokens[i + 4]), float(tokens[i + 5]))
+				
+				if is_relative:
+					cp1 += current_pos
+					cp2 += current_pos
+					end += current_pos
+				
+				_add_cubic_bezier(result.points, current_pos, cp1, cp2, end)
+				last_control = cp2
+				current_pos = end
+				i += 6
+				
 			"S":
-				var p1 = state.current_pos * 2.0 - state.last_control_point if state.last_command.to_upper() in ["C", "S"] else state.current_pos
-				var p2 = _get_point(params, 0, is_rel, state.current_pos)
-				var p3 = _get_point(params, 2, is_rel, state.current_pos)
-				_tessellate_cubic_bezier(state.current_subpath, state.current_pos, p1, p2, p3)
-				state.last_control_point = p2
-				state.current_pos = p3
+				if i + 4 > tokens.size(): break
+				var cp1 = current_pos * 2.0 - last_control
+				var cp2 = Vector2(float(tokens[i]), float(tokens[i + 1]))
+				var end = Vector2(float(tokens[i + 2]), float(tokens[i + 3]))
+				
+				if is_relative:
+					cp2 += current_pos
+					end += current_pos
+				
+				_add_cubic_bezier(result.points, current_pos, cp1, cp2, end)
+				last_control = cp2
+				current_pos = end
+				i += 4
+				
 			"Q":
-				var p1 = _get_point(params, 0, is_rel, state.current_pos)
-				var p2 = _get_point(params, 2, is_rel, state.current_pos)
-				_tessellate_quadratic_bezier(state.current_subpath, state.current_pos, p1, p2)
-				state.last_control_point = p1
-				state.current_pos = p2
+				if i + 4 > tokens.size(): break
+				var cp = Vector2(float(tokens[i]), float(tokens[i + 1]))
+				var end = Vector2(float(tokens[i + 2]), float(tokens[i + 3]))
+				
+				if is_relative:
+					cp += current_pos
+					end += current_pos
+				
+				_add_quadratic_bezier(result.points, current_pos, cp, end)
+				last_control = cp
+				current_pos = end
+				i += 4
+				
 			"T":
-				var p1 = state.current_pos * 2.0 - state.last_control_point if state.last_command.to_upper() in ["Q", "T"] else state.current_pos
-				var p2 = _get_point(params, 0, is_rel, state.current_pos)
-				_tessellate_quadratic_bezier(state.current_subpath, state.current_pos, p1, p2)
-				state.last_control_point = p1
-				state.current_pos = p2
+				if i + 2 > tokens.size(): break
+				var cp = current_pos * 2.0 - last_control
+				var end = Vector2(float(tokens[i]), float(tokens[i + 1]))
+				
+				if is_relative:
+					end += current_pos
+				
+				_add_quadratic_bezier(result.points, current_pos, cp, end)
+				last_control = cp
+				current_pos = end
+				i += 2
+				
 			"A":
-				var p_end = _get_point(params, 5, is_rel, state.current_pos)
+				if i + 7 > tokens.size(): break
+				var rx = float(tokens[i])
+				var ry = float(tokens[i + 1])
+				var rot = float(tokens[i + 2])
+				var large_arc = int(tokens[i + 3]) > 0
+				var sweep = int(tokens[i + 4]) > 0
+				var end = Vector2(float(tokens[i + 5]), float(tokens[i + 6]))
+				
+				if is_relative:
+					end += current_pos
+				
 				var arc_points = Utils.tessellate_elliptical_arc(
-					state.current_pos, params[0], params[1], params[2],
-					params[3] > 0.5, params[4] > 0.5, p_end
-				)
-				if arc_points.size() > 1:
-					state.current_subpath.append_array(arc_points.slice(1))
-				state.current_pos = p_end
+					current_pos, rx, ry, rot, large_arc, sweep, end)
+				result.points.append_array(arc_points)
+				current_pos = end
+				i += 7
+				
 			"Z":
-				if not state.current_subpath.is_empty():
-					state.current_subpath.append(state.subpath_start)
-					state.current_pos = state.subpath_start
-				return 0 # Z consumes no params
-		
-		consumed += count
-		index += count
-		
-		if not cmd in ["M", "L", "C", "S", "Q", "T", "H", "V"]: break
-			
-	return consumed
-
-static func _tessellate_cubic_bezier(points: PackedVector2Array, p0, p1, p2, p3):
-	var curve = Curve2D.new()
-	curve.add_point(p0, Vector2.ZERO, p1 - p0)
-	curve.add_point(p3, p2 - p3, Vector2.ZERO)
-	points.append_array(curve.tessellate())
-
-static func _tessellate_quadratic_bezier(points: PackedVector2Array, p0, p1, p2):
-	var cp1 = p0 + (p1 - p0) * (2.0 / 3.0)
-	var cp2 = p2 + (p1 - p2) * (2.0 / 3.0)
-	_tessellate_cubic_bezier(points, p0, cp1, cp2, p2)
-
-static func _get_point(params: Array, offset: int, is_rel: bool, current: Vector2) -> Vector2:
-	var p = Vector2(params[offset], params[offset+1])
-	return current + p if is_rel else p
-
-static func _get_implicit_command(last_cmd: String) -> String:
-	if last_cmd.is_empty(): return "L" # Should not happen, but safe fallback
-	if last_cmd.to_upper() == "M":
-		return "l" if last_cmd.to_lower() == last_cmd else "L"
-	return last_cmd
+				result.points.append(start_pos)
+				current_pos = start_pos
+				result.is_closed = true
+				
+			_:
+				break
+	
+	return result
 
 static func _tokenize(data: String) -> Array[String]:
 	var regex = RegEx.new()
@@ -163,3 +157,24 @@ static func _tokenize(data: String) -> Array[String]:
 	for res in results:
 		tokens.append(res.get_string())
 	return tokens
+
+static func _get_implicit_command(last_cmd: String) -> String:
+	if last_cmd.is_empty(): 
+		return "L"
+	if last_cmd.to_upper() == "M":
+		return "l" if last_cmd == "m" else "L"
+	return last_cmd
+
+static func _add_cubic_bezier(points: PackedVector2Array, p0: Vector2, p1: Vector2, 
+		p2: Vector2, p3: Vector2) -> void:
+	var curve = Curve2D.new()
+	curve.add_point(p0, Vector2.ZERO, p1 - p0)
+	curve.add_point(p3, p2 - p3, Vector2.ZERO)
+	points.append_array(curve.tessellate())
+
+static func _add_quadratic_bezier(points: PackedVector2Array, p0: Vector2, p1: Vector2, 
+		p2: Vector2) -> void:
+	# Convert quadratic to cubic bezier
+	var cp1 = p0 + (p1 - p0) * (2.0 / 3.0)
+	var cp2 = p2 + (p1 - p2) * (2.0 / 3.0)
+	_add_cubic_bezier(points, p0, cp1, cp2, p2)

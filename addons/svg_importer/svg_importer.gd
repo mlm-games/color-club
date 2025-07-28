@@ -1,13 +1,11 @@
 #@tool
-# Main entry point for converting an SVG file into a Godot Node2D scene. To use as autoload (can be used an an editorscript by adding the _ready fn with the img)
-#class_name SVGImporter
+# Main entry point for converting an SVG file into a Godot Node2D scene.
 extends Node
 
 const PathParser = preload("svg_path_parser.gd")
 const Utils = preload("svg_parser_utils.gd")
 
 # Public API
-# Takes an SVG file path and returns a root Node2D containing the converted scene.
 func import_as_nodes(file_path: String) -> Node2D:
 	var parser := XMLParser.new()
 	if parser.open(file_path) != OK:
@@ -16,7 +14,7 @@ func import_as_nodes(file_path: String) -> Node2D:
 	
 	var svg_root: Node2D = null
 	var node_stack: Array[Node2D] = []
-	var style_stack: Array[Dictionary] = [{}] # For inherited styles
+	var style_stack: Array[Dictionary] = [ {}]
 
 	while parser.read() != ERR_FILE_EOF:
 		match parser.get_node_type():
@@ -24,13 +22,12 @@ func import_as_nodes(file_path: String) -> Node2D:
 				var tag = parser.get_node_name()
 				var attributes = _get_attributes(parser)
 				
-				# Inherit style from parent and merge with current element's style
 				var inherited_style = style_stack.back().duplicate(true)
 				var element_style = Utils.extract_styles_from_attributes(attributes)
 				inherited_style.merge(element_style, true)
 				
 				if tag == "svg":
-					if svg_root == null: # Only process the root SVG tag
+					if svg_root == null:
 						svg_root = Node2D.new()
 						svg_root.name = file_path.get_file().get_basename()
 						node_stack.push_back(svg_root)
@@ -86,7 +83,6 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 			var rx = Utils.parse_dimension(attributes.get("rx", "0"))
 			var ry = Utils.parse_dimension(attributes.get("ry", "0"))
 			
-			# If only one radius is specified, use it for both
 			if rx > 0 and ry == 0:
 				ry = rx
 			elif ry > 0 and rx == 0:
@@ -99,7 +95,6 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 			var cx = Utils.parse_dimension(attributes.get("cx", "0"))
 			var cy = Utils.parse_dimension(attributes.get("cy", "0"))
 			var r = Utils.parse_dimension(attributes.get("r", "0"))
-			
 			path_string = Utils.circle_to_path_string(cx, cy, r)
 			is_closed = true
 			
@@ -108,18 +103,15 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 			var cy = Utils.parse_dimension(attributes.get("cy", "0"))
 			var rx = Utils.parse_dimension(attributes.get("rx", "0"))
 			var ry = Utils.parse_dimension(attributes.get("ry", "0"))
-			
 			path_string = Utils.ellipse_to_path_string(cx, cy, rx, ry)
 			is_closed = true
 			
 		"polygon":
-			var points_str = attributes.get("points", "")
-			path_string = Utils.polygon_to_path_string(points_str)
+			path_string = Utils.polygon_to_path_string(attributes.get("points", ""))
 			is_closed = true
 			
 		"polyline":
-			var points_str = attributes.get("points", "")
-			path_string = Utils.polyline_to_path_string(points_str)
+			path_string = Utils.polyline_to_path_string(attributes.get("points", ""))
 			is_closed = false
 			
 		"line":
@@ -127,7 +119,6 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 			var y1 = Utils.parse_dimension(attributes.get("y1", "0"))
 			var x2 = Utils.parse_dimension(attributes.get("x2", "0"))
 			var y2 = Utils.parse_dimension(attributes.get("y2", "0"))
-			
 			path_string = Utils.line_to_path_string(x1, y1, x2, y2)
 			is_closed = false
 			
@@ -135,32 +126,23 @@ static func _create_element_node(tag: String, attributes: Dictionary, style: Dic
 			path_string = attributes.get("d", "")
 			if path_string.is_empty():
 				return null
-			# Let the path parser determine if it's closed
 			var result = PathParser.parse(path_string)
-			var points = result.points
-			is_closed = result.is_closed
-			
-			if points.is_empty():
-				return null
-			
-			return _create_node_from_points(points, is_closed, attributes, style)
+			return _create_node_from_points(result.points, result.is_closed, attributes, style)
 			
 		_:
 			return null
 
-	# Parse the path string for all non-path elements
 	if not path_string.is_empty():
 		var result = PathParser.parse(path_string)
-		var points = result.points
-		
-		if points.is_empty():
-			return null
-			
-		return _create_node_from_points(points, is_closed, attributes, style)
+		return _create_node_from_points(result.points, is_closed, attributes, style)
 	
 	return null
 
-static func _create_node_from_points(points: PackedVector2Array, is_closed: bool, attributes: Dictionary, style: Dictionary) -> Node2D:
+static func _create_node_from_points(points: PackedVector2Array, is_closed: bool,
+		attributes: Dictionary, style: Dictionary) -> Node2D:
+	if points.is_empty():
+		return null
+		
 	var node = Node2D.new()
 	node.name = attributes.get("id", "Shape")
 	
@@ -186,15 +168,16 @@ static func _create_node_from_points(points: PackedVector2Array, is_closed: bool
 	stroke_color.a *= stroke_opacity
 
 	if stroke_color.a > 0.01 and stroke_width > 0.01:
-		var stroke_node := Line2D.new()
+		var stroke_node = Line2D.new()
 		stroke_node.name = "Stroke"
 		stroke_node.points = points
 		stroke_node.closed = is_closed
 		stroke_node.default_color = stroke_color
-		stroke_node.width = max(stroke_width, 1.0)  # Ensure minimum visible width
+		stroke_node.width = max(stroke_width, 1.0) # Ensure minimum visible width
 		
 		stroke_node.joint_mode = Line2D.LINE_JOINT_ROUND
 		stroke_node.end_cap_mode = Line2D.LINE_CAP_ROUND
+		stroke_node.begin_cap_mode = Line2D.LINE_CAP_ROUND
 		
 		node.add_child(stroke_node)
 	
