@@ -4,6 +4,7 @@ static var I : GlobalAudioExports
 
 func _init() -> void:
 	I = self
+	max_polyphony = 100 
 
 enum Sound {
 	Win,

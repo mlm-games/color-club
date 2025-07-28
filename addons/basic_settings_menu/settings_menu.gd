@@ -21,7 +21,7 @@ const INT_CONTAINER = preload("res://addons/basic_settings_menu/templates/int_co
 const TYPE_TO_TEMPLATE_MAP: Dictionary = {
 	TYPE_BOOL: BOOL_CONTAINER,
 	TYPE_INT: INT_CONTAINER,
-	TYPE_FLOAT: SLIDER_CONTAINER,
+	TYPE_FLOAT: INT_CONTAINER, # HACK: Ints get converted to floats when changed, which causes max fps to be in float
 }
 
 @onready var _tabs: Dictionary = {
