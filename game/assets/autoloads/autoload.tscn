@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bsss38x5ucg0k"]
+[gd_scene load_steps=8 format=3 uid="uid://bsss38x5ucg0k"]
 
 [ext_resource type="Script" uid="uid://6lclffe7cwf" path="res://game/assets/autoloads/autoload.gd" id="1_qbned"]
 [ext_resource type="Script" uid="uid://0kpbv12lmvj2" path="res://game/assets/test/global_exports.gd" id="2_ponrt"]
@@ -6,7 +6,6 @@
 [ext_resource type="AudioStream" uid="uid://bdfhdsml8gtfo" path="res://game/assets/sfx/click-small-win.wav" id="4_lcxnl"]
 [ext_resource type="AudioStream" uid="uid://b6aqsh8netdje" path="res://game/assets/sfx/hover.wav" id="5_uqh3o"]
 [ext_resource type="Script" uid="uid://qywokpomwigp" path="res://game/game_manager.gd" id="6_vdrgh"]
-[ext_resource type="Script" uid="uid://cdr2fqndrn8k8" path="res://game/settings_manager.gd" id="7_qrh22"]
 [ext_resource type="Script" uid="uid://c761sr41fct2h" path="res://game/assets/autoloads/collection_manager.gd" id="8_3jcbd"]
 
 [node name="Autoload" type="Node"]
@@ -24,10 +23,6 @@ metadata/_custom_type_script = "uid://0kpbv12lmvj2"
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("6_vdrgh")
 metadata/_custom_type_script = "uid://qywokpomwigp"
-
-[node name="SettingsManager" type="Node" parent="."]
-script = ExtResource("7_qrh22")
-metadata/_custom_type_script = "uid://cdr2fqndrn8k8"
 
 [node name="CollectionManager" type="Node" parent="."]
 script = ExtResource("8_3jcbd")

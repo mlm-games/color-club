@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://bnxj7rhwgcg67"]
+[gd_scene load_steps=7 format=3 uid="uid://bnxj7rhwgcg67"]
 
 [ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://game/main.gd" id="1_ig7tw"]
 [ext_resource type="Shader" uid="uid://7nwccalo1ysn" path="res://game/assets/shaders/animated.gdshader" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://ci7gwrmywq748" path="res://game/assets/settings_panel.gd" id="3_emt18"]
 [ext_resource type="Script" uid="uid://cmo5qw3rubish" path="res://addons/my-ecosystem-template/buttons/anim_button.gd" id="3_vop5m"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_h2yge"]
@@ -150,48 +149,6 @@ columns = 5
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.8
-
-[node name="SettingsPanel" type="PanelContainer" parent="MarginContainer"]
-visible = false
-self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(200, 100)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-script = ExtResource("3_emt18")
-metadata/_custom_type_script = "uid://ci7gwrmywq748"
-
-[node name="VBox" type="VBoxContainer" parent="MarginContainer/SettingsPanel"]
-layout_mode = 2
-
-[node name="StrokeColoringCheck" type="CheckBox" parent="MarginContainer/SettingsPanel/VBox"]
-layout_mode = 2
-text = "Stroke color Check"
-
-[node name="AutoColorCheck" type="CheckBox" parent="MarginContainer/SettingsPanel/VBox"]
-layout_mode = 2
-text = "Auto color Strokes"
-
-[node name="StrokeColorPicker" type="ColorPickerButton" parent="MarginContainer/SettingsPanel/VBox"]
-visible = false
-layout_mode = 2
-
-[node name="AutoColorStrokesButton" type="CheckButton" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -545.0
-offset_top = -53.0
-offset_right = -324.0
-offset_bottom = -6.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "Auto color strokes"
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsContainer/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsContainer/CreditsButton" to="." method="_on_credits_button_pressed"]

@@ -1,5 +1,5 @@
 class_name HUD
-extends Control
+extends CanvasLayer
 
 static var I: HUD
 
@@ -100,7 +100,7 @@ func _animate_hud_entrance() -> void:
 	
 	# Animate color palette sliding in from bottom
 	var original_y = color_palette_panel.position.y
-	color_palette_panel.position.y = get_viewport_rect().size.y + 100
+	color_palette_panel.position.y = $HUD.get_viewport_rect().size.y + 100
 	progress_tween.tween_property(color_palette_panel, "position:y", original_y, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
 	

@@ -17,9 +17,6 @@ signal colored(shape_script: Node, old_color: Color, new_color: Color)
 
 func _ready() -> void:
 	var parent : CanvasItem = get_parent()
-	if not parent is CanvasItem:
-		push_error("ColorableShape must be a child of a CanvasItem.")
-		return
 		
 	# Enable input processing for this node
 	set_process_unhandled_input(true)

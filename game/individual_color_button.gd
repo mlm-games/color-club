@@ -50,7 +50,6 @@ func _draw() -> void:
 	var border_width = 4.0 if is_selected else 2.0
 	draw_arc(center, radius, 0, TAU, 64, border_color, border_width)
 	
-	# If selected, draw animated ring
 	if is_selected:
 		var ring_color = Color("#FFE66D")
 		ring_color.a = 0.6
@@ -75,6 +74,6 @@ func set_selected(selected: bool) -> void:
 	if selected:
 		# Pulse animation when selected
 		var pulse_tween = create_tween()
-		pulse_tween.set_loops(2)
+		pulse_tween.set_loops(1) # 2 is too much?
 		pulse_tween.tween_property(self, "scale", Vector2(1.2, 1.2), 0.15)
 		pulse_tween.tween_property(self, "scale", Vector2.ONE, 0.15)
