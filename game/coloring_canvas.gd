@@ -107,6 +107,8 @@ func _input(event: InputEvent) -> void:
 		if is_panning:
 			camera.position -= event.relative / camera.zoom
 	
+	if event is InputEventMagnifyGesture:
+		_handle_zoom_at_point(event.factor, get_global_mouse_position())
 
 	# Zooming with Mouse Wheel (to mouse position)
 	if event is InputEventMouseButton:
