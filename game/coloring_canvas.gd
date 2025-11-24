@@ -101,7 +101,6 @@ func _input(event: InputEvent) -> void:
 			else:
 				is_panning = false
 	
-	
 	if event is InputEventMouseMotion:
 		#print(event)
 		if is_panning:
