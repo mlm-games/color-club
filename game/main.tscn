@@ -1,35 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://bnxj7rhwgcg67"]
+[gd_scene load_steps=3 format=3 uid="uid://bnxj7rhwgcg67"]
 
-[ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://game/main.gd" id="1_ig7tw"]
-[ext_resource type="Shader" uid="uid://7nwccalo1ysn" path="res://game/assets/shaders/animated.gdshader" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://cmo5qw3rubish" path="res://addons/my-ecosystem-template/buttons/anim_button.gd" id="3_vop5m"]
+[ext_resource type="Script" uid="uid://iucd1sfk2lb6" path="res://game/main.gd" id="1_main"]
+[ext_resource type="Shader" uid="uid://7nwccalo1ysn" path="res://game/assets/shaders/animated.gdshader" id="2_background"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_h2yge"]
-shader = ExtResource("2_0xm2m")
-shader_parameter/color1 = Color(0.101961, 0.101961, 0.180392, 0.121569)
-shader_parameter/color2 = Color(0.0862745, 0.129412, 0.243137, 0.0705882)
-shader_parameter/accent_color = Color(0.31, 0.804, 0.769, 0.3)
-shader_parameter/wave_speed = 0.5
-shader_parameter/wave_amplitude = 0.1
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0xm2m"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-bg_color = Color(0.101961, 0.101961, 0.101961, 0.458824)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-corner_detail = 5
-
-[sub_resource type="Theme" id="Theme_7dm0k"]
-MarginContainer/constants/margin_bottom = 20
-MarginContainer/constants/margin_left = 20
-MarginContainer/constants/margin_right = 20
-MarginContainer/constants/margin_top = 20
-PanelContainer/styles/panel = SubResource("StyleBoxFlat_0xm2m")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_background"]
+shader = ExtResource("2_background")
+shader_parameter/color1 = Color(0.976, 0.965, 1, 1)
+shader_parameter/color2 = Color(0.925, 0.972, 0.961, 1)
+shader_parameter/accent_color = Color(1, 0.62, 0.72, 0.11)
+shader_parameter/wave_speed = 0.24
+shader_parameter/wave_amplitude = 0.035
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -38,117 +18,148 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_ig7tw")
-metadata/_edit_use_anchors_ = true
+script = ExtResource("1_main")
 
-[node name="Background" type="TextureRect" parent="."]
-material = SubResource("ShaderMaterial_h2yge")
+[node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_background")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = SubResource("Theme_7dm0k")
-metadata/_edit_use_anchors_ = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="TitleLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
 mouse_filter = 2
-bbcode_enabled = true
-text = "[b][i][font_size=64][color=#2c2c2c]Color Club: Coloring Game"
-fit_content = true
-horizontal_alignment = 1
+color = Color(1, 1, 1, 1)
 
-[node name="ButtonsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-alignment = 1
-
-[node name="PlayButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+[node name="SafeMargin" type="MarginContainer" parent="."]
 unique_name_in_owner = true
-modulate = Color(0.180005, 0.180005, 0.180005, 1)
-layout_mode = 2
-text = "Play"
-flat = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
 
-[node name="CreditsButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
-modulate = Color(0.180005, 0.180005, 0.180005, 1)
+[node name="Page" type="VBoxContainer" parent="SafeMargin"]
 layout_mode = 2
-text = "Credits"
-flat = true
-script = ExtResource("3_vop5m")
-metadata/_custom_type_script = "uid://cmo5qw3rubish"
+theme_override_constants/separation = 22
 
-[node name="AddOnlineButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+[node name="Header" type="HBoxContainer" parent="SafeMargin/Page"]
 unique_name_in_owner = true
-modulate = Color(0.19076231, 0.19076234, 0.19076231, 1)
 layout_mode = 2
-theme_type_variation = &"PlayButton"
-text = "Try an online svg (experimental)"
-flat = true
-script = ExtResource("3_vop5m")
-metadata/_custom_type_script = "uid://cmo5qw3rubish"
+theme_override_constants/separation = 16
 
-[node name="QuitButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
-unique_name_in_owner = true
-modulate = Color(0.19076231, 0.19076234, 0.19076231, 1)
+[node name="Brand" type="VBoxContainer" parent="SafeMargin/Page/Header"]
 layout_mode = 2
-theme_type_variation = &"PlayButton"
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="TitleLabel" type="Label" parent="SafeMargin/Page/Header/Brand"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color Club"
+
+[node name="SubtitleLabel" type="Label" parent="SafeMargin/Page/Header/Brand"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick a picture, choose a color, and unwind."
+
+[node name="HeaderActions" type="HBoxContainer" parent="SafeMargin/Page/Header"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="SurpriseButton" type="Button" parent="SafeMargin/Page/Header/HeaderActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Surprise me"
+
+[node name="ImportButton" type="Button" parent="SafeMargin/Page/Header/HeaderActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Import SVG"
+
+[node name="CreditsButton" type="Button" parent="SafeMargin/Page/Header/HeaderActions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "About"
+
+[node name="QuitButton" type="Button" parent="SafeMargin/Page/Header/HeaderActions"]
+unique_name_in_owner = true
+layout_mode = 2
 text = "Quit"
-flat = true
-script = ExtResource("3_vop5m")
-metadata/_custom_type_script = "uid://cmo5qw3rubish"
 
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+[node name="LibraryHeader" type="HBoxContainer" parent="SafeMargin/Page"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionText" type="VBoxContainer" parent="SafeMargin/Page/LibraryHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.8
+theme_override_constants/separation = 0
 
-[node name="LevelSelectContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+[node name="LibraryTitle" type="Label" parent="SafeMargin/Page/LibraryHeader/SectionText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Choose a picture"
+
+[node name="LibraryCount" type="Label" parent="SafeMargin/Page/LibraryHeader/SectionText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Loading pictures…"
+
+[node name="SearchInput" type="LineEdit" parent="SafeMargin/Page/LibraryHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 48)
+layout_mode = 2
+size_flags_vertical = 4
+placeholder_text = "Search pictures"
+clear_button_enabled = true
+
+[node name="GalleryPanel" type="PanelContainer" parent="SafeMargin/Page"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer"]
+[node name="GalleryMargin" type="MarginContainer" parent="SafeMargin/Page/GalleryPanel"]
 layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[node name="Container" type="ScrollContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer/MarginContainer"]
+[node name="GalleryLayout" type="VBoxContainer" parent="SafeMargin/Page/GalleryPanel/GalleryMargin"]
 layout_mode = 2
+theme_override_constants/separation = 14
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer/MarginContainer/Container"]
+[node name="EmptyState" type="Label" parent="SafeMargin/Page/GalleryPanel/GalleryMargin/GalleryLayout"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
+text = "No pictures match that search."
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/LevelSelectContainer/MarginContainer/Container/HBoxContainer4"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.8
-
-[node name="PicContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/LevelSelectContainer/MarginContainer/Container/HBoxContainer4"]
+[node name="LevelScroll" type="ScrollContainer" parent="SafeMargin/Page/GalleryPanel/GalleryMargin/GalleryLayout"]
 unique_name_in_owner = true
 layout_mode = 2
-columns = 5
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="Control2" type="Control" parent="MarginContainer/VBoxContainer/LevelSelectContainer/MarginContainer/Container/HBoxContainer4"]
+[node name="GridWrap" type="CenterContainer" parent="SafeMargin/Page/GalleryPanel/GalleryMargin/GalleryLayout/LevelScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.8
 
-[connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsContainer/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsContainer/CreditsButton" to="." method="_on_credits_button_pressed"]
+[node name="PicContainer" type="GridContainer" parent="SafeMargin/Page/GalleryPanel/GalleryMargin/GalleryLayout/LevelScroll/GridWrap"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16

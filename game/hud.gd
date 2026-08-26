@@ -190,7 +190,9 @@ func _on_color_button_pressed(color: Color, button: Button) -> void:
 	
 	GameManager.I.selected_color = color
 	
-	button.particle_component.emit_selection_particles(color)
+	var particles := button.get_node_or_null("ParticleComponent")
+	if particles and particles.has_method("emit_selection_particles"):
+		particles.emit_selection_particles(color)
 	
 	# Visual feedback
 	var feedback_tween = create_tween()

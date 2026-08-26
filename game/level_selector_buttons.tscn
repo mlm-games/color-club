@@ -1,21 +1,67 @@
-[gd_scene load_steps=3 format=3 uid="uid://df6stj0kgo1jl"]
+[gd_scene load_steps=2 format=3 uid="uid://df6stj0kgo1jl"]
 
-[ext_resource type="Texture2D" uid="uid://dojnp54fgwmat" path="res://game/assets/art/icon.svg" id="1_ngl2x"]
-[ext_resource type="Script" uid="uid://c600jw7hyvtm" path="res://game/level_selector_buttons.gd" id="2_ndrx5"]
+[ext_resource type="Script" uid="uid://c600jw7hyvtm" path="res://game/level_selector_buttons.gd" id="1_script"]
 
 [node name="LevelSelectorButton" type="Button"]
-modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(200, 200)
-anchors_preset = -1
-anchor_left = 0.33724
-anchor_top = 0.215278
-anchor_right = 0.66276
-anchor_bottom = 0.784722
+custom_minimum_size = Vector2(214, 252)
+focus_mode = 2
+flat = true
+script = ExtResource("1_script")
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 6
-size_flags_vertical = 6
-icon = ExtResource("1_ngl2x")
-expand_icon = true
-script = ExtResource("2_ndrx5")
-metadata/_edit_use_anchors_ = true
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Layout" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="PreviewPanel" type="PanelContainer" parent="Content/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 154)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="PreviewMargin" type="MarginContainer" parent="Content/Layout/PreviewPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Preview" type="TextureRect" parent="Content/Layout/PreviewPanel/PreviewMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="Content/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+mouse_filter = 2
+text = "Picture"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="SourceLabel" type="Label" parent="Content/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+mouse_filter = 2
+text = "Included"
+horizontal_alignment = 1
