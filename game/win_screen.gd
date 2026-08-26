@@ -8,40 +8,48 @@ extends Control
 var confetti_particles: Array = []
 
 func _ready() -> void:
-	%GameOverLabel.pivot_offset = size/2
-	
+	# Hide animated elements instantly so they don't flash on frame one.
+	game_over_label.modulate.a = 0.0
+	game_over_label.scale = Vector2(0.5, 0.5)
+	for button in [continue_button, menu_button]:
+		button.modulate.a = 0.0
+
 	# Animate the win screen entrance
 	modulate.a = 0.0
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 1.0, 0.5)
-	
+
 	# Add celebration effects
 	_create_confetti()
-	_animate_ui_elements()
 	_show_stats()
 	GlobalAudioExports.I.play_ui_sound(GlobalAudioExports.Sound.Win)
 
+	# Deferred so container layouts are final before reading sizes/positions.
+	call_deferred("_animate_ui_elements")
+
 func _animate_ui_elements() -> void:
+	# Scale effects must pivot on centers, not the default top-left origin.
+	pivot_offset = size / 2.0
+	game_over_label.pivot_offset = game_over_label.size / 2.0
+
 	# Animate label with bounce
-	game_over_label.scale = Vector2(0.5, 0.5)
-	game_over_label.modulate.a = 0.0
-	
 	var label_tween = create_tween()
 	label_tween.parallel().tween_property(game_over_label, "scale", Vector2(1.2, 1.2), 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	label_tween.parallel().tween_property(game_over_label, "modulate:a", 1.0, 0.3)
 	label_tween.tween_property(game_over_label, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BOUNCE)
-	
-	# Animate buttons sliding in
+
+	# Animate buttons sliding in from the left of their final position
 	var button_delay = 0.6
 	for button in [continue_button, menu_button]:
-		button.position.x = -200
+		var target_x = button.position.x
+		button.position.x = target_x - 200
 		button.modulate.a = 0.0
-		
+
 		var button_tween = create_tween()
 		button_tween.tween_interval(button_delay)
-		button_tween.parallel().tween_property(button, "position:x", 456, 0.5).set_trans(Tween.TRANS_BACK)
+		button_tween.parallel().tween_property(button, "position:x", target_x, 0.5).set_trans(Tween.TRANS_BACK)
 		button_tween.parallel().tween_property(button, "modulate:a", 1.0, 0.3)
-		
+
 		button_delay += 0.2
 
 func _show_stats() -> void:

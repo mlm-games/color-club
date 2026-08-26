@@ -34,54 +34,39 @@ func _on_game_completed() -> void:
 	_play_completion_animation()
 
 func _play_completion_animation() -> void:
-	#TODO: Can't rotate or scale from center instead of top left for node2ds, control nodes is not an option -> transform doesn't work properly...
-	var root_node = svg_image #.get_svg_root()
-	svg_image.pivot_offset = svg_image.size/2
+	var root_node := svg_image.get_svg_root()
 	if not is_instance_valid(root_node):
 		HUD.I._show_win_screen()
 		return
-	
+
 	set_process_unhandled_input(false)
-	
+
+	var art_center := _get_art_center(root_node)
+
 	var main_tween = create_tween()
 	main_tween.set_parallel(false)
-	
-	main_tween.tween_property(root_node, "scale", root_node.scale * 1.1, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-	main_tween.tween_property(root_node, "scale", root_node.scale, 0.2).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	
-	var colorable_shapes = A.find_nodes_with_script(root_node, ColorableShape.new().get_script().resource_path)#"uid://dnfuu7hosi1en")
-	
-	main_tween.tween_callback(_create_wiggle_animations.bind(colorable_shapes))
-	
-	main_tween.tween_interval(2.0)
-	
-	main_tween.tween_property(root_node, "rotation", root_node.rotation + deg_to_rad(360), 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN_OUT)
-	
+
+	Node2DPivot.tween_around(
+		main_tween,
+		root_node,
+		art_center,
+		Vector2.ONE,
+		deg_to_rad(360.0),
+		0.8,
+		Tween.TRANS_BACK,
+		Tween.EASE_IN_OUT
+	)
+
 	main_tween.tween_callback(HUD.I.show_win_screen)
 
-func _create_wiggle_animations(shapes: Array) -> void:
-	for i in range(shapes.size()):
-		var shape_script = shapes[i]
-		var shape_parent = shape_script.get_parent()
-		if not is_instance_valid(shape_parent):
-			continue
-		
-		var wiggle_tween = create_tween()
-		wiggle_tween.set_loops(2)
-		
-		var delay = i * 0.05
-		wiggle_tween.tween_interval(delay)
-		
-		var original_rotation = shape_parent.rotation
-		
-		wiggle_tween.tween_property(shape_parent, "rotation", original_rotation + deg_to_rad(5), 0.1).set_trans(Tween.TRANS_SINE)
-		wiggle_tween.tween_property(shape_parent, "rotation", original_rotation - deg_to_rad(5), 0.2).set_trans(Tween.TRANS_SINE)
-		wiggle_tween.tween_property(shape_parent, "rotation", original_rotation, 0.1).set_trans(Tween.TRANS_SINE)
-		
-		var scale_tween = create_tween()
-		scale_tween.tween_interval(delay)
-		scale_tween.tween_property(shape_parent, "scale", shape_parent.scale * 1.05, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		scale_tween.tween_property(shape_parent, "scale", shape_parent.scale, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+
+func _get_art_center(svg_root_node: Node2D) -> Vector2:
+	var half_panel := svg_image.size * 0.5
+
+	if svg_root_node.scale == Vector2.ZERO:
+		return Vector2.ZERO
+
+	return (half_panel - svg_root_node.position) / svg_root_node.scale
 
 
 #region zoom logic
