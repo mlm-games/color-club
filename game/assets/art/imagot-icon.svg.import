@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://betxs4bo85yov"
-path="res://.godot/imported/imagot-icon.svg-525b7b2524ba99acc8065ace593f2eae.svgtex"
+path="res://.godot/imported/imagot-icon.svg-525b7b2524ba99acc8065ace593f2eae.dpitex"
 
 [deps]
 
 source_file="res://game/assets/art/imagot-icon.svg"
-dest_files=["res://.godot/imported/imagot-icon.svg-525b7b2524ba99acc8065ace593f2eae.svgtex"]
+dest_files=["res://.godot/imported/imagot-icon.svg-525b7b2524ba99acc8065ace593f2eae.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://c2txjsbqpivte"
-path="res://.godot/imported/suprised.svg-e29bec7726125d927303eb52e8d54a94.svgtex"
+path="res://.godot/imported/suprised.svg-e29bec7726125d927303eb52e8d54a94.dpitex"
 
 [deps]
 
 source_file="res://game/assets/art/suprised.svg"
-dest_files=["res://.godot/imported/suprised.svg-e29bec7726125d927303eb52e8d54a94.svgtex"]
+dest_files=["res://.godot/imported/suprised.svg-e29bec7726125d927303eb52e8d54a94.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

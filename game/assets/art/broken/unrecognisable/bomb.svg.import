@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://kuqjiupdlu1c"
-path="res://.godot/imported/bomb.svg-ce0cb8d98c4b750f27985576f5b345e0.svgtex"
+path="res://.godot/imported/bomb.svg-ce0cb8d98c4b750f27985576f5b345e0.dpitex"
 
 [deps]
 
 source_file="res://game/assets/art/broken/unrecognisable/bomb.svg"
-dest_files=["res://.godot/imported/bomb.svg-ce0cb8d98c4b750f27985576f5b345e0.svgtex"]
+dest_files=["res://.godot/imported/bomb.svg-ce0cb8d98c4b750f27985576f5b345e0.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

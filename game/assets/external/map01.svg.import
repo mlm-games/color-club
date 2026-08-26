@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://dyqonj01b2pxv"
-path="res://.godot/imported/map01.svg-82f69ef5031a0ad4588a6a5ffa2199fe.svgtex"
+path="res://.godot/imported/map01.svg-82f69ef5031a0ad4588a6a5ffa2199fe.dpitex"
 
 [deps]
 
 source_file="res://game/assets/external/map01.svg"
-dest_files=["res://.godot/imported/map01.svg-82f69ef5031a0ad4588a6a5ffa2199fe.svgtex"]
+dest_files=["res://.godot/imported/map01.svg-82f69ef5031a0ad4588a6a5ffa2199fe.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

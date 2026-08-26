@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://cp5a8c887b1rf"
-path="res://.godot/imported/pic1.svg-8292b5e84cf750012748f3ee34efed9f.svgtex"
+path="res://.godot/imported/pic1.svg-8292b5e84cf750012748f3ee34efed9f.dpitex"
 
 [deps]
 
 source_file="res://game/assets/art/broken/unrecognisable/pic1.svg"
-dest_files=["res://.godot/imported/pic1.svg-8292b5e84cf750012748f3ee34efed9f.svgtex"]
+dest_files=["res://.godot/imported/pic1.svg-8292b5e84cf750012748f3ee34efed9f.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

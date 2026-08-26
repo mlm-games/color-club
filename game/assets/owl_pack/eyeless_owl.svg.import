@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://cgtpkjj3mav8m"
-path="res://.godot/imported/eyeless_owl.svg-56f65c9a58430da573517d1a3bf7d028.svgtex"
+path="res://.godot/imported/eyeless_owl.svg-56f65c9a58430da573517d1a3bf7d028.dpitex"
 
 [deps]
 
 source_file="res://game/assets/owl_pack/eyeless_owl.svg"
-dest_files=["res://.godot/imported/eyeless_owl.svg-56f65c9a58430da573517d1a3bf7d028.svgtex"]
+dest_files=["res://.godot/imported/eyeless_owl.svg-56f65c9a58430da573517d1a3bf7d028.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://d3f48857tfpo1"
-path="res://.godot/imported/virus.svg-7589648f68abfe54e2afd0fcf9186728.svgtex"
+path="res://.godot/imported/virus.svg-7589648f68abfe54e2afd0fcf9186728.dpitex"
 
 [deps]
 
 source_file="res://game/assets/art/medical/virus.svg"
-dest_files=["res://.godot/imported/virus.svg-7589648f68abfe54e2afd0fcf9186728.svgtex"]
+dest_files=["res://.godot/imported/virus.svg-7589648f68abfe54e2afd0fcf9186728.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

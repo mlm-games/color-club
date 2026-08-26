@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelCollectionResource" load_steps=21 format=3]
+[gd_resource type="Resource" script_class="LevelCollectionResource" format=3]
 
 [ext_resource type="Script" path="res://game/resources/level_data.gd" id="1_qqssn"]
 [ext_resource type="Script" path="res://game/resources/level_collection_resource.gd" id="2_s5iu4"]
@@ -99,17 +99,23 @@ id = &"test1"
 name = "Test 1"
 svg_path = "res://game/assets/art/test1.svg"
 
+[sub_resource type="Resource" id="Resource_qqssn"]
+script = ExtResource("1_qqssn")
+id = &"virus"
+name = "Virus"
+svg_path = "res://game/assets/art/medical/virus.svg"
+
 [sub_resource type="Resource" id="Resource_thecf"]
 script = ExtResource("1_qqssn")
 id = &"void_liner"
 name = "Void Liner"
 svg_path = "res://game/assets/art/void_liner.svg"
 
-[sub_resource type="Resource" id="Resource_qqssn"]
+[sub_resource type="Resource" id="Resource_jpa7p"]
 script = ExtResource("1_qqssn")
-id = &"virus"
-name = "Virus"
-svg_path = "res://game/assets/art/medical/virus.svg"
+id = &"suprised"
+name = "Suprised"
+svg_path = "res://game/assets/art/suprised.svg"
 
 [resource]
 script = ExtResource("2_s5iu4")
@@ -129,6 +135,7 @@ levels = Dictionary[StringName, ExtResource("1_qqssn")]({
 &"pic3": SubResource("Resource_06y7x"),
 &"pino-face": SubResource("Resource_4fmic"),
 &"star": SubResource("Resource_481xw"),
+&"suprised": SubResource("Resource_jpa7p"),
 &"test1": SubResource("Resource_ah2mb"),
 &"virus": SubResource("Resource_qqssn"),
 &"void_liner": SubResource("Resource_thecf")

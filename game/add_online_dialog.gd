@@ -44,7 +44,7 @@ func _on_request_completed(_result: int, response_code: int, _headers: PackedStr
 		# Validate SVG
 		if loaded_svg_content.contains("<svg") and loaded_svg_content.contains("</svg>"):
 			# Show preview
-			var svg_texture = SVGTexture.new()
+			var svg_texture = DPITexture.new()
 			svg_texture.set_source(loaded_svg_content)
 			svg_texture.base_scale = 0.3
 			preview_rect.texture = svg_texture

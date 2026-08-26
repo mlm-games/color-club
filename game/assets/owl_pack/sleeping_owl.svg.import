@@ -1,18 +1,20 @@
 [remap]
 
 importer="svg"
-type="SVGTexture"
+type="DPITexture"
 uid="uid://bk8u4taew4gxj"
-path="res://.godot/imported/sleeping_owl.svg-a1eb1ada2c58dc8de5a760e21adc80f7.svgtex"
+path="res://.godot/imported/sleeping_owl.svg-a1eb1ada2c58dc8de5a760e21adc80f7.dpitex"
 
 [deps]
 
 source_file="res://game/assets/owl_pack/sleeping_owl.svg"
-dest_files=["res://.godot/imported/sleeping_owl.svg-a1eb1ada2c58dc8de5a760e21adc80f7.svgtex"]
+dest_files=["res://.godot/imported/sleeping_owl.svg-a1eb1ada2c58dc8de5a760e21adc80f7.dpitex"]
 
 [params]
 
 base_scale=1.0
 saturation=1.0
 color_map={}
+fix_alpha_border=false
+premult_alpha=false
 compress=true

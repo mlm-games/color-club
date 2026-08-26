@@ -90,9 +90,8 @@ func _apply_content() -> void:
 		)
 
 	tooltip_text = display_name
-	set("accessibility_name", display_name)
-	set(
-		"accessibility_description",
+	accessibility_name = display_name
+	accessibility_description = (
 		"Open the imported coloring picture."
 		if level_data.is_online
 		else

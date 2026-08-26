@@ -107,7 +107,7 @@ func create_level_button(level: LevelData) -> void:
 		var content: String = level.load_content()
 
 		if not content.is_empty():
-			var svg_texture := SVGTexture.new()
+			var svg_texture := DPITexture.new()
 			svg_texture.set_source(content)
 			svg_texture.base_scale = 0.5
 			preview_texture = svg_texture
